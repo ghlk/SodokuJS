@@ -4,25 +4,31 @@ body {
 
 #container {
 	width:700px;
+	1min-height:700px;
 	margin: 0 auto;
-	overflow:hidden;
+	1overflow:hidden;
 }
 
 #sodoku {
 	background:#aaa;
 	float:left;
-	width:480px;
-	margin: 0px auto;
+	1width:480px;
+	1height:480px;
+	margin: 20px auto;
 	padding:2px;
 	overflow:hidden;
 	cursor:default;
+	1overflow:hidden;
 }
 
 .big {
 	width:156px;
-	background:#555;
+	1height:156px;
+	background:#888;
 	float:left;
-	margin:2px;
+	margin:1px;
+	position:relative;
+	text-align:left;
 }
 
 .small {
@@ -35,6 +41,7 @@ body {
 	text-align:center;
 	font-size:30px;
 	cursor:pointer;
+	1overflow:hidden;
 }
 .tiny {
 	width:16px;

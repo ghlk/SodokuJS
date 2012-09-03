@@ -5,9 +5,6 @@
   	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<meta charset="utf-8">
 	<title>Sodocool fool</title>
-	<meta name="generator" content="TextMate http://macromates.com/">
-	<meta name="author" content="Gregory Kasbarian">
-	<!-- Date: 2011-04-12 -->
 	
 	<link rel="stylesheet" href="main.css" type="text/css" media="screen" title="no title" >
 	<script type="text/javascript" src="functions.js"></script>
@@ -15,10 +12,13 @@
 		//Create Sodoku problem.
 		var mySodoku = new Sodoku("mySodoku", 81);
 	
-		function getTarget(){
-			var e = event || window.event;
-			var t = e.target || e.srcElement;
-			return t;
+		function getTarget(e){
+			if(!e){ e = window.event || event; }
+    		if(e){
+        		field = e.srcElement || e.target;
+        		return field;
+    		}
+    		return false;
 		}
 		
 		
@@ -30,8 +30,8 @@
 			mySodoku.showPossibles();
 			
 			var sodo = document.getElementById('sodoku');
-			sodo.onclick = function show() {
-				var t = getTarget();
+			sodo.onclick = function show(e) {
+				var t = getTarget(e);
 				var x ;
 				if(t.className === 'small') {
 			        x = t.id.substr(6);

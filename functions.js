@@ -5,8 +5,8 @@
  */
 
 /**
- * Class Sodoku(name, size) 
- */
+  * Class Sodoku(name, size) 
+  **/
 function Sodoku (name, size) {
 	
 	if(!size)
@@ -71,7 +71,8 @@ Sodoku.prototype.newPuzzle = function (lines, divID) {
 	this.display(divID);
 }
 Sodoku.prototype.testPuzzle = function() {
-	this.gameBoard = this.testBoard.slice(0);
+	//this.gameBoard = this.testBoard.slice(0);
+	this.gameBoard = this.evilBoard.slice(0);
 	this.display();
 }
 Sodoku.prototype.createPuzzle = function () {
@@ -381,6 +382,7 @@ Sodoku.prototype.getHTMLSkelaton = function(){
 	return str;
 }
 Sodoku.prototype.getHTML = function(showPossibles, showSolution) {
+	
 	if( showPossibles != true) {
 		showPossibles = false;
 	}
@@ -394,11 +396,12 @@ Sodoku.prototype.getHTML = function(showPossibles, showSolution) {
 	
 	for(cell=0; cell<this.size; cell++){
 		
-		if(this.getSmall(cell) == 0){ 
-			str += '<div id="big-'+this.getBig(cell)+'" class="big">'; //#big - start
-		}
+		//# BIG START
+		//console.log( this.getSmall(cell) );
+		if(this.getSmall(cell) == 0){ str += '<div id="big-'+this.getBig(cell)+'" class="big">'; }
 		
-		str += '<div id="small-'+cell+'" class="small">'; //#small - start
+		//# SMALL START
+		str += '<div id="small-'+cell+'" class="small">';//'</div>'; //#small - start
 		
 		//Always show the gameBoard values. (gameBoard == 0 statement for this.showCells() method)
 		if( this.gameBoard[cell] !== '' || this.gameBoard[cell] === 0){
@@ -418,7 +421,7 @@ Sodoku.prototype.getHTML = function(showPossibles, showSolution) {
 				str += '<div class="tiny">'+possStr+'</div>';
 			}
 		}
-		str += '</div'; //#small - end
+		str += '</div>'; //#small - end
 		
 		if(this.getSmall(cell) == 8){
 			str += '</div>'; //#big -end
@@ -662,10 +665,11 @@ Sodoku.prototype.stepSolver = function () {
 	//ie: bwall = 4 - (5-4) = 3;
 	bwall = start - (end-start); 
 
+	//Update view
 	this.showSolution();
+	
 	//Don't let the end go past the end of the puzzle.
-	if( end > 80 )
-		{ end = 80; }
+	if( end > 80 ) { end = 80; }
 	
 	//If we're done.
 	if( start > 80){
@@ -703,26 +707,29 @@ Sodoku.prototype.stepSolver = function () {
  */
 Sodoku.prototype.solve = function(cell, direction, wall, bwall) {
 
+	//Increment 'move counter'
 	this.moves += 1;
 	
+	//Setting start if value not present
 	if(!cell && cell !== 0){
 		cell = 0;
 	}
+
 	//If goes out-of-bounds
 	if( cell < 0 || cell > 80 || cell > wall || ( cell <= bwall && !this.gameBoard[cell]) ){
 		this.showSolution();
 		document.getElementById('numofmoves').value = this.moves;
 		return cell;
 	}
+
 	var possVals;
 	var i;
 	
-	if(!direction){
-		direction = "pos";
-	}
+	//Default direction
+	if(!direction){ direction = "pos"; }
 
 	
-	//Unexposed Cell - Can Edit
+	//Unexposed Cell - Player can edit square
 	if(!this.gameBoard[cell]) {
 		
 		//Get numerical array of possible values.
@@ -774,7 +781,9 @@ Sodoku.prototype.solve = function(cell, direction, wall, bwall) {
 	}
 }
 
-/* UI-Controls */
+/***************
+ * UI-Controls *
+ ***************/
 Sodoku.prototype.showCells = function () {
 	var i;
 	for(i=0;i<81;i++){
