@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta charset="utf-8">
+	<title>Sodocool fool</title>
+	<meta name="generator" content="TextMate http://macromates.com/">
+	<meta name="author" content="Gregory Kasbarian">
+	<!-- Date: 2011-04-12 -->
+	
+	<link rel="stylesheet" href="main.css" type="text/css" media="screen" title="no title" >
+	<script type="text/javascript" src="functions.js"></script>
+	<script type="text/javascript" >
+		//Create Sodoku problem.
+		var mySodoku = new Sodoku("mySodoku", 81);
+	
+		function getTarget(){
+			var e = event || window.event;
+			var t = e.target || e.srcElement;
+			return t;
+		}
+		
+		
+		//***************************
+		window.onload = function() {
+
+			mySodoku.testPuzzle();
+			mySodoku.calcPossibles();
+			mySodoku.showPossibles();
+			
+			var sodo = document.getElementById('sodoku');
+			sodo.onclick = function show() {
+				var t = getTarget();
+				var x ;
+				if(t.className === 'small') {
+			        x = t.id.substr(6);
+					//I want to edit this block. 
+					//Place a textbox in there.
+					//alert(x);
+					var obj = document.getElementById(t.id);
+					var txt = '<input type="text" value="'+t.textContent+'" class="edit-txt"> '
+					obj.innerHTML = txt;
+			    }
+			}
+		}
+	</script>
+</head>
+<body>
+	<div id="container">
+		<div id="game">
+		</div>
+		<div id="controls">
+			<form>
+			<label for="general">General</label>
+			<fieldset id="general">
+				<input type="button" onClick="mySodoku.newPuzzle();" Value="Generate New">
+				<input type="button" onclick="mySodoku.clear();" value="Clear Board">
+				<input type="button" onclick="mySodoku.edit();" value="Edit Board">
+				<input type="button" onClick="mySodoku.testPuzzle();" Value="Test">
+				<!-- <input type="button" onClick="mySodoku.showCells();" Value="Cells"> -->
+			</fieldset>
+			<label for="displays">Show</label>
+			<fieldset id="displays">
+				<input type="button" onClick="mySodoku.showPossibles();" Value="Poss" >
+				<input type="button" onClick="mySodoku.showSolution();" Value="Solv" >
+				<input type="button" onClick="mySodoku.display();" Value="Game" >
+			</fieldset>
+			<label for="solving">Solving</label>
+			<fieldset>	
+				<input type="button" onClick="mySodoku.solve();" Value="Brute Force - can freeze">
+				<input type="button" onClick="mySodoku.smartSolver();" Value="Single Possible Move">	
+			</fieldset>
+			<label for="timers">Incremental Solving</label>
+			<fieldset>
+				<input type="button" onClick="mySodoku.startStepSolver();" Value="Dynamic Steps">
+				<input type="button" onClick="mySodoku.startSolver();" Value="Single-stepper">	
+				<br /> 
+				<input type="button" onClick="mySodoku.stopTimer();" Value="STOP Solvers">	
+			</fieldset>
+			
+			<label for="values">Values</label>
+			<fieldset id="values">
+				<label for="interval" class="small-label">Interval (1000 = 1sec):</label>
+				<input type="text" id="interval" value="100"><br />
+				<label for="stepValue" class="small-label">Step Size:</label>
+				<input type="text" id="stepValue" value="1">
+			</fieldset>
+			<label for="hud">H.U.D.</label>
+			<fieldset id="hud">
+				<label for="moves" class="small-label">Penciled Values</label>
+				<input type="text" id="numofmoves" disabled>
+				
+			</fieldset>
+			</form>
+		</div>
+	</div>	
+</body>
+</html>

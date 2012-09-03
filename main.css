@@ -1,0 +1,93 @@
+body {
+	background: #333;
+}
+
+#container {
+	width:700px;
+	margin: 0 auto;
+	overflow:hidden;
+}
+
+#sodoku {
+	background:#aaa;
+	float:left;
+	width:480px;
+	margin: 0px auto;
+	padding:2px;
+	overflow:hidden;
+	cursor:default;
+}
+
+.big {
+	width:156px;
+	background:#555;
+	float:left;
+	margin:2px;
+}
+
+.small {
+	width:50px;
+	height:48px;
+	margin:1px;
+	line-height: 50px;	
+	background:#fff;
+	float:left;
+	text-align:center;
+	font-size:30px;
+	cursor:pointer;
+}
+.tiny {
+	width:16px;
+	height:15px;
+	line-height:15px;
+	font-size:10px;	
+	float:left;	
+	text-align:center;
+	cursor:default;
+	
+}
+
+#big-3, #big-6, #small-3, #small-6 {
+	clear:both;
+}
+
+.valid-possible {
+	font-weight: bolder;
+}
+
+.invalid-possible{
+	display:none;
+}
+
+/* ** CONTROLS ** */
+
+#controls {
+	padding: 0 2px;
+	float:left;
+	width: 200px;
+	text-align:center;
+}
+
+.highlight {
+	background:#FFA07A;
+}
+
+label {
+	font-size:15px;
+	line-height:15px;
+	color:#aaa;
+	letter-spacing:1px;
+}
+.small-label {
+	font-size:12px;
+	line-height:12px;
+	letter-spacing:0px;
+}
+input[type="text"] {
+	width:30px;
+	text-align:right;
+}
+#values {
+	text-align:right;
+}
+#numofmoves {width:50px;}
