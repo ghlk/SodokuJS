@@ -4,26 +4,20 @@ body {
 
 #container {
 	width:700px;
-	1min-height:700px;
 	margin: 0 auto;
-	1overflow:hidden;
 }
 
 #sodoku {
 	background:#aaa;
 	float:left;
-	1width:480px;
-	1height:480px;
 	margin: 20px auto;
 	padding:2px;
 	overflow:hidden;
 	cursor:default;
-	1overflow:hidden;
 }
 
 .big {
 	width:156px;
-	1height:156px;
 	background:#888;
 	float:left;
 	margin:1px;
@@ -41,7 +35,6 @@ body {
 	text-align:center;
 	font-size:30px;
 	cursor:pointer;
-	1overflow:hidden;
 }
 .tiny {
 	width:16px;

@@ -2,33 +2,29 @@
  * :: ---------------- ::
  * :: ~ SODOKU CLASS ~ ::
  * :: ---------------- ::
- */
+ **/
 
 /**
-  * Class Sodoku(name, size) 
-  **/
-function Sodoku (name, size) {
+ * Class Sodoku(name, size) 
+ * Summary: 
+ **/
+function Sodoku (name = 'mySodoku', size=81) {
 	
-	if(!size)
-		{ size = 81; }
-	
-	if(!name){
-		name = "mySodoku"; //Debug value
-	}
+
 	var board = [ ], i;
 	for (i=0; i<size; i++){
 		board.push('');
 	}
 	
 	//Boards
-	this.gameBoard = board.slice(0);  //Exposed cells. (Puzzle to solve)
-	this.possBoard = board.slice(0);  //Possible values
-	this.solveBoard = board.slice(0); //Solving values
+	this.gameBoard  = board.slice(0); //Exposed cells. (Puzzle to solve)
+	this.possBoard  = board.slice(0); //Possible cell values.
+	this.solveBoard = board.slice(0); //Solving values.
 	this.emptyBoard = board.slice(0); //Used for resetting other boards.
 	
 	//Bookmarks
 	this.solveBookmark = 0; //Used to step through solving process. 
-	this.direction = 1; //represents "positive" direction
+	this.direction = 1; 	//'1' represents "positive" direction
 	this.solvePlace = 0;	
 	this.currentCell = null;
 		
@@ -43,6 +39,8 @@ function Sodoku (name, size) {
 	this.solverStr = this.name+".solver();"; 
 	this.stepStr   = this.name+".stepSolver();"; 
 	this.moves = 0; //To count how long it takes to solve the problem.	
+	
+	//Premade boards
 	this.testBoard = ['', 9, 2,'','', 1,'', 8,'','','','','','','', 1, 7,'','','', 7,'', 3,'', 4, 6, 2,'','','',
 	 				   3,'','', 9, 1,'','', 9, 6, 5,'', 1, 7, 4,'','', 4, 1,'','', 9,'','','', 1, 3, 6,'', 4,'',
 	 				   7,'','','', 5, 2,'','','','','','','', 8,'', 2,'','', 6, 9,''];
@@ -65,16 +63,18 @@ Sodoku.prototype.newPuzzle = function (lines, divID) {
 	this.direction = 1;
 	this.solvePlace = 0;	
 	this.currentCell = null;	
-	///---
+	//---
 
 	this.prepopulate(lines);
 	this.display(divID);
 }
+
 Sodoku.prototype.testPuzzle = function() {
 	//this.gameBoard = this.testBoard.slice(0);
 	this.gameBoard = this.evilBoard.slice(0);
 	this.display();
 }
+
 Sodoku.prototype.createPuzzle = function () {
 	
 	//Apply a pattern.
@@ -125,6 +125,7 @@ Sodoku.prototype.createPuzzle = function () {
 
 	}
 }
+
 
 /** === Get-Position Methods === 
  * All methods return a numeric value representing the value they are "getting".
@@ -206,7 +207,7 @@ Sodoku.prototype.prepopulate = function (lines) {
 	
 	for(x = 0; x < lines; x++){ //# of lines loop...
 		for(val = 1; val <= 9; val++){ //Populating loop...
-			do {
+			do{
 				cell = this.getRandomEmptyCell( );
 			}while ( !(this.check(cell, val)) );
 			this.gameBoard[cell] = val;
