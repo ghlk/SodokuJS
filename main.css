@@ -1,5 +1,5 @@
 body {
-	background: #333;
+	background: #5a615a;
 	text-align:center;
 	font-family:'Helvetica Neue', 'Helvetica', 'arial', sans-serif;
 	font-size:12px;
@@ -30,8 +30,8 @@ body {
 	background:#888;
 	float:left;
 	margin:2px;
-	position:relative;
 	text-align:left;
+	position:relative;
 }
 
 .small {
@@ -44,16 +44,22 @@ body {
 	text-align:center;
 	font-size:30px;
 	cursor:pointer;
+	1overflow:hidden;
+	position:relative;
 }
 .tiny {
 	width:16px;
 	height:15px;
+	width:1em;
+	height:1em;
 	line-height:15px;
 	font-size:10px;	
 	float:left;	
 	text-align:center;
 	cursor:default;
 	color:#aaa;
+	1background-color:#fff;
+	position:relative;
 }
 
 #big-3, #big-6, #small-3, #small-6 {
@@ -82,6 +88,11 @@ body {
 
 .highlight {
 	background:#FFA07A;
+}
+.lowlight{
+	1background-color: rgba(255,0,0,.2);
+	background-color: #faa;
+
 }
 fieldset{
 	float:left;
@@ -133,4 +144,18 @@ input[type="text"] {
 	padding:0;
 	box-shadow:0px 0px 10px #333;
 	position:relative;
+}
+
+.entered-value{
+	color:#f80;
+	position:relative;
+}
+
+.game-value{
+	color:#fff;
+	display:block;
+	1width:99%;
+	1height:99%;
+	background:#333;
+	1box-shadow:1px 1px 1px #000;
 }

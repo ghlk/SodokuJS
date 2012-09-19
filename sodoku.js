@@ -31,7 +31,7 @@ function Sodoku (name = 'mySodoku', size=81) {
 	/* Puzzle Settings */
 	this.size = size; //size of the sodoku puzzle
 	this.name = name; //Name of the Sodoku class created by the page (@params)
-	this.t_possibles = false; //Show possibles or not
+	this.t_possibles = true; //Show possibles or not
 
 	/* Helper Values */
 	this.timer;				// Timer used for solving the puzzle in intervals.
@@ -48,11 +48,18 @@ function Sodoku (name = 'mySodoku', size=81) {
 
 
 
-/* === New Puzzles === */
+/**
+ * -------------------------------------------
+ * Puzzle Creation
+ * -------------------------------------------
+**/
+
 
 /**
  * newPuzzle()
- * Summary: Resets the puzzle board and populates it with a new puzzle.
+ * Summary: Resets the puzzle board and other values, then populates it with a new puzzle, and displays the new game.
+ * Notes: This can result in non-solvable puzzles. Keep that in mind.
+ * 
  * @param 	int 	lines 	Number of "lines" or times to use the values 1-9 in the puzzle.
  * @param 	str 	divID 	The div ID to display the puzzle in.
  * @return 	void
@@ -78,7 +85,7 @@ Sodoku.prototype.newPuzzle = function (lines, divID) {
 	this.prepopulate(lines);
 
 	/** Display the HTML **/
-	this.display(divID);
+	this.refreshDisplay(divID);
 }
 
 
@@ -88,15 +95,13 @@ Sodoku.prototype.newPuzzle = function (lines, divID) {
  **/
 Sodoku.prototype.testPuzzle = function() {
 	this.gameBoard = this.testBoard.slice(0);
-	//this.gameBoard = this.evilBoard.slice(0);
-	this.display();
+	this.refreshDisplay();
 }
-
 
 
 /**
  * prepopulate()
- * Summary:
+ * Summary: Creates the puzzle by prepopulating an empty board with numbers in random cells.
  * @param 	int 	lines 	Number of times to inject the numbers 1-9 in the puzzle.
  * @return 	void
  **/
@@ -107,7 +112,7 @@ Sodoku.prototype.prepopulate = function (lines) {
 	for(x = 0; x < lines; x++){ //# of lines loop...
 		for(val = 1; val <= 9; val++){ //Populating loop...
 			do{
-				cell = this.getRandomEmptyCell( );
+				cell = this.getRandomEmptyCell();
 			}while ( !(this.check(cell, val)) );
 			this.gameBoard[cell] = val;
 		}
@@ -129,38 +134,40 @@ Sodoku.prototype.getRandomEmptyCell = function () {
 }
 
 
-/** 
+/**
+ * -------------------------------------------
  * Checking Methods
- * All methods returns T/F on whether (val) can be placed in (cell).
- * If (val) is not provided, the method will return an array of T/F that represent what values are possible moves. 
- * Example: If only "1" is valid, returns: [t, f, f, f, f, f, f, f, f];
- **/
+ * -------------------------------------------
+**/
+
 
 /**
  * check()
- * @param 	int 	cell
+ * Summary: Checks box, row, and column, and returns array for booleans for what are possible moves.
+ *	If 'val' is provided, will return boolen whether that value is a valid move for the cell in question.
+ *
+ * @param 	int 	cell 	Numeric value 
  * @param 	int 	val (optional)	Value you wish to see if you can place.
  * @return 	bool 	true
  * @return 	bool 	false
- * @return 	arr 	arr
+ * @return 	arr 	arr 	Array of boolean values representing what values are possible moves.
  **/
 Sodoku.prototype.check = function (cell, val) {
 
 	/** BOX CHECK **/
 	var box = this.checkBox(cell, val);
-	
+	console.log(box);
 	/** ROW CHECK **/
 	var row = this.checkRow(cell, val);
 	
 	/** COLUMN CHECK **/
 	var column = this.checkColumn(cell, val);
 	
-	//Val NOT passed. Returning a bool-array of all possible values as being true. (val1 -> arr[0])
+	/** If NO value passed, return array-of-booleans value-1 is placed in arr[0] **/
 	if(!val){
 		var arr = [ ];
-		var i;
-		for(i=0; i<9; i++){
-			if( !box[i] || !row[i] || !column[i]){
+		for(var i=0; i<9; i++){
+			if( !box[i] || !row[i] || !column[i] ){
 				arr[i] = false;
 			}
 			else{
@@ -169,45 +176,66 @@ Sodoku.prototype.check = function (cell, val) {
 		}
 		return arr;
 	}
-	//Val passed. Returning whether you can place that value.
+	/** Value passed - Return whether it passes all 3 checks **/
 	if( box && row && column ){
 		return true;
-	}
-	else
-	{
+	}else{
 		return false;
 	}
 }
 
+
+/**
+ * checkBox()
+ * Summary: Checks to see what values are possible moves when regarding the encompassing box.
+ *	If val is provided, we return whether or not that value is a valid move.
+ *
+ * @param 	int 	cell	
+ * @param 	int 	val
+ * @return 	bool 	true
+ * @return 	bool 	false
+ * @return 	arr 	arr 	Array of booleans representing what values are possible moves.
+ **/
 Sodoku.prototype.checkBox = function (cell, val){
 	
+	//arr represents what values are valid moves
 	var arr = [ true, true, true, true, true, true, true, true, true ];
+
+	//Iterate through the entire box, starting with it's starting square.
 	var start = this.getBoxStart(cell);
-	var x;
-	for(x=start; x < (start+9); x++){
+	for(var x=start; x < (start+9); x++){
 			
 		//If no value passed - return an Array of possible values for cell provided.
 		if(!val){
 			if( this.gameBoard[x] ){
 				arr[ ( this.gameBoard[x]-1 ) ] = false;
-			}
-			else if( this.solveBoard[x]  ){
+			}else if( this.solveBoard[x]  ){
 				arr[ ( this.solveBoard[x]-1) ] = false;
 			}
-		}
-		else{
-			if( this.gameBoard[x] === val){
+		}else{
+			if( this.gameBoard[x] === val || this.solveBoard[x] === val ){
 				return false;
 			}
 		}
 	}
 	if(!val){
 		return arr;
-	}
-	else{
+	}else{
 		return true;
 	}
 }
+
+
+/**
+ * checkRow()
+ * Summary: Checks to see what are possible moves for a specific cell and k
+ *
+ * @param 	int 	cell 
+ * @param 	int 	val
+ * @return 	bool 	true
+ * @return 	bool 	false
+ * @return 	arr 	arr
+ **/
 Sodoku.prototype.checkRow = function (cell, val){
 	
 	var i, x, boolArr, cells;
@@ -271,7 +299,20 @@ Sodoku.prototype.checkColumn = function (cell, val){
 	}
 }
 
-/* Displaying */
+
+
+/**
+ * -------------------------------------------
+ * Displaying & HTML
+ * -------------------------------------------
+**/
+
+
+/**
+ * getHTMLSkelaton()
+ * Summary: Returns the HTML skelaton for the sodoku game.
+ * @return 	str 	str 
+ **/
 Sodoku.prototype.getHTMLSkelaton = function(){
 	var str;
 	var i;
@@ -296,19 +337,19 @@ Sodoku.prototype.getHTMLSkelaton = function(){
 	}
 	str += '</div>'; //#sodoku -end
 	return str;
-}
+};
+
+
+/**
+ * getHTML()
+ **/
 Sodoku.prototype.getHTML = function(showPossibles, showSolution) {
 
-	if( showPossibles !== true) {
-		showPossibles = false;
-	}
-	if( showSolution !== true) {
-		showSolution = false;
-	}
-
-	if( showPossibles === true ){
-		this.calcPossibles();
-	}
+	if( showPossibles !== true) { showPossibles = false; }
+	if( showSolution !== true) { showSolution = false; }
+	
+	if( showPossibles === true ){ this.calcPossibles(); }
+	
 	var str = '';
 	var cell, k, possStr;
 	
@@ -317,18 +358,17 @@ Sodoku.prototype.getHTML = function(showPossibles, showSolution) {
 	for(cell=0; cell<this.size; cell++){
 		
 		//# BIG START
-		//console.log( this.getSmall(cell) );
 		if(this.getSmall(cell) == 0){ str += '<div id="big-'+this.getBig(cell)+'" class="big">'; }
 		
 		//# SMALL START
-		str += '<div id="small-'+cell+'" class="small">';//'</div>'; //#small - start
+		str += '<div id="small-'+cell+'" class="small">';//#small - start
 		
 		//Always show the gameBoard values. (gameBoard == 0 statement for this.showCells() method)
 		if( this.gameBoard[cell] !== '' || this.gameBoard[cell] === 0){
-			str += this.gameBoard[cell];
+			str += '<span class="game-value">'+this.gameBoard[cell]+'</span>';
 		}
 	 	else if( this.solveBoard[cell] && showSolution ){
-			str += '<span style="color:red">'+this.solveBoard[cell]+'</span>';
+			str += '<span class="entered-value">'+this.solveBoard[cell]+'</span>';
 		}
 		else if( showPossibles && this.possBoard[cell] ){
 			for(k=0; k<9; k++){
@@ -349,8 +389,13 @@ Sodoku.prototype.getHTML = function(showPossibles, showSolution) {
 	}
 	str += '</div'; //#sodoku - end
 	return str;
-}
+};
 
+/**
+ * togglePossibles()
+ * Summary: Toggles whether to show possible moves in the puzzle or not.
+ * @param 	bool 	override 
+ **/
 Sodoku.prototype.togglePossibles = function(override=null){
 	console.log('toggle'+this.t_possibles);
 	if(override === true || override === false){
@@ -362,10 +407,17 @@ Sodoku.prototype.togglePossibles = function(override=null){
 };
 
 
+/**
+ * display()
+ * Summary:
+ *
+ * @param 	str 	divID
+ * @return 	void
+ **/
 Sodoku.prototype.display = function (divID) {
 	if(!divID){ divID = 'game'; }
 	document.getElementById(divID).innerHTML = mySodoku.getHTML(false, false);	
-}
+};
 
 Sodoku.prototype.refreshDisplay = function(divID){
 	if(!divID){divID='game';}
@@ -734,7 +786,7 @@ Sodoku.prototype.solve = function(cell, direction, wall, bwall) {
  * 	returns 0 - (size-1)
  * CELLS:
  *	returns arr( 0 - size )
- **/
+**/
 
 /**
  * getBig()
@@ -786,7 +838,7 @@ Sodoku.prototype.getColumnStart = function (cell){
 	return ( this.getBig(cell) % 3) * 9 + ( this.getSmallColumn(cell) );
 }
 
-/**/
+/* */
 Sodoku.prototype.getRowCells = function (cell) {
 	var start = this.getRowStart(cell);
 	var arr = [ ];
@@ -865,6 +917,23 @@ Sodoku.prototype.unHighlightCell = function (cell){
 	document.getElementById(cellStr).className = document.getElementById(cellStr).className.replace(/\bhighlight\b/,'');
 }
 
+Sodoku.prototype.highlightCells = function(cell){
+	//boxArr = this.getBoxCells(cell);
+	rowArr = this.getRowCells(cell);
+	colArr = this.getColumnCells(cell);
+	for (var i = colArr.length - 1; i >= 0; i--) {
+		//document.getElementById('small-'+cell));
+		cellStr = 'small-'+colArr[i];
+		document.getElementById(cellStr).className += " lowlight";
+	};
+	// for (var i = rowArr.length - 1; i >= 0; i--) {
+	// 	//document.getElementById('small-'+cell));
+	// 	cellStr = 'small-'+rowArr[i];
+	// 	document.getElementById(cellStr).className += " lowlight";
 
+	// };
+}
 
+Sodoku.prototype.unhighlightCells = function(cell){
 
+}

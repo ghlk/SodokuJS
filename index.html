@@ -15,25 +15,43 @@
 		window.onload = function() {
 			
 			// Create new puzzle (2-lines 20chars)
-			mySodoku.newPuzzle(2);
-			document.getElementById('possibles-checkbox').checked = false;
+			//mySodoku.newPuzzle(2);
+			mySodoku.testPuzzle();
+			document.getElementById('possibles-checkbox').checked = true;
 			
 			//Sodoku edit delegation
 			var sodo = document.getElementById('sodoku');
-			sodo.onclick = function show(e) {
+			
+			sodo.onclick = function(e) {
 				var t = getTarget(e);
 				var x ;
+				console.log(t.className);
 				mySodoku.refreshDisplay();
+
+				if(t.className === 'tiny' || t.className === 'entered-value'){
+					t = t.parentNode;
+				}
 				if(t.className === 'small') {
 					x = t.id.substr(6);
 					var obj = document.getElementById(t.id);
-					var txt = '<input type="text" value="'+t.textContent+'" class="edit-txt" onblur="alert(\'me\');"> ';
+					var txt = '<input type="text" id="edit-txtbox" value="" class="edit-txt" onblur="commit();"> ';
 					obj.innerHTML = txt+x;
+					document.getElementById('edit-txtbox').focus();
 				}
+				
 			};
 
+
+			// sodo.onmouseover = function(e){
+			// 	var t = getTarget(e);
+			// 	if(t.className === 'small' ){
+			// 		cell = t.id.substr(6);
+			// 		mySodoku.highlightCells( cell );
+			// 	}
+			// };
+
 			var possibles = document.getElementById('possibles-checkbox');
-			possibles.onchange = function show(e){
+			possibles.onchange = function(e){
 				var t = getTarget(e);
 				if(t.checked){
 					mySodoku.togglePossibles(true);
@@ -48,7 +66,30 @@
 
 		};
 
+		var commit = function(){
 
+				// Find the textbox and parent
+				var txtbox = document.getElementById('edit-txtbox');
+				var parent = txtbox.parentNode;
+				
+				//Grab the text value from the textbox - 
+				var value = txtbox.value;
+
+				//Decide where it goes
+				var cell = parent.id.substr(6);
+				console.log('commit');
+
+				//Check to see if this placement is valid.
+				if( mySodoku.check(cell, value) ){
+					console.log('passed-check'+cell+' '+value);
+					mySodoku.solveBoard[cell] = value;
+					mySodoku.refreshDisplay();	
+				}else{
+					//Show error
+					alert('That value is invalid. Try again.');
+				}
+				
+			}	
 
 
 
@@ -64,7 +105,6 @@
 				<h3>New Puzzle</h3>
 				<input type="button" onClick="mySodoku.newPuzzle(1);" Value="Generate New (1)"><br>
 				<input type="button" onClick="mySodoku.newPuzzle(2);" Value="Generate New (2)"><br>
-				<input type="button" onClick="mySodoku.newPuzzle(3);" Value="Generate New (3)"><br>
 				<input type="button" onClick="mySodoku.testPuzzle();" Value="Test Puzzle">				
 			</fieldset>
 
@@ -76,8 +116,8 @@
 			</fieldset>
 
 			<fieldset id="solving-controls">	
-				<h3>Old Solving</h3>
-				<input type="button" onClick="mySodoku.startStepSolver();" Value="Dynamic Steps">
+				<h3>Editing Puzzle</h3>
+				<input type="button" onClick="mySodoku.startStepSolver();" Value="Manually Input Puzzle">
 				<input type="button" onClick="mySodoku.smartSolver();" Value="Single Possible Move">	
 			</fieldset>
 
