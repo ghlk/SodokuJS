@@ -2,7 +2,7 @@ body {
 	background: #5a615a;
 	text-align:center;
 	font-family:'Helvetica Neue', 'Helvetica', 'arial', sans-serif;
-	font-size:12px;
+	font-size:14px;
 	margin:0;
 	padding:0;
 	background-image:url('noise.png');
@@ -27,6 +27,9 @@ body {
 
 .big {
 	width:156px;
+	width:200px;
+	width:9.5em;
+	font-size:1em;
 	background:#888;
 	float:left;
 	margin:2px;
@@ -36,30 +39,32 @@ body {
 
 .small {
 	width:50px;
-	height:48px;
+	1height:48px;
+	width:3em;
+	height:3em;
 	margin:1px;
-	line-height: 50px;	
+	line-height:3;
 	background:#fff;
+	1background:none;
 	float:left;
 	text-align:center;
-	font-size:30px;
+	font-size:1em;
 	cursor:pointer;
-	1overflow:hidden;
 	position:relative;
+	1z-index:1;
 }
 .tiny {
-	width:16px;
-	height:15px;
 	width:1em;
-	height:1em;
-	line-height:15px;
-	font-size:10px;	
+	line-height:1;
+	font-size:1em;
 	float:left;	
 	text-align:center;
 	cursor:default;
-	color:#aaa;
-	1background-color:#fff;
+	color:#b1b2ba;
+	font-weight:100;
 	position:relative;
+	1background:#fff;
+	1z-index:-1;
 }
 
 #big-3, #big-6, #small-3, #small-6 {
@@ -71,7 +76,8 @@ body {
 }
 
 .invalid-possible{
-	display:none;
+	1display:none;
+	visibility:hidden;
 }
 
 /* ** CONTROLS ** */
@@ -101,7 +107,7 @@ fieldset{
 	padding:0 1em 1em 1em;
 	border:1px solid #333;
 	border-radius: 0 0 4px 4px;
-	
+	font-size:.5em;
 }
 #controls h3{
 	color:#fff;

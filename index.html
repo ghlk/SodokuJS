@@ -19,16 +19,20 @@
 			mySodoku.testPuzzle();
 			document.getElementById('possibles-checkbox').checked = true;
 			
-			//Sodoku edit delegation
-			var sodo = document.getElementById('sodoku');
+			//Sodoku edit delegation (MUST BE FOR CONTAINER BECAUSE SODO GETS REMADE IN HTML PRINTING)
+			var sodo = document.getElementById('game');
 			
 			sodo.onclick = function(e) {
 				var t = getTarget(e);
 				var x ;
 				console.log(t.className);
-				mySodoku.refreshDisplay();
+				//mySodoku.refreshDisplay();
 
-				if(t.className === 'tiny' || t.className === 'entered-value'){
+				if(t.className === 'tiny' || t.className === 'entered-value' ){
+					t = t.parentNode;
+				}
+				if(t.className === 'valid-possible'){
+					t = t.parentNode;
 					t = t.parentNode;
 				}
 				if(t.className === 'small') {
@@ -50,15 +54,12 @@
 			// 	}
 			// };
 
+			/** Toggling Viewing of Possible Values **/
 			var possibles = document.getElementById('possibles-checkbox');
 			possibles.onchange = function(e){
 				var t = getTarget(e);
 				if(t.checked){
 					mySodoku.togglePossibles(true);
-					//mySodoku.showPossibles();
-					//mySodoku.calcPossibles();
-					//mySodoku.getPossibles();
-					//mySodoku.newPuzzle(3);
 				}else{
 					mySodoku.togglePossibles(false);
 				}
@@ -68,28 +69,33 @@
 
 		var commit = function(){
 
-				// Find the textbox and parent
-				var txtbox = document.getElementById('edit-txtbox');
-				var parent = txtbox.parentNode;
-				
-				//Grab the text value from the textbox - 
-				var value = txtbox.value;
+			// Find the textbox and parent
+			var txtbox = document.getElementById('edit-txtbox');
+			var parent = txtbox.parentNode;
+			
+			//Grab the text value from the textbox - 
+			var value = txtbox.value;
 
-				//Decide where it goes
-				var cell = parent.id.substr(6);
-				console.log('commit');
-
-				//Check to see if this placement is valid.
-				if( mySodoku.check(cell, value) ){
-					console.log('passed-check'+cell+' '+value);
-					mySodoku.solveBoard[cell] = value;
-					mySodoku.refreshDisplay();	
-				}else{
-					//Show error
-					alert('That value is invalid. Try again.');
+			//Decide where it goes
+			var cell = parent.id.substr(6);
+			
+			// NO VALUE - USER CANCELLING EVENT
+			if(!value){
+				//Remove value if there is one.
+				if( mySodoku.solveBoard[cell] ){
+					mySodoku.solveBoard[cell] = '';
 				}
-				
-			}	
+
+			}else if( mySodoku.check(cell, value) === true ){
+				console.log('passed-check_'+cell+'_'+value);
+				mySodoku.solveBoard[cell] = value;
+			}else{
+				//Show error
+				alert('That value is invalid. Try again.');
+			}
+			mySodoku.refreshDisplay();
+			return false;
+		};
 
 
 

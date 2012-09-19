@@ -153,15 +153,22 @@ Sodoku.prototype.getRandomEmptyCell = function () {
  * @return 	arr 	arr 	Array of boolean values representing what values are possible moves.
  **/
 Sodoku.prototype.check = function (cell, val) {
-
+	
 	/** BOX CHECK **/
 	var box = this.checkBox(cell, val);
-	console.log(box);
+	
 	/** ROW CHECK **/
 	var row = this.checkRow(cell, val);
 	
 	/** COLUMN CHECK **/
 	var column = this.checkColumn(cell, val);
+	
+	if( cell === 0 ){ 
+		console.log('cell_'+cell+' val_'+val);
+		console.log(box);
+		console.log(row);
+		console.log(column);
+	 }
 	
 	/** If NO value passed, return array-of-booleans value-1 is placed in arr[0] **/
 	if(!val){
@@ -198,30 +205,25 @@ Sodoku.prototype.check = function (cell, val) {
  **/
 Sodoku.prototype.checkBox = function (cell, val){
 	
-	//arr represents what values are valid moves
+	/* arr represents what values are valid moves */
 	var arr = [ true, true, true, true, true, true, true, true, true ];
 
-	//Iterate through the entire box, starting with it's starting square.
+	/* Iterate through the entire box, starting with it's starting square. */
 	var start = this.getBoxStart(cell);
-	for(var x=start; x < (start+9); x++){
+
+	//Create array of valid moves for this box
+	for(var i=start; i < (start+9); i++){
 			
-		//If no value passed - return an Array of possible values for cell provided.
-		if(!val){
-			if( this.gameBoard[x] ){
-				arr[ ( this.gameBoard[x]-1 ) ] = false;
-			}else if( this.solveBoard[x]  ){
-				arr[ ( this.solveBoard[x]-1) ] = false;
-			}
-		}else{
-			if( this.gameBoard[x] === val || this.solveBoard[x] === val ){
-				return false;
-			}
+		if( this.gameBoard[i] ){
+			arr[ ( this.gameBoard[i]-1 ) ] = false;
+		}else if( this.solveBoard[i]  ){
+			arr[ ( this.solveBoard[i]-1) ] = false;
 		}
 	}
-	if(!val){
-		return arr;
+	if(val){
+		return arr[val-1];
 	}else{
-		return true;
+		return arr;
 	}
 }
 
@@ -240,62 +242,46 @@ Sodoku.prototype.checkRow = function (cell, val){
 	
 	var i, x, boolArr, cells;
 	cells = this.getRowCells(cell);
-	boolArr = [ true, true, true, true, true, true, true, true, true ]; 
+	arr = [ true, true, true, true, true, true, true, true, true ]; 
 
 	for(i=0; i<9; i++){
 		x = cells[i];
-		//No "val" param - Return array of boolean to represent possible values.
-		if(!val){
-			if( this.gameBoard[x] ){
-				boolArr[ (this.gameBoard[x] - 1) ] = false;
-			}
-			else if( this.solveBoard[x]  ){
-				boolArr[ (this.solveBoard[x] - 1) ] = false;
-			}
+		
+		if( this.gameBoard[x] ){
+			arr[ (this.gameBoard[x] - 1) ] = false;
+		}else if( this.solveBoard[x]  ){
+			arr[ (this.solveBoard[x] - 1) ] = false;
 		}
-		//Looking for particular "value"
-		else{
-			if( this.gameBoard[x] === val){
-				return false;
-			}
-		}
-	}//--End loop
-	if(!val){
-		return boolArr;
+
+	}
+
+	if(val){
+		return arr[val-1];
 	}
 	else{
-		return true;
+		return arr;
 	}
 }
 Sodoku.prototype.checkColumn = function (cell, val){
 	
-	var i, x, boolArr, cells;
+	var i, x, arr, cells;
 	cells = this.getColumnCells(cell);
-	boolArr = [ true, true, true, true, true, true, true, true, true ]; 
+	arr = [ true, true, true, true, true, true, true, true, true ]; 
 
 	for(i=0; i<9; i++){
 		x = cells[i];
-		//No "val" param - Return array of boolean to represent possible values.
-		if(!val){
-			if( this.gameBoard[x] ){
-				boolArr[ (this.gameBoard[x] - 1) ] = false;
-			}
-			else if( this.solveBoard[x]  ){
-				boolArr[ (this.solveBoard[x] - 1) ] = false;
-			}
+
+		if( this.gameBoard[x] ){
+			arr[ (this.gameBoard[x] - 1) ] = false;
+		}else if( this.solveBoard[x]  ){
+			arr[ (this.solveBoard[x] - 1) ] = false;
 		}
-		//Looking for particular "value"
-		else{
-			if( this.gameBoard[x] === val){
-				return false;
-			}
-		}
-	}//--End loop
-	if(!val){
-		return boolArr;
+	}
+	if(val){
+		return arr[val-1];
 	}
 	else{
-		return true;
+		return arr;
 	}
 }
 
@@ -407,18 +393,6 @@ Sodoku.prototype.togglePossibles = function(override=null){
 };
 
 
-/**
- * display()
- * Summary:
- *
- * @param 	str 	divID
- * @return 	void
- **/
-Sodoku.prototype.display = function (divID) {
-	if(!divID){ divID = 'game'; }
-	document.getElementById(divID).innerHTML = mySodoku.getHTML(false, false);	
-};
-
 Sodoku.prototype.refreshDisplay = function(divID){
 	if(!divID){divID='game';}
 	
@@ -427,7 +401,7 @@ Sodoku.prototype.refreshDisplay = function(divID){
 
 Sodoku.prototype.empty = function () {
 	this.gameBoard = this.emptyBoard.slice(0);
-	this.display();
+	this.refreshDisplay();
 }
 
 
@@ -884,7 +858,7 @@ Sodoku.prototype.showCells = function () {
 	for(i=0;i<81;i++){
 		this.gameBoard[i] = i;
 	}
-	this.display();
+	this.refreshDisplay();
 }
 Sodoku.prototype.startSolver = function () {
 	
