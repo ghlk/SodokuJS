@@ -1,12 +1,21 @@
 body {
 	background: #333;
+	text-align:center;
+	font-family:'Helvetica Neue', 'Helvetica', 'arial', sans-serif;
+	font-size:12px;
+	margin:0;
+	padding:0;
+	background-image:url('noise.png');
 }
 
 #container {
-	width:700px;
-	margin: 0 auto;
+	margin:0;
+	display:inline-block;
 }
 
+#game{
+	display:inline-block;
+}
 #sodoku {
 	background:#aaa;
 	float:left;
@@ -20,7 +29,7 @@ body {
 	width:156px;
 	background:#888;
 	float:left;
-	margin:1px;
+	margin:2px;
 	position:relative;
 	text-align:left;
 }
@@ -44,7 +53,7 @@ body {
 	float:left;	
 	text-align:center;
 	cursor:default;
-	
+	color:#aaa;
 }
 
 #big-3, #big-6, #small-3, #small-6 {
@@ -62,21 +71,43 @@ body {
 /* ** CONTROLS ** */
 
 #controls {
-	padding: 0 2px;
+	padding: 0 1em 1em 1em;
+	margin:0;
 	float:left;
-	width: 200px;
+	max-width: 1040px;
 	text-align:center;
+	background:rgba(255,255,255,.1);
+	border-radius:0 0 10px 10px;
 }
 
 .highlight {
 	background:#FFA07A;
 }
-
+fieldset{
+	float:left;
+	max-width:200px;
+	padding:0 0 .5em 0;
+	padding:0 1em 1em 1em;
+	border:1px solid #333;
+	border-radius: 0 0 4px 4px;
+	
+}
+#controls h3{
+	color:#fff;
+	margin:0 0 .5em 0;
+	margin: 0 -.9em .5em -.9em;
+	line-height:2;
+	padding:0;
+	background:rgba(0,0,0,.25);
+}
 label {
-	font-size:15px;
-	line-height:15px;
-	color:#aaa;
-	letter-spacing:1px;
+	1font-size:1.2em;
+	1line-height:1.5;
+	color:#ccc;
+	1letter-spacing:1px;
+	1display:block;
+	background:#444;
+	1margin-bottom:.5em;
 }
 .small-label {
 	font-size:12px;
@@ -91,3 +122,15 @@ input[type="text"] {
 	text-align:right;
 }
 #numofmoves {width:50px;}
+
+#sodoku input[type="text"]{
+	display:block;
+	width:100%;
+	height:100%;
+	border:none;
+	background:#ffc;
+	margin:0;
+	padding:0;
+	box-shadow:0px 0px 10px #333;
+	position:relative;
+}
