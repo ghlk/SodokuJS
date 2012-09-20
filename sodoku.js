@@ -262,6 +262,18 @@ Sodoku.prototype.checkRow = function (cell, val){
 		return arr;
 	}
 }
+
+
+/**
+* checkColumn()
+* Summary:
+* 
+* @param
+* @param
+* @return
+* @return
+* @return
+**/
 Sodoku.prototype.checkColumn = function (cell, val){
 	
 	var i, x, arr, cells;
@@ -287,11 +299,9 @@ Sodoku.prototype.checkColumn = function (cell, val){
 
 
 
-/**
- * -------------------------------------------
- * Displaying & HTML
- * -------------------------------------------
-**/
+// * -------------------------------------------
+// * Displaying & HTML
+// * -------------------------------------------
 
 
 /**
@@ -446,11 +456,10 @@ Sodoku.prototype.calcPossibles = function () {
 }
 
 
-/**
- * -------------------------------------------
- * Solving
- * -------------------------------------------
- **/
+// * -------------------------------------------
+// * Solving
+// * -------------------------------------------
+
 
 /**
  * Sodoku.solveCell(cell)
@@ -549,29 +558,30 @@ Sodoku.prototype.solver = function(){
 	}
 }
 
-Sodoku.prototype.fillSinglePossibles = function (cell){
-	var possVals;
-	//Skip gameBoard pieces
-	if(!this.gameBoard[i]){
-		possVals = this.getPossibles(cell, "val");
-		if(possVals.length === 1){
-			this.solveBoard[cell] = possVals[0];
-		}
-	}
-	else{
-		cell++;
-	}
+Sodoku.prototype.fillSinglePossiblesRecurse = function (cell){
+	
+	if(!cell){cell=0;}
+	//Exit clause
+	//If... we have solved puzzle
+	//If... no more 'single possible value' cells.
+	if (cell>=81){return true;}
+	
+	this.fillSinglePossibles();
+	return (this.fillSinglePossiblesRecurse(cell++));
+	
 }
 
-Sodoku.prototype.smartSolver = function() {
+Sodoku.prototype.fillSinglePossibles = function() {
 
 	var i, finished;
 	finished = true;
 	
 	var x = 0;
+	
 	//Step through possibles
 	for(i=0; i<81; i++){
 		
+		//If not game-pice----
 		if(!this.gameBoard[i]){
 			
 			possVals = this.getPossibles(i, "val");
@@ -587,17 +597,19 @@ Sodoku.prototype.smartSolver = function() {
 	}
 	this.moves += x;
 	
-	if(!finished){
-		this.smartSolver();
-	}
+	//if(!finished){
+	//	this.smartSolver();
+	//}
 	//Update Possibles
-	this.calcPossibles();
-	this.showSolution();
+	//this.calcPossibles();
+	//this.showSolution();
 	document.getElementById('numofmoves').value = this.moves;
-	
+	this.refreshDisplay();
 	//Return
 	return true;
 }
+
+
 /**
  * -------------------------------------------
  * Sodoku.stepSolver(step)
