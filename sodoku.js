@@ -47,7 +47,6 @@ function Sodoku (name = 'mySodoku', size=81) {
 }
 
 
-
 /**
  * -------------------------------------------
  * Puzzle Creation
@@ -86,7 +85,7 @@ Sodoku.prototype.newPuzzle = function (lines, divID) {
 
 	/** Display the HTML **/
 	this.refreshDisplay(divID);
-}
+};
 
 
 /**
@@ -96,7 +95,7 @@ Sodoku.prototype.newPuzzle = function (lines, divID) {
 Sodoku.prototype.testPuzzle = function() {
 	this.gameBoard = this.testBoard.slice(0);
 	this.refreshDisplay();
-}
+};
 
 
 /**
@@ -117,7 +116,7 @@ Sodoku.prototype.prepopulate = function (lines) {
 			this.gameBoard[cell] = val;
 		}
 	}
-}
+};
 
 
 /**
@@ -131,7 +130,7 @@ Sodoku.prototype.getRandomEmptyCell = function () {
 		rand = Math.floor( Math.random() * 81 );
 	}while( this.gameBoard[rand] );
 	return rand;
-}
+};
 
 
 /**
@@ -189,7 +188,7 @@ Sodoku.prototype.check = function (cell, val) {
 	}else{
 		return false;
 	}
-}
+};
 
 
 /**
@@ -225,7 +224,7 @@ Sodoku.prototype.checkBox = function (cell, val){
 	}else{
 		return arr;
 	}
-}
+};
 
 
 /**
@@ -261,28 +260,28 @@ Sodoku.prototype.checkRow = function (cell, val){
 	else{
 		return arr;
 	}
-}
+};
 
 
 /**
-* checkColumn()
-* Summary:
-* 
-* @param
-* @param
-* @return
-* @return
-* @return
-**/
+ * checkColumn()
+ * Summary: Checks to see what values are possible moves for the cell is valid.
+ * 	If a value is provided, return whether or not it is valid for that cell.
+ * 
+ * @param 	int 	cell 	Numeric representation of the cell.
+ * @param 	int 	val 	(optional) The value to check.
+ * @return 	arr 	arr 	Array of booleans representing what values are valid.
+ * @return 	bool 	True 	If value is passed and it's a valid possible move for the cell
+ * @return 	bool 	False 	If the value passed and it's an invalid move for the cell.
+ **/
 Sodoku.prototype.checkColumn = function (cell, val){
 	
-	var i, x, arr, cells;
+	var x, arr, cells;
 	cells = this.getColumnCells(cell);
 	arr = [ true, true, true, true, true, true, true, true, true ]; 
 
-	for(i=0; i<9; i++){
+	for(var i=0; i<9; i++){
 		x = cells[i];
-
 		if( this.gameBoard[x] ){
 			arr[ (this.gameBoard[x] - 1) ] = false;
 		}else if( this.solveBoard[x]  ){
@@ -295,7 +294,7 @@ Sodoku.prototype.checkColumn = function (cell, val){
 	else{
 		return arr;
 	}
-}
+};
 
 
 
@@ -387,6 +386,7 @@ Sodoku.prototype.getHTML = function(showPossibles, showSolution) {
 	return str;
 };
 
+
 /**
  * togglePossibles()
  * Summary: Toggles whether to show possible moves in the puzzle or not.
@@ -403,16 +403,29 @@ Sodoku.prototype.togglePossibles = function(override=null){
 };
 
 
+/**
+ * refreshDisplay()
+ * Summary: Calls the getHTML method to display values based on class values.
+ * 
+ * @param 	str 	divID 	Id of the div
+ * @return 	void
+ *
+ **/
 Sodoku.prototype.refreshDisplay = function(divID){
 	if(!divID){divID='game';}
-	
 	document.getElementById(divID).innerHTML = mySodoku.getHTML(this.t_possibles, true);
-}
+};
 
+
+/**
+ * empty()
+ * Summary: Empties the board and refreshes the display.
+ *
+ **/
 Sodoku.prototype.empty = function () {
 	this.gameBoard = this.emptyBoard.slice(0);
 	this.refreshDisplay();
-}
+};
 
 
 /**
@@ -439,7 +452,7 @@ Sodoku.prototype.getPossibles = function (cell, type) {
 	if(type == "val"){
 		return valArr;
 	}
-}
+};
 
 
 /**
@@ -453,7 +466,7 @@ Sodoku.prototype.calcPossibles = function () {
 			this.possBoard[cell] = this.check(cell);
 		}
 	}
-}
+};
 
 
 // * -------------------------------------------
@@ -505,7 +518,7 @@ Sodoku.prototype.solveCell = function(cell){
 			}
 		}
 	}
-}
+};
 
 /**
  * -------------------------------------------
@@ -556,7 +569,7 @@ Sodoku.prototype.solver = function(){
 			this.direction = -1;
 		}
 	}
-}
+};
 
 Sodoku.prototype.fillSinglePossiblesRecurse = function (cell){
 	
@@ -569,8 +582,14 @@ Sodoku.prototype.fillSinglePossiblesRecurse = function (cell){
 	this.fillSinglePossibles();
 	return (this.fillSinglePossiblesRecurse(cell++));
 	
-}
+};
 
+
+/**
+ * filleSinglePossibles()
+ * Summary:
+ * 
+ **/
 Sodoku.prototype.fillSinglePossibles = function() {
 
 	var i, finished;
@@ -607,7 +626,7 @@ Sodoku.prototype.fillSinglePossibles = function() {
 	this.refreshDisplay();
 	//Return
 	return true;
-}
+};
 
 
 /**
@@ -648,7 +667,7 @@ Sodoku.prototype.stepSolver = function () {
 	else{
 		this.solveBookmark = this.solve(start, 'pos', end, bwall);
 	}
-}
+};
 
 /**
  * -------------------------------------------
@@ -748,7 +767,7 @@ Sodoku.prototype.solve = function(cell, direction, wall, bwall) {
 			return this.solve( (cell-1), 'neg', wall, bwall);
 		}
 	}
-}
+};
 
 
 
@@ -761,7 +780,9 @@ Sodoku.prototype.solve = function(cell, direction, wall, bwall) {
  * -------------------------------------------
  * Position Methods
  * -------------------------------------------
- * 
+**/
+
+/** 
  * All methods return a numeric value representing the value they are "getting".
  *
  * BIG:
@@ -781,7 +802,8 @@ Sodoku.prototype.solve = function(cell, direction, wall, bwall) {
  **/ 
 Sodoku.prototype.getBig = function (cell){
 	return Math.floor(cell/9);
-}
+};
+
 
 /**
  * getBigRow()
@@ -789,7 +811,8 @@ Sodoku.prototype.getBig = function (cell){
  **/
 Sodoku.prototype.getBigRow = function (cell){
 	return Math.floor( Math.floor(cell/9) / 3);
-}
+};
+
 
 /**
  * getBigColumn()
@@ -798,7 +821,8 @@ Sodoku.prototype.getBigRow = function (cell){
  **/
 Sodoku.prototype.getBigColumn = function (cell){
 	return ( Math.floor(cell/9) % 3 );
-}
+};
+
 
 /**
  * getSmall()
@@ -807,24 +831,67 @@ Sodoku.prototype.getBigColumn = function (cell){
  */
 Sodoku.prototype.getSmall = function (cell){
 	return cell % 9;
-}
+};
+
+
+/**
+ * getSmallRow()
+ * Summary: What row the cell accompanies in the 'big' box.
+ * @param 	int 	cell 	Numerical position of the cell in question
+ * @return 	int 	pos 	
+ **/
 Sodoku.prototype.getSmallRow = function (cell){
 	return Math.floor( ( cell % 9 ) / 3);
-}
+};
+
+
+/**
+ * getSmallColumn()
+ * Summary:
+ * @param 	int 	cell
+ **/
 Sodoku.prototype.getSmallColumn = function (cell){
 	return ( cell % 9 ) % 3;
-}
+};
+
+
+/**
+ * getBoxStart()
+ * Summary: Returns the cell number of the beginning of the box that the cell lives.
+ * @param 	int 	cell 	Numerical value of the cell in question.
+ **/
 Sodoku.prototype.getBoxStart = function (cell){
 	return this.getBig(cell) * 9;
-}
+};
+
+
+/**
+ * getRowStart()
+ * Summary: Returns the position of the cell that is at the beginning of the row cell param is in.
+ * @param 	int 	cell
+ * @return 	int 	start 	Numerical value of cell at beginning of row.
+ **/
 Sodoku.prototype.getRowStart = function (cell){
 	return (( Math.floor(this.getBig(cell) / 3) * 3) * 9) + ( this.getSmallRow(cell) * 3 );
-}
+};
+
+
+/**
+ * getColumnStart()
+ * Summary: Returns the position of the beginning cell of the column the cell 
+ * @param 	int 	cell
+ * @return 	int 	cell 	The numerical value of the cell that is at the beginning of the column that the cell param belongs to.
+ **/
 Sodoku.prototype.getColumnStart = function (cell){
 	return ( this.getBig(cell) % 3) * 9 + ( this.getSmallColumn(cell) );
-}
+};
 
-/* */
+/**
+ * getRowCells()
+ * Summary:
+ * @param 	int 	cell
+ * @return 	int 	cell 
+ **/
 Sodoku.prototype.getRowCells = function (cell) {
 	var start = this.getRowStart(cell);
 	var arr = [ ];
@@ -841,7 +908,15 @@ Sodoku.prototype.getRowCells = function (cell) {
 		}
 	}
 	return arr;
-}
+};
+
+
+/**
+ * getColumnCells()
+ * Summary:
+ * @param 	int 	cell
+ * @return 	 int 	cell
+ **/
 Sodoku.prototype.getColumnCells = function (cell) {
 	var start = this.getColumnStart(cell);
 	var arr = [ ];
@@ -858,37 +933,66 @@ Sodoku.prototype.getColumnCells = function (cell) {
 		}
 	}
 	return arr;
-}
+};
 
 
 
 /***************
  * UI-Controls *
  ***************/
+
+/**
+ * showCells()
+ * Summary:
+ **/
 Sodoku.prototype.showCells = function () {
-	var i;
-	for(i=0;i<81;i++){
+	for(var i=0;i<81;i++){
 		this.gameBoard[i] = i;
 	}
 	this.refreshDisplay();
-}
+};
+
+
+/**
+ * startSolver()
+ * Summary:
+ **/
 Sodoku.prototype.startSolver = function () {
 	
 	// this.step = parseInt(document.getElementById('stepValue').value);
 	// this.interval  = document.getElementById('interval').value;
 	console.log(this.step + '  ' + this.interval);
 	this.timer = self.setInterval(this.solverStr, this.interval);
-}
+};
+
+
+/**
+ * startStepSolver()
+ * Summary: Sets step and interval for 'setInterval' and sets timer.
+ *
+ **/
 Sodoku.prototype.startStepSolver = function () {
+	
 	this.step = parseInt(document.getElementById('stepValue').value);
 	this.interval  = document.getElementById('interval').value;
-
 	this.timer = self.setInterval(this.stepStr, this.interval);
-}
+};
+
+
+/**
+ * stopTimer()
+ * Summary: Clears the interval and pops up an alert to shop the timer has stopped.
+ * @return 	void
+ **/
 Sodoku.prototype.stopTimer = function () {
 	this.timer = window.clearInterval(this.timer);
 	alert("Solver stopped.")
-}
+};
+
+/**
+ * highlightCell()
+ * Summary:
+ **/
 Sodoku.prototype.highlightCell = function (cell) {
 	var last = this.currentCell + ( this.direction * -1);
 	if(last >= 0 && last < 81){
@@ -897,12 +1001,26 @@ Sodoku.prototype.highlightCell = function (cell) {
 	var cellStr = "small-"+cell;	
 	document.getElementById(cellStr).className += " highlight";
 	this.currentCell = cell;
-}
+};
+
+
+/**
+ * unHighlightCell()
+ * Summary:
+ * @param 	int 	cell 	Numerical position of the cell to highlight.
+ *
+ **/
 Sodoku.prototype.unHighlightCell = function (cell){
 	var cellStr = "small-"+cell;
 	document.getElementById(cellStr).className = document.getElementById(cellStr).className.replace(/\bhighlight\b/,'');
-}
+};
 
+
+/**
+ * highlightCells
+ * Summary: Highlights a number of cells regarding the position. Highlights row, column, and box of the cell.
+ * @param 	int 	cell 	Numeric position of the cell in the puzzle.
+ **/
 Sodoku.prototype.highlightCells = function(cell){
 	//boxArr = this.getBoxCells(cell);
 	rowArr = this.getRowCells(cell);
@@ -918,8 +1036,13 @@ Sodoku.prototype.highlightCells = function(cell){
 	// 	document.getElementById(cellStr).className += " lowlight";
 
 	// };
-}
+};
 
+
+/**
+ * unhighlightCells() NOT USED
+ **/
 Sodoku.prototype.unhighlightCells = function(cell){
+};
 
-}
+
