@@ -10,11 +10,12 @@
  * Brute force algo vs EvilBoard = 112144 moves. 1move/1sec = 31hours
  *
  **/
-function Sodoku (name = 'mySodoku', size=81) {
+function Sodoku(name, size) {
 	
 	/* Creates the boards */
-	var board = [ ], i;
-	for (i=0; i<size; i++){ board.push(''); }
+	var board = [ ];
+	var i = 0;
+	for (i = 0; i<size; i++){ board.push(''); }
 	
 	/* Complete list of boards */
 	this.gameBoard  = board.slice(0); //Exposed cells. (Puzzle to solve)
@@ -29,8 +30,8 @@ function Sodoku (name = 'mySodoku', size=81) {
 	this.currentCell = null;
 		
 	/* Puzzle Settings */
-	this.size = size; //size of the sodoku puzzle
-	this.name = name; //Name of the Sodoku class created by the page (@params)
+	this.size = size || 81; //size of the sodoku puzzle
+	this.name = name || 'mySodoku'; //Name of the Sodoku class created by the page (@params)
 	this.t_possibles = true; //Show possibles or not
 
 	/* Helper Values */
@@ -163,10 +164,10 @@ Sodoku.prototype.check = function (cell, val) {
 	var column = this.checkColumn(cell, val);
 	
 	if( cell === 0 ){ 
-		console.log('cell_'+cell+' val_'+val);
-		console.log(box);
-		console.log(row);
-		console.log(column);
+		// console.log('cell_'+cell+' val_'+val);
+		// console.log(box);
+		// console.log(row);
+		// console.log(column);
 	 }
 	
 	/** If NO value passed, return array-of-booleans value-1 is placed in arr[0] **/
@@ -392,7 +393,7 @@ Sodoku.prototype.getHTML = function(showPossibles, showSolution) {
  * Summary: Toggles whether to show possible moves in the puzzle or not.
  * @param 	bool 	override 
  **/
-Sodoku.prototype.togglePossibles = function(override=null){
+Sodoku.prototype.togglePossibles = function(override){
 	console.log('toggle'+this.t_possibles);
 	if(override === true || override === false){
 		this.t_possibles = override;

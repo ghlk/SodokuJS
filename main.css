@@ -27,9 +27,6 @@ body {
 }
 
 .big {
-	width:156px;
-	width:200px;
-	width:9.5em;
 	font-size:1em;
 	background:#888;
 	float:left;
@@ -39,23 +36,19 @@ body {
 }
 
 .small {
-	width:50px;
-	1height:48px;
 	width:3em;
-	height:3em;
 	margin:1px;
 	line-height:3;
 	background:#fff;
-	1background:none;
 	float:left;
 	text-align:center;
 	font-size:1em;
 	cursor:pointer;
 	position:relative;
-	1z-index:1;
 }
 .tiny {
 	width:1em;
+	height:1em;
 	line-height:1;
 	font-size:1em;
 	float:left;	
@@ -64,12 +57,10 @@ body {
 	color:#b1b2ba;
 	font-weight:100;
 	position:relative;
-	1background:#fff;
-	1z-index:-1;
 }
 
-#big-3, #big-6, #small-3, #small-6 {
-	clear:both;
+.small:nth-child(4), .small:nth-child(7), .big:nth-child(4), .big:nth-child(7), .tiny:nth-child(4), .tiny:nth-child(7){
+	clear:left;
 }
 
 .valid-possible {
@@ -77,8 +68,8 @@ body {
 }
 
 .invalid-possible{
-	1display:none;
-	visibility:hidden;
+	1color:red;
+	visibility: hidden;
 }
 
 /* ** CONTROLS ** */
