@@ -48,11 +48,9 @@ function Sodoku(name, size) {
 }
 
 
-/**
- * -------------------------------------------
- * Puzzle Creation
- * -------------------------------------------
-**/
+// * -------------------------------------------
+// * Puzzle Creation
+// * -------------------------------------------
 
 
 /**
@@ -71,7 +69,7 @@ Sodoku.prototype.newPuzzle = function (lines, divID) {
 	this.possBoard = this.emptyBoard.slice(0);
 	this.solveBoard = this.emptyBoard.slice(0);
 	
-	/** Reset values **/
+	/** Reset all values **/
 	this.solveBookmark = 0; 
 	this.moves = 0; 
 	
@@ -134,11 +132,10 @@ Sodoku.prototype.getRandomEmptyCell = function () {
 };
 
 
-/**
- * -------------------------------------------
- * Checking Methods
- * -------------------------------------------
-**/
+// * -------------------------------------------
+// * Checking Methods
+// * -------------------------------------------
+
 
 
 /**
@@ -366,7 +363,7 @@ Sodoku.prototype.getHTML = function(showPossibles, showSolution) {
 	 	else if( this.solveBoard[cell] && showSolution ){
 			str += '<span class="entered-value">'+this.solveBoard[cell]+'</span>';
 		}
-		else if( showPossibles && this.possBoard[cell] ){
+		else if( this.possBoard[cell] ){
 			for(k=0; k<9; k++){
 				if(this.possBoard[cell][k] == true){
 					possStr = '<span class="valid-possible">'+(k+1)+'</span>';
@@ -374,7 +371,12 @@ Sodoku.prototype.getHTML = function(showPossibles, showSolution) {
 				else{
 					possStr = '<span class="invalid-possible">'+(k+1)+'</span>';
 				}
-				str += '<div class="tiny">'+possStr+'</div>';
+				if( showPossibles ){
+					str += '<div class="tiny">'+possStr+'</div>';	
+				}else{
+					str += '<div class="tiny hidden">'+possStr+'</div>';	
+				}
+				
 			}
 		}
 		str += '</div>'; //#small - end
@@ -428,6 +430,15 @@ Sodoku.prototype.empty = function () {
 	this.refreshDisplay();
 };
 
+/**
+ * clear()
+ * Summary: Empties the board and refreshes the display.
+ *
+ **/
+Sodoku.prototype.clear = function () {
+	this.solveBoard = this.emptyBoard.slice(0);
+	this.refreshDisplay();
+};
 
 /**
  * getPossibles()
@@ -570,6 +581,8 @@ Sodoku.prototype.solver = function(){
 			this.direction = -1;
 		}
 	}
+			document.getElementById('numofmoves').value = this.moves;
+
 };
 
 Sodoku.prototype.fillSinglePossiblesRecurse = function (cell){
@@ -668,6 +681,8 @@ Sodoku.prototype.stepSolver = function () {
 	else{
 		this.solveBookmark = this.solve(start, 'pos', end, bwall);
 	}
+	document.getElementById('numofmoves').value = this.moves;
+	return true;
 };
 
 /**
@@ -699,7 +714,7 @@ Sodoku.prototype.solve = function(cell, direction, wall, bwall) {
 	//Increment 'move counter'
 	this.moves += 1;
 	
-	//Setting start if value not present
+	//Default value for cell if value not present
 	if(!cell && cell !== 0){
 		cell = 0;
 	}
@@ -777,11 +792,10 @@ Sodoku.prototype.solve = function(cell, direction, wall, bwall) {
 
 
 
-/**
- * -------------------------------------------
- * Position Methods
- * -------------------------------------------
-**/
+// * -------------------------------------------
+// * Position Methods
+// * -------------------------------------------
+
 
 /** 
  * All methods return a numeric value representing the value they are "getting".
@@ -962,8 +976,13 @@ Sodoku.prototype.startSolver = function () {
 	
 	// this.step = parseInt(document.getElementById('stepValue').value);
 	// this.interval  = document.getElementById('interval').value;
-	console.log(this.step + '  ' + this.interval);
-	this.timer = self.setInterval(this.solverStr, this.interval);
+	
+	if( this.timer ){
+		this.timer = window.clearInterval(this.timer);
+	}else{
+		this.timer = self.setInterval(this.solverStr, this.interval);	
+	}
+	
 };
 
 

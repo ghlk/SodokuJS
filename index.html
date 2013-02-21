@@ -11,11 +11,12 @@
 		
 		/** Create sodoku problem **/
 		var mySodoku = new Sodoku("mySodoku", 81);
+
+
 		// *************************** //
 		window.onload = function() {
 			
 			// Create new puzzle (2-lines 20chars)
-			//mySodoku.newPuzzle(1);
 			mySodoku.testPuzzle();
 			document.getElementById('possibles-checkbox').checked = true;
 			
@@ -24,7 +25,7 @@
 			
 			sodo.onclick = function(e) {
 				var t = getTarget(e);
-				var x ;
+				var x;
 				console.log(t.className);
 				//mySodoku.refreshDisplay();
 
@@ -53,6 +54,19 @@
 			// 		mySodoku.highlightCells( cell );
 			// 	}
 			// };
+			
+			var edits = document.getElementById('edit-mode');
+			edits.onchange = function(e){
+				var t = getTarget(e);
+				if(t.value == 'edit'){
+					//mySodoku.toggleEditMode(true);
+					document.getElementById('game').className = 'game-edit';
+
+				}else{
+					mySodoku.toggleEditMode(false);
+					document.getElementById('game').className = '';
+				}
+			};
 
 			/** Toggling Viewing of Possible Values **/
 			var possibles = document.getElementById('possibles-checkbox');
@@ -65,10 +79,13 @@
 				}
 			};
 
-		};
+		}; // end onload
 
 		var commit = function(){
-
+			
+			var gameClass = document.getElementById('game').className;
+			//alert(sodo.className);
+				
 			// Find the textbox and parent
 			var txtbox = document.getElementById('edit-txtbox');
 			var parent = txtbox.parentNode;
@@ -81,20 +98,38 @@
 			
 			// NO VALUE - USER CANCELLING EVENT
 			if(!value){
-				//Remove value if there is one.
-				if( mySodoku.solveBoard[cell] ){
-					mySodoku.solveBoard[cell] = '';
+
+				if( gameClass === 'game-edit'){
+					//Remove value if there is one.
+					if( mySodoku.gameBoard[cell] ){
+						mySodoku.gameBoard[cell] = '';
+					}
+				}else{
+					//Remove value if there is one.
+					if( mySodoku.solveBoard[cell] ){
+						mySodoku.solveBoard[cell] = '';
+					}
 				}
 
 			}else if( mySodoku.check(cell, value) === true ){
 				console.log('passed-check_'+cell+'_'+value);
-				mySodoku.solveBoard[cell] = value;
+				if( gameClass === 'game-edit'){
+					mySodoku.gameBoard[cell] = value;
+				}else{
+					mySodoku.solveBoard[cell] = value;
+				}
 			}else{
 				//Show error
 				alert('That value is invalid. Try again.');
 			}
 			mySodoku.refreshDisplay();
 			return false;
+		};
+
+		var newPuzzle = function(rows){
+
+			var x = document.getElementById('new-puzzle-select').value;
+			mySodoku.newPuzzle(x);
 		};
 	</script>
 
@@ -105,38 +140,65 @@
 		<div id="controls">
 			
 			<fieldset id="puzzle-controls">
-				<h3>New Puzzle</h3>
-				<input type="button" onClick="mySodoku.newPuzzle(1);" Value="Generate New (1)"><br>
-				<input type="button" onClick="mySodoku.newPuzzle(2);" Value="Generate New (2)"><br>
-				<input type="button" onClick="mySodoku.testPuzzle();" Value="Test Puzzle">				
+				<legend>New Puzzle</legend>
+				<select id="new-puzzle-select">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3" selected>3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6">6</option>
+					<option value="7">7</option>
+					<option value="8">8</option>
+					<option value="9">9</option>
+				</select>
+				<input type="button" onClick="newPuzzle();" Value="Create"><br>
+				
+				<input type="button" onClick="mySodoku.testPuzzle();" Value="Pre #1">				
 			</fieldset>
 
-			<fieldset id="view-controls">
-				<h3>View</h3>
-				<label>Possible Values</label><input id="possibles-checkbox" type="checkbox" value="1" checked="" ><br>
+			<fieldset id="view-controls" style="display:none;">
+				<legend>View</legend>
 				<!-- <input type="button" onClick="mySodoku.showSolution();" Value="Solv" >
 				<input type="button" onClick="mySodoku.display();" Value="Game" > -->
 			</fieldset>
 
 			<fieldset id="solving-controls">	
-				<h3>Editing Puzzle</h3>
-				<input type="button" onClick="mySodoku.startStepSolver();" Value="Manually Input Puzzle">
-				<input type="button" onClick="mySodoku.fillSinglePossibles();" Value="Single Possible Move">	
+				<legend>Edit Mode</legend>
+				<input type="button" onclick="mySodoku.empty();" value="Empty Board">
+				<hr>
+				<select id="edit-mode">
+					<option value="solve" selected>solve mode</option>
+					<option value="edit" >edit mode</option>
+				</select>
+				
 			</fieldset>
 
 			<fieldset>
-				<h3>Brute Force Algo</h3>
-				<input type="button" onClick="mySodoku.solve();" Value="FAST Solver - can freeze">
-				<input type="button" onClick="mySodoku.startSolver();" Value="STEP Solver - Shows progress">	
-				<input type="button" onClick="mySodoku.stopTimer();" Value="STOP Solvers">	
+				<legend>Dumb Brute Algo</legend>
+				<input type="button" onClick="mySodoku.startSolver();" Value="Start/Stop">
+				<br> I'll try anything!
 			</fieldset>
 			
+			<fieldset>
+				<legend>Smart Brute Algo</legend>
+				<input type="button" onClick="mySodoku.startSolver();" Value="Start/Stop">
+				<br> I'll try anything!
+				<br>But I see when my moves suck.
+			</fieldset>
+			<fieldset>
+				<legend>One Option Left Algo</legend>
+				<input type="button" onClick="mySodoku.fillSinglePossibles();" Value="Run">	
+				<br>Great when starting.
+			</fieldset>
 			<fieldset id="debug">
-				<h3>Debug</h3>
-				<label for="moves" class="small-label">Penciled Values</label>
+				<legend>Debug</legend>
+				<label for="moves" class="small-label">Moves: </label>
 				<input type="text" id="numofmoves" disabled>
-				<input type="button" onclick="mySodoku.clear();" value="Clear Board">
-				<input type="button" onclick="mySodoku.edit();" value="Edit Board">
+				<br>
+				<label for="possibles-checkbox" class="small-label">Possible Values</label><input id="possibles-checkbox" type="checkbox" value="1" checked="" ><br>
+
+				<!-- <input type="button" onclick="mySodoku.empty();" value="Empty Board"> -->
 				<!-- <input type="button" onClick="mySodoku.showCells();" Value="Cells"> -->
 			</fieldset>
 			</form>
