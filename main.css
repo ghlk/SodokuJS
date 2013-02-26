@@ -46,6 +46,12 @@ body {
 	cursor:pointer;
 	position:relative;
 	overflow:hidden;
+	-webkit-transition: background-color 1000ms linear;
+     -moz-transition: background-color 1000ms linear;
+     -o-transition: background-color 1000ms linear;
+     -ms-transition: background-color 1000ms linear;
+     transition: background-color 1000ms linear;
+
 }
 .tiny {
 	width:1em;
@@ -92,7 +98,15 @@ body {
 .highlight {
 	background:#FFA07A;
 	1background:#ff3300;
-	background:#fcc;
+	background:#fcc !important;
+		-webkit-transition: background-color 1ms linear;
+/*	     -moz-transition: background-color 1000ms linear;
+	     -o-transition: background-color 1000ms linear;
+	     -ms-transition: background-color 1000ms linear;
+	     transition: background-color 1000ms linear;
+*/	}
+.highlight > .game-value{
+	background:inherit;
 }
 .lowlight{
 	1background-color: rgba(255,0,0,.2);
@@ -155,7 +169,6 @@ input[type="text"] {
 
 .entered-value{
 	color:#f80;
-	1color:#0f2;
 	position:relative;
 }
 
@@ -165,5 +178,7 @@ input[type="text"] {
 	1width:99%;
 	1height:99%;
 	background:#333;
+	background:#ddd;
+	color:#333;
 	1box-shadow:1px 1px 1px #000;
 }

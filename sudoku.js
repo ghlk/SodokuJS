@@ -1,8 +1,8 @@
 /**
  * Class sudoku
  * Summary: A sudoku class that contains solving and editing capabilities.
- * @param 	str 	name 	Name of sudoku obj created.
- * @param 	int 	size 	Size of the sudoku puzzle to create.
+ * @param	str		name	Name of sudoku obj created.
+ * @param	int		size	Size of the sudoku puzzle to create.
  *
  *  size - Default 81
  *
@@ -10,41 +10,44 @@
  * Brute force algo vs EvilBoard = 112144 moves. 1move/1sec = 31hours
  *
  **/
-function Sudoku(name, size) {
-	
+function Sudoku(name, size, divID) {
+	"use strict"; // Enforce strict
+
 	/* Creates the boards */
-	var board = [ ];
-	var i = 0;
-	for (i = 0; i<size; i++){ board.push(''); }
-	
+	var board = [ ], i;
+	for (i = 0; i < size; i = i + 1) { board.push(''); }
+
 	/* Complete list of boards */
 	this.gameBoard  = board.slice(0); //Exposed cells. (Puzzle to solve)
 	this.possBoard  = board.slice(0); //Possible cell values.
 	this.solveBoard = board.slice(0); //Solving values.
 	this.emptyBoard = board.slice(0); //Used for resetting other boards.
-	
+
 	/* Bookmarks - Used to navigate when solving puzzle */
 	this.solveBookmark = 0; //Used to step through solving process. 
-	this.direction = 1; 	//'1' represents "positive" direction
-	this.solvePlace = 0;	
+	this.direction = 1;		//'1' represents "positive" direction
+	this.solvePlace = 0;
 	this.currentCell = null;
-		
+
 	/* Puzzle Settings */
 	this.size = size || 81; //size of the sudoku puzzle
 	this.name = name || 'mysudoku'; //Name of the sudoku class created by the page (@params)
 	this.t_possibles = true; //Show possibles or not
 
 	/* Helper Values */
-	this.timer;				// Timer used for solving the puzzle in intervals.
-	this.interval 	= 1;	// Interval for timers. (ms)(1000 = 1s)
-	this.step 		= 1 ;
-	this.solverStr	= this.name+".solver();"; 
-	this.stepStr	= this.name+".stepSolver();"; 
+	this.timer		= null;				// Timer used for solving the puzzle in intervals.
+	this.interval	= 1;	// Interval for timers. (ms)(1000 = 1s)
+	this.step		= 1;
+	this.solverStr	= this.name + ".solver();";
+	this.stepStr	= this.name + ".stepSolver();";
 	this.moves = 0; //To count how long it takes to solve the problem.	
-	
+
 	/* Premade puzzles */
-	this.testBoard = ['', 9, 2,'','', 1,'', 8,'','','','','','','', 1, 7,'','','', 7,'', 3,'', 4, 6, 2,'','','', 3,'','', 9, 1,'','', 9, 6, 5,'', 1, 7, 4,'','', 4, 1,'','', 9,'','','', 1, 3, 6,'', 4,'',7,'','','', 5, 2,'','','','','','','', 8,'', 2,'','', 6, 9,''];
-	this.evilBoard = [ 5,'', 9,'','', 6,'', 7 , 8, 4,'','', 2,'','','','', 9, 7,'','','','','','','', 1,'', 6,'','','', 4,'','','', 9,'','','','','','','', 4,'','','', 9,'','','', 6,'', 1,'','','','','','','',5, 6,'','','','', 1,'','', 8, 2, 5,'', 3,'','', 1,'', 9];
+	this.testBoard = ['', 9, 2, '', '', 1, '', 8, '', '', '', '', '', '', '', 1, 7, '', '', '', 7, '', 3, '', 4, 6, 2, '', '', '', 3, '', '', 9, 1, '', '', 9, 6, 5, '', 1, 7, 4, '', '', 4, 1, '', '', 9, '', '', '', 1, 3, 6, '', 4, '', 7, '', '', '', 5, 2, '', '', '', '', '', '', '', 8, '', 2, '', '', 6, 9, ''];
+	this.evilBoard = [5, '', 9, '', '', 6, '', 7, 8, 4, '', '', 2, '', '', '', '', 9, 7, '', '', '', '', '', '', '', 1, '', 6, '', '', '', 4, '', '', '', 9, '', '', '', '', '', '', '', 4, '', '', '', 9, '', '', '', 6, '', 1, '', '', '', '', '', '', '', 5, 6, '', '', '', '', 1, '', '', 8, 2, 5, '', 3, '', '', 1, '', 9];
+
+	//this.displaySkelaton(divID);
+
 	return true;
 }
 
@@ -53,31 +56,31 @@ function Sudoku(name, size) {
 // * Puzzle Creation
 // * -------------------------------------------
 
-
 /**
  * newPuzzle()
  * Summary: Resets the puzzle board and other values, then populates it with a new puzzle, and displays the new game.
  * Notes: This can result in non-solvable puzzles. Keep that in mind.
  * 
- * @param 	int 	lines 	Number of "lines" or times to use the values 1-9 in the puzzle.
- * @param 	str 	divID 	The div ID to display the puzzle in.
- * @return 	void
+ * @param	int		lines	Number of "lines" or times to use the values 1-9 in the puzzle.
+ * @param	str		divID 	The div ID to display the puzzle in.
+ * @return	void
  **/
 Sudoku.prototype.newPuzzle = function (lines, divID) {
 
+	"use strict";
 	/** Reset all boards **/
 	this.gameBoard = this.emptyBoard.slice(0);
 	this.possBoard = this.emptyBoard.slice(0);
 	this.solveBoard = this.emptyBoard.slice(0);
-	
+
 	/** Reset all values **/
-	this.solveBookmark = 0; 
-	this.moves = 0; 
-	
+	this.solveBookmark = 0;
+	this.moves = 0;
+
 	/** Optional Resets (Maybe get rid of) **/
 	this.direction = 1;
-	this.solvePlace = 0;	
-	this.currentCell = null;	
+	this.solvePlace = 0;
+	this.currentCell = null;
 	/** --- **/
 
 	/* Create the puzzle by prepopulating the cells */
@@ -92,17 +95,17 @@ Sudoku.prototype.newPuzzle = function (lines, divID) {
  * testPuzzle()
  * Summary: Sets the premade test puzzle in the board.
  **/
-Sudoku.prototype.testPuzzle = function() {
+Sudoku.prototype.testPuzzle = function () {
+	"use strict";
 	this.gameBoard = this.testBoard.slice(0);
 	this.refreshDisplay();
 };
 
-
-
-Sudoku.prototype.recurseGenerate = function( currentNumber, direction ){
-
+Sudoku.prototype.recurseGenerate = function (currentNumber, direction) {
+	"use strict";
+	var count = 0, x, possibleMoves;
 	// Puzzle is complete and valid - End
-	if( !this.gameBoard.indexOf('') ){
+	if (!this.gameBoard.indexOf('')) {
 		return true;
 	}
 
@@ -110,18 +113,17 @@ Sudoku.prototype.recurseGenerate = function( currentNumber, direction ){
 	currentNumber = currentNumber || 1;
 	
 	// Get array of possible cell moves.
-	possibleMoves = this.getPossibleCells( currentNumber, 'val' );
+	possibleMoves = this.getPossibleCells(currentNumber, 'val');
 
 	// Count how many of this value is in the puzzle
-	var count = 0;
-	for(var x=0;x<81;x++){
-		if(this.gameBoard == currentNumber){
+	for (x = 0; x < 81; x = x + 1) {
+		if (this.gameBoard == currentNumber) {
 			count++;
 		}
 	}
 
 	// Exhausted all moves for this number, move on.
-	if( !possibleMoves && count === 9){
+	if (!possibleMoves && count === 9) {
 		return this.recurseGenerate( currentNumber+1 );
 	}
 
@@ -132,19 +134,18 @@ Sudoku.prototype.recurseGenerate = function( currentNumber, direction ){
 	// this.gameBoard[randMove] = currentNumber;
 	
 	// Check for "dead cells" - if so, backpedal
-	if(!this.checkDeadCells()){
+	if (!this.checkDeadCells()) {
 
 		return this.recurseGenerate( currentNumber-1, direction )
 	}
 
 
-	if( possible.indexOf(cell) >= 0){
+	if (possible.indexOf(cell) >= 0) {
 
 	}	
 };
 
-
-Sudoku.prototype.generatePuzzle = function(generations){
+Sudoku.prototype.generatePuzzle = function (generations) {
 
 	this.empty();
 	//Recursive function that fills the board with values.
@@ -209,7 +210,7 @@ Sudoku.prototype.generatePuzzle = function(generations){
  * @param 	int 	lines 	Number of times to inject the numbers 1-9 in the puzzle.
  * @return 	void
  **/
-Sudoku.prototype.prepopulate = function (lines) {
+Sudoku.prototype.prepopulate = function ( lines ) {
 	if(!lines){ lines = 1; }
 	
 	var x, val, cell;
@@ -247,13 +248,12 @@ Sudoku.prototype.prepopulate = function (lines) {
 	}
 };
 
-
 /**
  * getRandomEmptyCell()
  * Summary: Returns the location of a random empty cell. Used for puzzle creation.
  * @return 	int 	rand 	Random empty cell number.
  **/
-Sudoku.prototype.getRandomEmptyCell = function (small) {
+Sudoku.prototype.getRandomEmptyCell = function ( small ) {
 	var rand;
 	if(small || small !== null){
 		do{
@@ -269,7 +269,7 @@ Sudoku.prototype.getRandomEmptyCell = function (small) {
 	return rand;
 };
 
-Sudoku.prototype.checkDeadCells = function(){
+Sudoku.prototype.checkDeadCells = function ( ) {
 	var cell, possibles;
 	
 	for(cell=0; cell<81; cell++){
@@ -348,7 +348,6 @@ Sudoku.prototype.check = function (cell, val) {
 	}
 };
 
-
 /**
  * checkBox()
  * Summary: Checks to see what values are possible moves when regarding the encompassing box.
@@ -386,7 +385,6 @@ Sudoku.prototype.checkBox = function (cell, val){
 	}
 };
 
-
 /**
  * checkRow()
  * Summary: Checks to see what are possible moves for a specific cell and k
@@ -419,7 +417,6 @@ Sudoku.prototype.checkRow = function (cell, val){
 		return arr;
 	}
 };
-
 
 /**
  * checkColumn()
@@ -482,6 +479,14 @@ Sudoku.prototype.checkPuzzle = function(alertFlag){
 // * -------------------------------------------
 
 
+
+
+Sudoku.prototype.displaySkelaton = function (div) {
+	document.getElementById('game').innerHTML = this.getHTMLSkelaton();
+	//document.getElementById('game').innerHTML = 'pushit on me ';//this.getHTML(this.t_possibles, true);
+	//document.getElementById('controls').innerHTML  = '';
+};
+
 /**
  * getHTMLSkelaton()
  * Summary: Returns the HTML skelaton for the sudoku game.
@@ -503,10 +508,17 @@ Sudoku.prototype.getHTMLSkelaton = function(){
 			str += '<div id="big-'+this.getBig(i)+'" class="big">'; //#big - start
 		}
 		
-		str += '<div id="small-'+cell+'" class="small"></div>'; //#small
+		str += '<div id="small-'+i+'" class="small">';//#small - start
+
+		for(var j=1;j<=9;j++){
+			str += '<div id="tiny-'+j+'" class="tiny">'+j+'</div>';	
+		}
+		
+
+		str += '</div>';// #small-end	
 		
 		if(this.getSmall(i) == 8){
-			str += '</div>'; //#big -end
+			str += '</div>'; // #big-end
 		}
 	}
 	str += '</div>'; //#sudoku -end
@@ -596,9 +608,26 @@ Sudoku.prototype.togglePossibles = function(override){
  *
  **/
 Sudoku.prototype.refreshDisplay = function(divID){
-	if(!divID){divID='game';}
-	document.getElementById(divID).innerHTML = mysudoku.getHTML(this.t_possibles, true);
+	//if(!divID){divID='game';}
+	//document.getElementById(divID).innerHTML = mysudoku.getHTML(this.t_possibles, true);
 	
+	var i;
+	var cellID;
+
+	for(i=0;i<81;i++){
+		if( this.solveBoard[i] ){
+			cellID = 'small-'+i;
+			document.getElementById(cellID).innerHTML = this.solveBoard[i];
+			document.getElementById(cellID).className += " entered-value";
+		}
+
+		if( this.gameBoard[i] ){
+			cellID = 'small-'+i;
+			document.getElementById(cellID).innerHTML = this.solveBoard[i];
+			document.getElementById(cellID).className += " game-value";
+		}
+	};
+
 
 };
 
@@ -886,6 +915,8 @@ Sudoku.prototype.fillSinglePossibles = function() {
  */
 Sudoku.prototype.stepSolver = function () {
 
+	this.startTime = new Date().getTime();
+
 	var start, end, bwall;
 
 	//Begin where we left off.
@@ -906,6 +937,9 @@ Sudoku.prototype.stepSolver = function () {
 	//If we're done.
 	if( start > 80){
 		this.stopTimer();
+		now = new Date().getTime();
+		document.getElementById('txt-timer').value = (now-this.startTime)/1000;
+
 		return false;
 	}
 	else{
@@ -1234,13 +1268,18 @@ Sudoku.prototype.showCells = function () {
  **/
 Sudoku.prototype.startSolver = function () {
 	
-	// this.step = parseInt(document.getElementById('stepValue').value);
-	// this.interval  = document.getElementById('interval').value;
 	
+	// Timer is active - deactivate it
 	if( this.timer ){
 		this.timer = window.clearInterval(this.timer);
+		var now = new Date().getTime();
+		document.getElementById('txt-timer').value = (now-this.startTime)/1000;
+
 	}else{
-		this.timer = self.setInterval(this.solverStr, this.interval);	
+		// Start the interval
+		this.timer = self.setInterval(this.solverStr, this.interval);
+		// Grab time from the 
+		this.startTime = new Date().getTime() - document.getElementById('txt-timer').value * 1000;
 	}
 	
 };
@@ -1266,6 +1305,9 @@ Sudoku.prototype.startStepSolver = function () {
  **/
 Sudoku.prototype.stopTimer = function () {
 	this.timer = window.clearInterval(this.timer);
+	var now = new Date().getTime();
+	document.getElementById('txt-timer').value = (now-this.startTime)/1000;
+
 	alert("Solver stopped.")
 };
 

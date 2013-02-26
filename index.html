@@ -11,12 +11,13 @@
 		
 		/** Create sudoku problem **/
 		var mysudoku = new Sudoku("mysudoku", 81);
-
+		mysudoku.testPuzzle();
 
 		// *************************** //
-		window.onload = function() {
+		window.read = function() {
 			
 			// Create new puzzle (2-lines 20chars)
+			//mysudoku.displaySkelaton('game');
 			mysudoku.testPuzzle();
 			document.getElementById('possibles-checkbox').checked = true;
 			
@@ -48,17 +49,7 @@
 			document.getElementById('dumb-brute-btn').onclick = function(){
 				mysudoku.startSolver();
 			};
-			
 
-
-			// sodo.onmouseover = function(e){
-			// 	var t = getTarget(e);
-			// 	if(t.className === 'small' ){
-			// 		cell = t.id.substr(6);
-			// 		mysudoku.highlightCells( cell );
-			// 	}
-			// };
-			
 			var edits = document.getElementById('edit-mode');
 			edits.onchange = function(e){
 				var t = getTarget(e);
