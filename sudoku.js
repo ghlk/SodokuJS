@@ -606,20 +606,29 @@ Sudoku.prototype.refreshDisplay = function(divID){
 		cellID = 'small-'+i;
 		small = document.getElementById(cellID);
 
-		if( this.solveBoard[i] ){
-			temp = small.getElementsByClassName("value")[0];
-			temp.innerHTML = this.solveBoard[i];
-			small.className += " entered-value";
-
-		}else if( this.gameBoard[i] ){
+		// Game_Board piece found - set value
+		if( this.gameBoard[i] ){
 			temp = small.getElementsByClassName("value")[0];
 			temp.innerHTML = this.gameBoard[i];
 			small.className += " game-value";
+
+		}else if( this.solveBoard[i] ){
+			temp = small.getElementsByClassName("value")[0];
+			temp.innerHTML = this.solveBoard[i];
+			small.className += " entered-value";
 			
 		}else{
-			// Empty - show possibles
-			document.getElementById(cellID).className = document.getElementById(cellID).className.replace(/\bentered-value\b/,'');
+			
+			// Removed the "entered-value" class
+			small.className = small.className.replace(/\bentered-value\b/,'');
+			
+			// Get list of possible moves for cell
 			arr = this.getPossibles(i, 'bool');
+			
+			// Value element 
+			temp = small.getElementsByClassName("value")[0];
+			temp.innerHTML = '';
+
 			for(j=1;j<=9;j++){
 
 				tiny = 'tiny-'+j;
@@ -1284,7 +1293,7 @@ Sudoku.prototype.startSolver = function () {
 		// Start the interval
 		this.timer = self.setInterval(this.solverStr, this.interval);
 		// Grab time from the 
-		this.startTime = new Date().getTime() - document.getElementById('txt-timer').value * 1000;
+		this.startTime = (new Date().getTime() - document.getElementById('txt-timer').value) * 1000;
 	}
 	
 };

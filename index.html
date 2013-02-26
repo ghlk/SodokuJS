@@ -9,12 +9,12 @@
 	<script type="text/javascript" src="sudoku.js"></script>
 	<script type="text/javascript">
 		
-		
+		var mysudoku;
 		// *************************** //
 		window.onload = function() {
 			
 			/** Create sudoku problem **/
-			var mysudoku = new Sudoku("mysudoku", 81, 'game');
+			mysudoku = new Sudoku("mysudoku", 81, 'game');
 			// Create new puzzle (2-lines 20chars)
 			//mysudoku.displaySkelaton('game');
 			mysudoku.testPuzzle();
@@ -48,10 +48,16 @@
 				}	
 			};
 
+			// DUMB BRUTE BUTTON
 			document.getElementById('dumb-brute-btn').onclick = function(){
 				mysudoku.startSolver();
 			};
 
+			document.getElementById('dumb-brute-step').onclick = function(){
+				mysudoku.solver();
+			};
+
+			
 			var edits = document.getElementById('edit-mode');
 			edits.onchange = function(e){
 				var t = getTarget(e);
@@ -176,7 +182,7 @@
 			<fieldset>
 				<legend>Step Algo</legend>
 				<input id="dumb-brute-btn" type="button" Value="Start/Stop">
-				<input type="button" onClick="mysudoku.solver();" Value="Step">
+				<input type="button" id="dumb-brute-step" Value="Step">
 				<ul style="padding:0;">
 					<li>Left-right, Top-down</li>
 					<li>Backpedals if creates "dead-cell"</li>
