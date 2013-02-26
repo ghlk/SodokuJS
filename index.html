@@ -86,6 +86,7 @@
 
 		var commit = function(){
 			
+			// Grab what class the sudoku funct is.
 			var gameClass = document.getElementById('game').className;
 			
 			// Find the textbox and parent
@@ -93,7 +94,8 @@
 			var parent = txtbox.parentNode;
 			parent.className = parent.className.replace(/\bhighlight\b/,'');
 			parent.innerHTML='';
-			//Grab the text value from the textbox - 
+			
+			// Grab the text value from the textbox - 
 			var value = txtbox.value;
 
 			//Decide where it goes
@@ -115,7 +117,9 @@
 				}
 
 			}else if( mysudoku.check(cell, value) === true ){
+				
 				console.log('passed-check_'+cell+'_'+value);
+				
 				if( gameClass === 'game-edit'){
 					mysudoku.gameBoard[cell] = value;
 				}else{
@@ -159,6 +163,7 @@
 	
 				<input type="button" onClick="mysudoku.testPuzzle();" Value="Pre #1">				
 				<input type="button" onClick="mysudoku.generatePuzzle();" Value="Gen">				
+				<input type="button" onClick="mysudoku.recurseGenerate();" Value="CURSE">				
 				<input type="button" onClick="mysudoku.checkPuzzle(true);" Value="check">				
 			</fieldset>
 
@@ -169,7 +174,7 @@
 			</fieldset>
 
 			<fieldset id="solving-controls">	
-				<legend>Edit Mode</legend>
+				<legend>User Mode</legend>
 				<input type="button" onclick="mysudoku.empty();" value="Empty Board">
 				<hr>
 				<select id="edit-mode">
@@ -183,17 +188,12 @@
 				<legend>Step Algo</legend>
 				<input id="dumb-brute-btn" type="button" Value="Start/Stop">
 				<input type="button" id="dumb-brute-step" Value="Step">
-				<ul style="padding:0;">
-					<li>Left-right, Top-down</li>
-					<li>Backpedals if creates "dead-cell"</li>
-				</ul>
 			</fieldset>
 			
 			<fieldset>
 				<legend>Recursive Algo</legend>
 				<input type="button" onClick="mysudoku.solve();" Value="Start/Stop">
-				<br> I'll try anything!
-				<br>But I see when my moves suck.
+				<br> - Left-Right - Up-down - deadcells
 			</fieldset>
 			<fieldset>
 				<legend>One Option Left Algo</legend>
@@ -208,7 +208,8 @@
 				<label for="timer" class="small-label">Time (s):</label>
 				<input type="text" id="txt-timer" disabled>
 				<br>
-				<label for="possibles-checkbox" class="small-label">Possible Values</label><input id="possibles-checkbox" type="checkbox" value="1" checked="" ><br>
+				<label for="possibles-checkbox" class="small-label">Possible Values</label><input id="possibles-checkbox" type="checkbox" value="1" checked="" >
+				<br><br>
 
 				<!-- <input type="button" onclick="mysudoku.empty();" value="Empty Board"> -->
 				<!-- <input type="button" onClick="mysudoku.showCells();" Value="Cells"> -->

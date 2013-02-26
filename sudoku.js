@@ -93,51 +93,71 @@ Sudoku.prototype.newPuzzle = function (lines, divID) {
  * Summary: Sets the premade test puzzle in the board.
  **/
 Sudoku.prototype.testPuzzle = function () {
-	this.gameBoard = this.testBoard.slice(0);
+	//this.gameBoard = this.testBoard.slice(0);
+	this.gameBoard = this.evilBoard.slice(0);
 	this.refreshDisplay();
 };
 
-Sudoku.prototype.recurseGenerate = function (currentNumber, direction) {
+Sudoku.prototype.recurseGenerate = function (currentNumber, direction, flag) {
+	
+	if( !currentNumber ){ this.empty(); }
+	
+	// Set defaults
+	currentNumber = currentNumber || 1;
+	direction = direction || 1;
+	flag = flag || 0;
 	var count = 0, x, possibleMoves;
+	
 	// Puzzle is complete and valid - End
-	if (!this.gameBoard.indexOf('')) {
+	if ( flag >= 3 ) {
+		console.log('END --------- ----- ' );
+		this.refreshDisplay();
 		return true;
 	}
-
-	// Select current number
-	currentNumber = currentNumber || 1;
 
 	// Get array of possible cell moves.
 	possibleMoves = this.getPossibleCells(currentNumber, 'val');
 
+	if( currentNumber > 2 ){console.log('possibles: ' + possibleMoves.join() );}
 	// Count how many of this value is in the puzzle
-	for (x = 0; x < 81; x = x + 1) {
-		if (this.gameBoard === currentNumber) {
-			count += 1;
+	for (x = 0; x < 81; x += 1) {
+		if (this.gameBoard[x] === currentNumber) { count += 1; }
+	};
+	
+	// We're backpedaling - we need to choose the last value placed and remove it
+	// If there is another option for placement place it there
+	// If not - backpedal again.
+	if( direction === -1 ){
+
+		//if( )
+	}
+	
+	// Completed currentNumber - increment value
+	if (!possibleMoves.length && count === 9) {
+		console.log( ' Current Number Completed ' );
+		return this.recurseGenerate(currentNumber + 1, 1, flag + 1);
+	}
+
+	do{
+		// Select a possible move by random
+		randMove = Math.floor (Math.random () * possibleMoves.length-1); // 0-length
+
+		// Place our current number into that random available cell.
+		this.gameBoard[possibleMoves[randMove]] = currentNumber;
+		
+		// This move just created some dead-cells, so let's remove this cell-option and lets try another.
+		if( !this.checkDeadCells() ){
+			// Remove that cell from our possible list
+			possibleMoves[randMove].splice(randMove,1);
 		}
+
+	}while( !this.checkDeadCells() && possiblesMoves.length > 0 );
+
+	if( possibleMoves === 0 ){
+		
 	}
 
-	// Exhausted all moves for this number, move on.
-	if (!possibleMoves && count === 9) {
-		return this.recurseGenerate(currentNumber + 1);
-	}
-
-	// Select a possible move by random
-	// randMove = Math.floor( Math.random()* 1)+1;
-
-	// Place our current number into that random available cell.
-	// this.gameBoard[randMove] = currentNumber;
-
-	// Check for "dead cells" - if so, backpedal
-	if (!this.checkDeadCells()) {
-
-		return this.recurseGenerate(currentNumber - 1, direction);
-	}
-
-
-	// if (possible.indexOf(cell) >= 0) {
-
-	// }	
+	console.log( 'No: ' + currentNumber + ' cell: ' + possibleMoves[randMove]);
 };
 
 Sudoku.prototype.generatePuzzle = function (generations) {
@@ -148,10 +168,10 @@ Sudoku.prototype.generatePuzzle = function (generations) {
 	var boxBoolArr = [], valBoxArr = [];
 	var possibleMoves = 0, randCell = 0, val, x, i, randNum;
 
-	for (val = 1; val <= 6; val += 1) {
+	for (val = 1; val <= 9; val += 1) {
 
 		// Need each number 9 times, one for each box.
-		for (x = 0; x < 9; x += 1) {
+		for (x = 0; x < 4; x += 1) {
 
 			// Array for this box only
 			var possArr = this.getPossibleCells(val);
@@ -176,23 +196,30 @@ Sudoku.prototype.generatePuzzle = function (generations) {
 
 			} while (!this.check(randCell, val) && (timeout < max) && (valBoxArr.length > 0) );
 
+			timeout = 0; 
 			this.gameBoard[randCell] = val;
-			//console.log('Num: '+val+' - Box: '+x+' - Cell: '+randCell+' - '+boolBoxArr.join()+' - ' + valBoxArr.join() );
+			console.log('Num: '+val+' - Box: '+x+' - Cell: '+randCell+' - '+boolBoxArr.join()+' - ' + valBoxArr.join() );
 			//console.log(this.gameBoard[randCell]);
+			
+			// No possibles left - but we have numbers left
+			if( valBoxArr.length === 0 && !randCell ){
+			}
 
-			if (timeout >= max) { console.log('GeneratePuzzleTimeout'); timeout = 0; }
-			if (valBoxArr.length === 0 ) {console.log('No Possible Moves-'); }
+			if (timeout >= max) { console.log('GeneratePuzzleTimeout'); }
+			if (valBoxArr.length === 0 ) {
+				console.log('No Possible Moves-');
+			}
 			//console.log('-=-');
 		};
 	};// Puzzle is created.
 	generations = generations || 1;
 
 	if( !this.checkPuzzle() ){
-		generations++;
-		this.generatePuzzle(generations);
+		this.generatePuzzle(generations + 1);
+	}else{
+		this.refreshDisplay();
+		console.log('Puzlle Valid ---- #of Generations ' + generations);
 	}
-	this.refreshDisplay();
-	console.log('Puzlle Valid ---- #of Generations ' + generations);
 };
 
 /**
@@ -202,24 +229,26 @@ Sudoku.prototype.generatePuzzle = function (generations) {
  * @return 	void
  **/
 Sudoku.prototype.prepopulate = function ( lines ) {
-	if(!lines){ lines = 1; }
 	
+
 	var x, val, cell;
 	var timeout = 0;
-	var max = 1000;
+	var max = 3;
 	var again = true;
-	
+	//this.gameBoard[0] = 9;
+	return true;
+	lines = lines || 1;
+
 	for(x = 0; x < lines; x++){ //# of lines loop...
 		for(val = 1; val <= 9; val++){ //Populating loop...
 			do{
-
 				cell = this.getRandomEmptyCell();
 				again = false;
-				timeout++;
-
+				timeout += 1;
+				console.log(cell);
 				// Failed - Value cannot be placed in this cell.
 				if( !this.check(cell, val) ){ 
-					again = true;
+					again = true; // Must look for another random cell.
 				}else{
 
 					//Place the value in the gameboard
@@ -618,6 +647,7 @@ Sudoku.prototype.refreshDisplay = function(divID){
 		}else if( this.solveBoard[i] ){
 			temp = small.getElementsByClassName("value")[0];
 			temp.innerHTML = this.solveBoard[i];
+			small.className = small.className.replace(/\game-value\b/,'');
 			small.className += " entered-value";	
 		
 		// No value found - it's empty	
@@ -626,6 +656,7 @@ Sudoku.prototype.refreshDisplay = function(divID){
 			// Remove the "entered-value" class
 			//small.className = small.className.replace(/\bentered-value\b/,'');
 			small.className = small.className.replace( /(?:^|\s)entered-value(?!\S)/g , '' );
+			small.className = small.className.replace( /(?:^|\s)game-value(?!\S)/g , '' );
 
 			// Get list of possible moves for cell
 			arr = this.getPossibles(i, 'bool');
@@ -720,8 +751,13 @@ Sudoku.prototype.getPossibleCells = function ( value, type){
 	var cell;
 	var boolArr = [];
 	for(cell=0;cell<81;cell++){
-		//Mark this cell as usable
-		boolArr[cell] = this.check(cell, value);
+
+		if( !this.gameBoard[cell] && !this.solveBoard[cell] ){
+			// Value is able to be placed here
+			boolArr[cell] = this.check(cell, value);
+		}else{
+			boolArr[cell] = false;
+		}
 	}
 	var valArr = [ ];
 	for(var z=0;z<boolArr.length;z++){
