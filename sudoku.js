@@ -511,7 +511,7 @@ Sudoku.prototype.getHTMLSkelaton = function(){
 		if(this.getSmall(i) == 8){
 			str += '</div>'; // #big-end
 		}
-	}
+	};
 	str += '</div>'; //#sudoku -end
 	return str;
 };
@@ -606,26 +606,31 @@ Sudoku.prototype.refreshDisplay = function(divID){
 		cellID = 'small-'+i;
 		small = document.getElementById(cellID);
 
-		// Game_Board piece found - set value
+		// Game_Board piece found --- Place value and class
 		if( this.gameBoard[i] ){
 			temp = small.getElementsByClassName("value")[0];
 			temp.innerHTML = this.gameBoard[i];
+			small.className = small.className.replace(/\bentered-value\b/,'');
+			small.className = small.className.replace(/\game-value\b/,'');
 			small.className += " game-value";
 
+		// Solved/entered value found --- Place value and class
 		}else if( this.solveBoard[i] ){
 			temp = small.getElementsByClassName("value")[0];
 			temp.innerHTML = this.solveBoard[i];
-			small.className += " entered-value";
-			
+			small.className += " entered-value";	
+		
+		// No value found - it's empty	
 		}else{
 			
-			// Removed the "entered-value" class
-			small.className = small.className.replace(/\bentered-value\b/,'');
-			
+			// Remove the "entered-value" class
+			//small.className = small.className.replace(/\bentered-value\b/,'');
+			small.className = small.className.replace( /(?:^|\s)entered-value(?!\S)/g , '' );
+
 			// Get list of possible moves for cell
 			arr = this.getPossibles(i, 'bool');
 			
-			// Value element 
+			// Clear value - just in case
 			temp = small.getElementsByClassName("value")[0];
 			temp.innerHTML = '';
 
@@ -633,10 +638,9 @@ Sudoku.prototype.refreshDisplay = function(divID){
 
 				tiny = 'tiny-'+j;
 				tinyObj = document.getElementById(cellID).getElementsByClassName('tiny')[j-1];
-				
-				if( arr[j] === true ){
-
-					tinyObj.className = tinyObj.className.replace(/\bhidden\b/,'');
+				if( arr[j-1] === true ){
+					//tinyObj.className = tinyObj.className.replace(/\bhidden\b/,'');
+					tinyObj.className = tinyObj.className.replace( /(?:^|\s)hidden(?!\S)/g , '' );
 
 				}else{
 					tinyObj.className += ' hidden';	
@@ -790,14 +794,14 @@ Sudoku.prototype.solveCell = function(cell){
 		return false;
 	}
 
-	// Cell Not Solved
+	// Cell Not Solved - Attempt to Solve it
 	else if(!this.solveBoard[cell]){
 		this.solveBoard[cell] = possVals[0];
 		this.moves += 1;	
 		return true;
 	}
 
-	// Solved: Needs value larger than current value
+	// Solved, but invalud - Needs value larger than current value
 	else{
 		for(i=0; i<possVals.length; i++){
 			if(possVals[i] > this.solveBoard[cell]){
@@ -1293,7 +1297,8 @@ Sudoku.prototype.startSolver = function () {
 		// Start the interval
 		this.timer = self.setInterval(this.solverStr, this.interval);
 		// Grab time from the 
-		this.startTime = (new Date().getTime() - document.getElementById('txt-timer').value) * 1000;
+		var oldTime = document.getElementById('txt-timer').value;
+		this.startTime = ( new Date().getTime() - oldTime );
 	}
 	
 };
