@@ -17,7 +17,7 @@ body {
 	display:inline-block;
 	font-size:1em;
 }
-#sodoku {
+#sudoku {
 	background:#aaa;
 	float:left;
 	margin: 20px auto;
@@ -91,6 +91,8 @@ body {
 
 .highlight {
 	background:#FFA07A;
+	1background:#ff3300;
+	background:#fcc;
 }
 .lowlight{
 	1background-color: rgba(255,0,0,.2);
@@ -111,7 +113,6 @@ fieldset{
 	color:#fff;
 	line-height:2;
 	padding:0 1em;
-	1background:rgba(0,0,0,.1);
 	background-color:#333;
 	font-size:1em;
 	border-radius:3px;
@@ -139,7 +140,7 @@ input[type="text"] {
 }
 #numofmoves {width:50px;}
 
-#sodoku input[type="text"].edit-txt{
+#sudoku input[type="text"].edit-txt{
 	display:block;
 	width:100%;
 	height:100%;
@@ -154,6 +155,7 @@ input[type="text"] {
 
 .entered-value{
 	color:#f80;
+	1color:#0f2;
 	position:relative;
 }
 

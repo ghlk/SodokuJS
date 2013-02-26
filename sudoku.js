@@ -1,8 +1,8 @@
 /**
- * Class Sodoku
- * Summary: A sodoku class that contains solving and editing capabilities.
- * @param 	str 	name 	Name of sodoku obj created.
- * @param 	int 	size 	Size of the sodoku puzzle to create.
+ * Class sudoku
+ * Summary: A sudoku class that contains solving and editing capabilities.
+ * @param 	str 	name 	Name of sudoku obj created.
+ * @param 	int 	size 	Size of the sudoku puzzle to create.
  *
  *  size - Default 81
  *
@@ -10,7 +10,7 @@
  * Brute force algo vs EvilBoard = 112144 moves. 1move/1sec = 31hours
  *
  **/
-function Sodoku(name, size) {
+function Sudoku(name, size) {
 	
 	/* Creates the boards */
 	var board = [ ];
@@ -30,8 +30,8 @@ function Sodoku(name, size) {
 	this.currentCell = null;
 		
 	/* Puzzle Settings */
-	this.size = size || 81; //size of the sodoku puzzle
-	this.name = name || 'mySodoku'; //Name of the Sodoku class created by the page (@params)
+	this.size = size || 81; //size of the sudoku puzzle
+	this.name = name || 'mysudoku'; //Name of the sudoku class created by the page (@params)
 	this.t_possibles = true; //Show possibles or not
 
 	/* Helper Values */
@@ -45,6 +45,7 @@ function Sodoku(name, size) {
 	/* Premade puzzles */
 	this.testBoard = ['', 9, 2,'','', 1,'', 8,'','','','','','','', 1, 7,'','','', 7,'', 3,'', 4, 6, 2,'','','', 3,'','', 9, 1,'','', 9, 6, 5,'', 1, 7, 4,'','', 4, 1,'','', 9,'','','', 1, 3, 6,'', 4,'',7,'','','', 5, 2,'','','','','','','', 8,'', 2,'','', 6, 9,''];
 	this.evilBoard = [ 5,'', 9,'','', 6,'', 7 , 8, 4,'','', 2,'','','','', 9, 7,'','','','','','','', 1,'', 6,'','','', 4,'','','', 9,'','','','','','','', 4,'','','', 9,'','','', 6,'', 1,'','','','','','','',5, 6,'','','','', 1,'','', 8, 2, 5,'', 3,'','', 1,'', 9];
+	return true;
 }
 
 
@@ -62,7 +63,7 @@ function Sodoku(name, size) {
  * @param 	str 	divID 	The div ID to display the puzzle in.
  * @return 	void
  **/
-Sodoku.prototype.newPuzzle = function (lines, divID) {
+Sudoku.prototype.newPuzzle = function (lines, divID) {
 
 	/** Reset all boards **/
 	this.gameBoard = this.emptyBoard.slice(0);
@@ -91,11 +92,116 @@ Sodoku.prototype.newPuzzle = function (lines, divID) {
  * testPuzzle()
  * Summary: Sets the premade test puzzle in the board.
  **/
-Sodoku.prototype.testPuzzle = function() {
+Sudoku.prototype.testPuzzle = function() {
 	this.gameBoard = this.testBoard.slice(0);
 	this.refreshDisplay();
 };
 
+
+
+Sudoku.prototype.recurseGenerate = function( currentNumber, direction ){
+
+	// Puzzle is complete and valid - End
+	if( !this.gameBoard.indexOf('') ){
+		return true;
+	}
+
+	// Select current number
+	currentNumber = currentNumber || 1;
+	
+	// Get array of possible cell moves.
+	possibleMoves = this.getPossibleCells( currentNumber, 'val' );
+
+	// Count how many of this value is in the puzzle
+	var count = 0;
+	for(var x=0;x<81;x++){
+		if(this.gameBoard == currentNumber){
+			count++;
+		}
+	}
+
+	// Exhausted all moves for this number, move on.
+	if( !possibleMoves && count === 9){
+		return this.recurseGenerate( currentNumber+1 );
+	}
+
+	// Select a possible move by random
+	// randMove = Math.floor( Math.random()* 1)+1;
+	
+	// Place our current number into that random available cell.
+	// this.gameBoard[randMove] = currentNumber;
+	
+	// Check for "dead cells" - if so, backpedal
+	if(!this.checkDeadCells()){
+
+		return this.recurseGenerate( currentNumber-1, direction )
+	}
+
+
+	if( possible.indexOf(cell) >= 0){
+
+	}	
+};
+
+
+Sudoku.prototype.generatePuzzle = function(generations){
+
+	this.empty();
+	//Recursive function that fills the board with values.
+	var rand, timeout=0;
+	var max = 1000;
+	var boxBoolArr = [], valBoxArr = [];
+	var possibleMoves = 0;
+	var randCell = 0;
+
+	for(var val=1; val<=6; val++){
+		
+		// Need each number 9 times, one for each box.
+		for(var x=0; x<9; x++){
+			
+			// Array for this box only
+			var possArr = this.getPossibleCells( val );
+			var boolBoxArr = possArr.slice( (x*9), x*9+(9));
+			var valBoxArr = [];
+			
+			for(var i=0;i<boolBoxArr.length;i++){
+				if( boolBoxArr[i] === true ){
+					valBoxArr.push(i + (x*9));
+				}
+			}
+			
+			
+			
+			do{
+				// Pick a random cell from the number
+				randNum = Math.floor(Math.random() * valBoxArr.length);
+				randCell = valBoxArr[randNum];
+				//console.log('Random Number: '+randNum);
+				//console.log('Random Cell: '+randCell);
+				timeout++;
+				// If this loops, we have a conflict from a previous move with this same number.
+				// 
+			
+			}while( !this.check(randCell, val) && (timeout < max) && (valBoxArr.length > 0) );
+
+			this.gameBoard[randCell] = val;
+			//console.log('Num: '+val+' - Box: '+x+' - Cell: '+randCell+' - '+boolBoxArr.join()+' - ' + valBoxArr.join() );
+			//console.log(this.gameBoard[randCell]);
+			
+			if(timeout >= max){ console.log('GeneratePuzzleTimeout'); timeout=0;}
+			if(valBoxArr.length === 0 ){console.log('No Possible Moves-'); }
+			//console.log('-=-');
+		};
+	};// Puzzle is created.
+		generations = generations || 1;
+
+	if( !this.checkPuzzle() ){
+		generations++;
+		this.generatePuzzle(generations);
+	}
+	this.refreshDisplay();
+	console.log('Puzlle Valid ---- #of Generations ' + generations);
+};
 
 /**
  * prepopulate()
@@ -103,16 +209,40 @@ Sodoku.prototype.testPuzzle = function() {
  * @param 	int 	lines 	Number of times to inject the numbers 1-9 in the puzzle.
  * @return 	void
  **/
-Sodoku.prototype.prepopulate = function (lines) {
+Sudoku.prototype.prepopulate = function (lines) {
 	if(!lines){ lines = 1; }
+	
 	var x, val, cell;
+	var timeout = 0;
+	var max = 1000;
+	var again = true;
 	
 	for(x = 0; x < lines; x++){ //# of lines loop...
 		for(val = 1; val <= 9; val++){ //Populating loop...
 			do{
+
 				cell = this.getRandomEmptyCell();
-			}while ( !(this.check(cell, val)) );
-			this.gameBoard[cell] = val;
+				again = false;
+				timeout++;
+
+				// Failed - Value cannot be placed in this cell.
+				if( !this.check(cell, val) ){ 
+					again = true;
+				}else{
+
+					//Place the value in the gameboard
+					this.gameBoard[cell] = val;
+					
+					if( !this.checkDeadCells() ){
+						this.gameBoard[cell]='';
+						again = true;
+					}
+				}
+
+			}while ( timeout < max && again == true);
+			
+			if( timeout >= max ){ console.log('TIMEOUT'); }
+			timeout = 0;	
 		}
 	}
 };
@@ -123,12 +253,35 @@ Sodoku.prototype.prepopulate = function (lines) {
  * Summary: Returns the location of a random empty cell. Used for puzzle creation.
  * @return 	int 	rand 	Random empty cell number.
  **/
-Sodoku.prototype.getRandomEmptyCell = function () {
+Sudoku.prototype.getRandomEmptyCell = function (small) {
 	var rand;
+	if(small || small !== null){
+		do{
+			rand = Math.floor( Math.random() * 9 );
+			rand += small*9;
+		}while( this.gameBoard[rand] );
+		return rand;
+	}
+
 	do{
 		rand = Math.floor( Math.random() * 81 );
 	}while( this.gameBoard[rand] );
 	return rand;
+};
+
+Sudoku.prototype.checkDeadCells = function(){
+	var cell, possibles;
+	
+	for(cell=0; cell<81; cell++){
+
+		if(!this.gameBoard[cell] && !this.solveBoard[cell]) {
+			
+			if( this.getPossibles(cell).length == 0 ){
+				return false;
+			}
+		}
+	}
+	return true;
 };
 
 
@@ -149,7 +302,7 @@ Sodoku.prototype.getRandomEmptyCell = function () {
  * @return 	bool 	false
  * @return 	arr 	arr 	Array of boolean values representing what values are possible moves.
  **/
-Sodoku.prototype.check = function (cell, val) {
+Sudoku.prototype.check = function (cell, val) {
 	
 	/** BOX CHECK **/
 	var box = this.checkBox(cell, val);
@@ -160,6 +313,13 @@ Sodoku.prototype.check = function (cell, val) {
 	/** COLUMN CHECK **/
 	var column = this.checkColumn(cell, val);
 	
+	/** EMPTY CHECK **/
+	var empty = true;
+
+	// if( this.gameBoard[cell] || this.solveBoard[cell]){
+	// 	return false;
+	// }
+
 	if( cell === 0 ){ 
 		// console.log('cell_'+cell+' val_'+val);
 		// console.log(box);
@@ -200,9 +360,9 @@ Sodoku.prototype.check = function (cell, val) {
  * @return 	bool 	false
  * @return 	arr 	arr 	Array of booleans representing what values are possible moves.
  **/
-Sodoku.prototype.checkBox = function (cell, val){
+Sudoku.prototype.checkBox = function (cell, val){
 	
-	/* arr represents what values are valid moves */
+	/* Represents moves 1-9*/
 	var arr = [ true, true, true, true, true, true, true, true, true ];
 
 	/* Iterate through the entire box, starting with it's starting square. */
@@ -210,8 +370,10 @@ Sodoku.prototype.checkBox = function (cell, val){
 
 	//Create array of valid moves for this box
 	for(var i=start; i < (start+9); i++){
-			
+		
+		// Look for cell with value
 		if( this.gameBoard[i] ){
+			// We've found a value, let's mark that value as not usable for the box.
 			arr[ ( this.gameBoard[i]-1 ) ] = false;
 		}else if( this.solveBoard[i]  ){
 			arr[ ( this.solveBoard[i]-1) ] = false;
@@ -235,7 +397,7 @@ Sodoku.prototype.checkBox = function (cell, val){
  * @return 	bool 	false
  * @return 	arr 	arr
  **/
-Sodoku.prototype.checkRow = function (cell, val){
+Sudoku.prototype.checkRow = function (cell, val){
 	
 	var i, x, boolArr, cells;
 	cells = this.getRowCells(cell);
@@ -249,9 +411,7 @@ Sodoku.prototype.checkRow = function (cell, val){
 		}else if( this.solveBoard[x]  ){
 			arr[ (this.solveBoard[x] - 1) ] = false;
 		}
-
 	}
-
 	if(val){
 		return arr[val-1];
 	}
@@ -272,7 +432,7 @@ Sodoku.prototype.checkRow = function (cell, val){
  * @return 	bool 	True 	If value is passed and it's a valid possible move for the cell
  * @return 	bool 	False 	If the value passed and it's an invalid move for the cell.
  **/
-Sodoku.prototype.checkColumn = function (cell, val){
+Sudoku.prototype.checkColumn = function (cell, val){
 	
 	var x, arr, cells;
 	cells = this.getColumnCells(cell);
@@ -294,7 +454,28 @@ Sodoku.prototype.checkColumn = function (cell, val){
 	}
 };
 
+Sudoku.prototype.checkPuzzle = function(alertFlag){
 
+	var x, y;
+	for(x=0;x<81;x++){
+		
+		if(this.gameBoard[x]){
+			//console.log('check cell:'+x+' value:'+this.gameBoard[x]);
+			y = this.gameBoard[x];
+			this.gameBoard[x] = '';
+			if( !this.check(x, y) ){
+				//console.log('THIS PUZZLE FAILED');
+				this.gameBoard[x] = y;
+				if(alertFlag===true){ alert('Puzzle FAILED'); }
+				
+				return false;
+			}
+			this.gameBoard[x] = y;
+		}
+	}
+	if(alertFlag===true){alert('Puzzle SUCCESS');}
+	return true;
+};
 
 // * -------------------------------------------
 // * Displaying & HTML
@@ -303,10 +484,10 @@ Sodoku.prototype.checkColumn = function (cell, val){
 
 /**
  * getHTMLSkelaton()
- * Summary: Returns the HTML skelaton for the sodoku game.
+ * Summary: Returns the HTML skelaton for the sudoku game.
  * @return 	str 	str 
  **/
-Sodoku.prototype.getHTMLSkelaton = function(){
+Sudoku.prototype.getHTMLSkelaton = function(){
 	var str;
 	var i;
 	
@@ -314,7 +495,7 @@ Sodoku.prototype.getHTMLSkelaton = function(){
 	//36: 6x6 Box:2x3
 	//81: 9x9 Box:3x3
 
-	str  = '<div id="sodoku">';
+	str  = '<div id="sudoku">';
 	
 	for(i=0; i<this.size; i++){
 		
@@ -328,7 +509,7 @@ Sodoku.prototype.getHTMLSkelaton = function(){
 			str += '</div>'; //#big -end
 		}
 	}
-	str += '</div>'; //#sodoku -end
+	str += '</div>'; //#sudoku -end
 	return str;
 };
 
@@ -336,7 +517,7 @@ Sodoku.prototype.getHTMLSkelaton = function(){
 /**
  * getHTML()
  **/
-Sodoku.prototype.getHTML = function(showPossibles, showSolution) {
+Sudoku.prototype.getHTML = function(showPossibles, showSolution) {
 
 	if( showPossibles !== true) { showPossibles = false; }
 	if( showSolution !== true) { showSolution = false; }
@@ -346,7 +527,7 @@ Sodoku.prototype.getHTML = function(showPossibles, showSolution) {
 	var str = '';
 	var cell, k, possStr;
 	
-	str += '<div id="sodoku">'; //#sodoku - Start
+	str += '<div id="sudoku">'; //#sudoku - Start
 	
 	for(cell=0; cell<this.size; cell++){
 		
@@ -385,7 +566,7 @@ Sodoku.prototype.getHTML = function(showPossibles, showSolution) {
 			str += '</div>'; //#big -end
 		}
 	}
-	str += '</div'; //#sodoku - end
+	str += '</div'; //#sudoku - end
 	return str;
 };
 
@@ -395,7 +576,7 @@ Sodoku.prototype.getHTML = function(showPossibles, showSolution) {
  * Summary: Toggles whether to show possible moves in the puzzle or not.
  * @param 	bool 	override 
  **/
-Sodoku.prototype.togglePossibles = function(override){
+Sudoku.prototype.togglePossibles = function(override){
 	console.log('toggle'+this.t_possibles);
 	if(override === true || override === false){
 		this.t_possibles = override;
@@ -414,9 +595,11 @@ Sodoku.prototype.togglePossibles = function(override){
  * @return 	void
  *
  **/
-Sodoku.prototype.refreshDisplay = function(divID){
+Sudoku.prototype.refreshDisplay = function(divID){
 	if(!divID){divID='game';}
-	document.getElementById(divID).innerHTML = mySodoku.getHTML(this.t_possibles, true);
+	document.getElementById(divID).innerHTML = mysudoku.getHTML(this.t_possibles, true);
+	
+
 };
 
 
@@ -425,8 +608,9 @@ Sodoku.prototype.refreshDisplay = function(divID){
  * Summary: Empties the board and refreshes the display.
  *
  **/
-Sodoku.prototype.empty = function () {
+Sudoku.prototype.empty = function () {
 	this.gameBoard = this.emptyBoard.slice(0);
+	this.solveBoard = this.emptyBoard.slice(0);
 	this.refreshDisplay();
 };
 
@@ -435,7 +619,7 @@ Sodoku.prototype.empty = function () {
  * Summary: Empties the board and refreshes the display.
  *
  **/
-Sodoku.prototype.clear = function () {
+Sudoku.prototype.clear = function () {
 	this.solveBoard = this.emptyBoard.slice(0);
 	this.refreshDisplay();
 };
@@ -447,7 +631,7 @@ Sodoku.prototype.clear = function () {
  * @return 	arr 	boolArr Array of boolean values to represent possible values for cell.
  * @return 	arr 	valArr 	Array of values that are possible values for cell.
  */
-Sodoku.prototype.getPossibles = function (cell, type) {
+Sudoku.prototype.getPossibles = function (cell, type) {
 	
 	// Possibles arr (boolean)
 	var boolArr = this.check(cell);
@@ -464,6 +648,7 @@ Sodoku.prototype.getPossibles = function (cell, type) {
 	if(type == "val"){
 		return valArr;
 	}
+	return valArr;
 };
 
 
@@ -471,7 +656,7 @@ Sodoku.prototype.getPossibles = function (cell, type) {
  * calcPossibles
  * Summary: 
  **/
-Sodoku.prototype.calcPossibles = function () {
+Sudoku.prototype.calcPossibles = function () {
 	var cell;
 	for(cell=0; cell<81; cell++){
 		if( !this.gameBoard[cell] && !this.solveBoard[cell] ) {
@@ -480,6 +665,27 @@ Sodoku.prototype.calcPossibles = function () {
 	}
 };
 
+Sudoku.prototype.getPossibleCells = function ( value, type){
+
+	//Go through ALL the cells, and return an array of which I can use.
+	var cell;
+	var boolArr = [];
+	for(cell=0;cell<81;cell++){
+		//Mark this cell as usable
+		boolArr[cell] = this.check(cell, value);
+	}
+	var valArr = [ ];
+	for(var z=0;z<boolArr.length;z++){
+		if(boolArr[z]){
+			valArr.push(z+1);
+		}
+	}
+	if( type === 'val' ){
+		return valArr;
+	}else{
+		return boolArr;
+	}
+}
 
 // * -------------------------------------------
 // * Solving
@@ -487,7 +693,7 @@ Sodoku.prototype.calcPossibles = function () {
 
 
 /**
- * Sodoku.solveCell(cell)
+ * sudoku.solveCell(cell)
  * Summary: To solve a single cell only. 
  *
  * @param 	int 	cell
@@ -499,7 +705,7 @@ Sodoku.prototype.calcPossibles = function () {
  *	solver();
  *
  **/
-Sodoku.prototype.solveCell = function(cell){
+Sudoku.prototype.solveCell = function(cell){
 	
 	var possVals, i;
 
@@ -516,9 +722,33 @@ Sodoku.prototype.solveCell = function(cell){
 		this.solveBoard[cell] = '';
 		return false;
 	}
+
+	//There is a No Possibles somewhere else on the board
+	if( !this.checkDeadCells() ){
+		
+		//Check to see if this cell is the cause of problem
+		temp = this.solveBoard[cell];
+		this.solveBoard[cell]='';
+		
+		if( this.checkDeadCells() ){
+			//This cell is the problem, just increment its value.
+			for(i=0; i<possVals.length; i++){
+				if(possVals[i] > temp){
+					this.solveBoard[cell] = possVals[i];
+					this.moves += 1;	
+					return true;
+				}
+			}
+		}
+
+		//Cell is not the problem - keep backpedeling
+		return false;
+	}
+
 	//Cell Not Solved
 	else if(!this.solveBoard[cell]){
 		this.solveBoard[cell] = possVals[0];
+		this.moves += 1;	
 		return true;
 	}
 	//Solved: Needs value larger than current value
@@ -526,6 +756,7 @@ Sodoku.prototype.solveCell = function(cell){
 		for(i=0; i<possVals.length; i++){
 			if(possVals[i] > this.solveBoard[cell]){
 				this.solveBoard[cell] = possVals[i];
+				this.moves += 1;	
 				return true;
 			}
 		}
@@ -534,10 +765,10 @@ Sodoku.prototype.solveCell = function(cell){
 
 /**
  * -------------------------------------------
- * Sodoku.solver( )
+ * sudoku.solver( )
  * -------------------------------------------
  * Purpose:
- *	Controller method to solve the sodoku with an incremental brute-force algorithm
+ *	Controller method to solve the sudoku with an incremental brute-force algorithm
  *  Made so the thought process of the solving algorithms could be followed by the user.
  *
  * Parents:
@@ -548,20 +779,16 @@ Sodoku.prototype.solveCell = function(cell){
  *	highlightCell(cell)
  *	solveCell(cell)
  */
-Sodoku.prototype.solver = function(){
+Sudoku.prototype.solver = function(){
 
-	this.moves += 1;
 	var cell, x;
-	if(this.currentCell === null)
-		{this.currentCell = 0;}
-	
+	if(this.currentCell === null){this.currentCell = 0;}
 	cell = this.currentCell;
 	this.refreshDisplay();
 	
-	if(cell > 80){
+	if(cell > 80 ){
 		this.stopTimer();
 		document.getElementById('numofmoves').value = this.moves;
-		
 		return false;
 	}
 	else{
@@ -569,23 +796,26 @@ Sodoku.prototype.solver = function(){
 		x = this.solveCell(cell);
 		this.calcPossibles();
 		
+		// GameBoard - Cant play this cell
 		if(x === null){
 			this.currentCell += this.direction;
 		}
 		else if(x === true){
 			this.currentCell++;
 			this.direction = 1;
+			//this.moves += 1;
 		}
 		else if(x === false){
 			this.currentCell--;
 			this.direction = -1;
+			//this.moves += 1;
 		}
 	}
-			document.getElementById('numofmoves').value = this.moves;
+	document.getElementById('numofmoves').value = this.moves;
 
 };
 
-Sodoku.prototype.fillSinglePossiblesRecurse = function (cell){
+Sudoku.prototype.fillSinglePossiblesRecurse = function (cell){
 	
 	if(!cell){cell=0;}
 	//Exit clause
@@ -604,7 +834,7 @@ Sodoku.prototype.fillSinglePossiblesRecurse = function (cell){
  * Summary:
  * 
  **/
-Sodoku.prototype.fillSinglePossibles = function() {
+Sudoku.prototype.fillSinglePossibles = function() {
 
 	var i, finished;
 	finished = true;
@@ -645,7 +875,7 @@ Sodoku.prototype.fillSinglePossibles = function() {
 
 /**
  * -------------------------------------------
- * Sodoku.stepSolver(step)
+ * sudoku.stepSolver(step)
  * -------------------------------------------
  * Purpose: 
  * 	To show the incremental progress of our recursive solving method.
@@ -654,7 +884,7 @@ Sodoku.prototype.fillSinglePossibles = function() {
  *	solve(start,'pos', end, bwall);
  *	stopTimer();
  */
-Sodoku.prototype.stepSolver = function () {
+Sudoku.prototype.stepSolver = function () {
 
 	var start, end, bwall;
 
@@ -687,7 +917,7 @@ Sodoku.prototype.stepSolver = function () {
 
 /**
  * -------------------------------------------
- * Sodoku.solve(cell, direction, wall, backWall)
+ * sudoku.solve(cell, direction, wall, backWall)
  * -------------------------------------------
  * 
  * Summary: 
@@ -709,47 +939,75 @@ Sodoku.prototype.stepSolver = function () {
  * 	backWall: opt - (0-80) - Used by the method "stepSolver" to place a arbitrary wall behind the current cell.
  * 		~ If no value provided: Backstepping recursion will be included into forwardstepping...
  */
-Sodoku.prototype.solve = function(cell, direction, wall, bwall) {
+Sudoku.prototype.solve = function(cell, direction, wall, bwall) {
 
-	//Increment 'move counter'
-	this.moves += 1;
-	
-	//Default value for cell if value not present
+	// Increment 'move counter'
+	document.getElementById('numofmoves').value = this.moves;
+
+	// Default value for cell if value not present
 	if(!cell && cell !== 0){
 		cell = 0;
+		this.temptime = new Date().getTime();
 	}
 
-	//If goes out-of-bounds
+	// Break Recursion - When solver goes "out-of-bounds"
 	if( cell < 0 || cell > 80 || cell > wall || ( cell <= bwall && !this.gameBoard[cell]) ){
-		this.showSolution();
-		document.getElementById('numofmoves').value = this.moves;
-		return cell;
+		this.refreshDisplay();
+		var now = new Date().getTime();
+		document.getElementById('txt-timer').value = (now-this.temptime)/1000;
+		return true;
 	}
+
+	// Check for 'dead cells' - a unsolved cell with no possible moves.
+	if( !this.checkDeadCells() ){
+		
+		//Check to see if this cell is the cause of problem
+		temp = this.solveBoard[cell];
+		this.solveBoard[cell]='';
+		
+		if( this.checkDeadCells() ){
+			//This cell is the problem, just increment its value.
+			var possVals = this.getPossibles(cell, "val");
+
+			for(i=0; i<possVals.length; i++){
+				if(possVals[i] > temp){
+					this.solveBoard[cell] = possVals[i];
+					this.moves += 1;	
+	
+					return this.solve((cell+1), 'pos', wall, bwall);
+				}
+			}
+		}
+
+		//Cell is not the problem - keep backpedeling
+		return this.solve((cell-1), 'neg', wall, bwall);
+	}
+
 
 	var possVals;
 	var i;
 	
-	//Default direction
-	if(!direction){ direction = "pos"; }
-
+	// Go 'forward' by default
+	direction = direction || 'pos';
 	
-	//Unexposed Cell - Player can edit square
+	// Cell not part of puzzle - Player can edit 
 	if(!this.gameBoard[cell]) {
 		
-		//Get numerical array of possible values.
+		// Get numerical array of possible values.
 		possVals = this.getPossibles(cell, "val");
 
-		//Cell Not Solved - First solution attempt.
+		// Cell Not Solved - First solution attempt.
 		if(!this.solveBoard[cell]){
 						
-			//No possible values
+			// No possible values
 			if(possVals.length < 1){
 				this.solveBoard[cell] = ''; //Clear cell since we are backstepping.
 				return this.solve( (cell-1), 'neg', wall, bwall);
 			}
 			//Possible Values (try the lowest value)
 			else{
-				this.solveBoard[cell] = possVals[0];	
+				this.solveBoard[cell] = possVals[0];
+				this.moves += 1;		
 				this.calcPossibles(); //Change made, refresh possible values.
 				return this.solve( (cell+1), 'pos', wall, bwall);
 			}
@@ -767,7 +1025,9 @@ Sodoku.prototype.solve = function(cell, direction, wall, bwall) {
 				for(i=0; i<possVals.length; i++){
 					//Only try a value if it's larger than the current "solved" value.
 					if(possVals[i] > this.solveBoard[cell]){
-						this.solveBoard[cell] = possVals[i];						
+						this.solveBoard[cell] = possVals[i];
+						this.moves += 1;	
+							
 						return this.solve( (cell+1), 'pos', wall, bwall);
 					}
 				}
@@ -815,7 +1075,7 @@ Sodoku.prototype.solve = function(cell, direction, wall, bwall) {
  * @param 	int 	cell 	Numeric position of cell.
  * @return 	int 	Numeric position 
  **/ 
-Sodoku.prototype.getBig = function (cell){
+Sudoku.prototype.getBig = function (cell){
 	return Math.floor(cell/9);
 };
 
@@ -824,7 +1084,7 @@ Sodoku.prototype.getBig = function (cell){
  * getBigRow()
  * @param 	int 	cell 	Numeric position of cell.
  **/
-Sodoku.prototype.getBigRow = function (cell){
+Sudoku.prototype.getBigRow = function (cell){
 	return Math.floor( Math.floor(cell/9) / 3);
 };
 
@@ -834,7 +1094,7 @@ Sodoku.prototype.getBigRow = function (cell){
  * @param 	int 	cell 	Numeric position of cell.
  * @return 	int 	Big Column that the cell belongs to.
  **/
-Sodoku.prototype.getBigColumn = function (cell){
+Sudoku.prototype.getBigColumn = function (cell){
 	return ( Math.floor(cell/9) % 3 );
 };
 
@@ -844,7 +1104,7 @@ Sodoku.prototype.getBigColumn = function (cell){
  * @param 	int 	cell 	Numeric position of cell
  * @return 	int 	Numeric position of the cell's small 
  */
-Sodoku.prototype.getSmall = function (cell){
+Sudoku.prototype.getSmall = function (cell){
 	return cell % 9;
 };
 
@@ -855,7 +1115,7 @@ Sodoku.prototype.getSmall = function (cell){
  * @param 	int 	cell 	Numerical position of the cell in question
  * @return 	int 	pos 	
  **/
-Sodoku.prototype.getSmallRow = function (cell){
+Sudoku.prototype.getSmallRow = function (cell){
 	return Math.floor( ( cell % 9 ) / 3);
 };
 
@@ -865,7 +1125,7 @@ Sodoku.prototype.getSmallRow = function (cell){
  * Summary:
  * @param 	int 	cell
  **/
-Sodoku.prototype.getSmallColumn = function (cell){
+Sudoku.prototype.getSmallColumn = function (cell){
 	return ( cell % 9 ) % 3;
 };
 
@@ -875,7 +1135,7 @@ Sodoku.prototype.getSmallColumn = function (cell){
  * Summary: Returns the cell number of the beginning of the box that the cell lives.
  * @param 	int 	cell 	Numerical value of the cell in question.
  **/
-Sodoku.prototype.getBoxStart = function (cell){
+Sudoku.prototype.getBoxStart = function (cell){
 	return this.getBig(cell) * 9;
 };
 
@@ -886,7 +1146,7 @@ Sodoku.prototype.getBoxStart = function (cell){
  * @param 	int 	cell
  * @return 	int 	start 	Numerical value of cell at beginning of row.
  **/
-Sodoku.prototype.getRowStart = function (cell){
+Sudoku.prototype.getRowStart = function (cell){
 	return (( Math.floor(this.getBig(cell) / 3) * 3) * 9) + ( this.getSmallRow(cell) * 3 );
 };
 
@@ -897,7 +1157,7 @@ Sodoku.prototype.getRowStart = function (cell){
  * @param 	int 	cell
  * @return 	int 	cell 	The numerical value of the cell that is at the beginning of the column that the cell param belongs to.
  **/
-Sodoku.prototype.getColumnStart = function (cell){
+Sudoku.prototype.getColumnStart = function (cell){
 	return ( this.getBig(cell) % 3) * 9 + ( this.getSmallColumn(cell) );
 };
 
@@ -907,7 +1167,7 @@ Sodoku.prototype.getColumnStart = function (cell){
  * @param 	int 	cell
  * @return 	int 	cell 
  **/
-Sodoku.prototype.getRowCells = function (cell) {
+Sudoku.prototype.getRowCells = function (cell) {
 	var start = this.getRowStart(cell);
 	var arr = [ ];
 	var end = start + 20 + 1;
@@ -932,7 +1192,7 @@ Sodoku.prototype.getRowCells = function (cell) {
  * @param 	int 	cell
  * @return 	 int 	cell
  **/
-Sodoku.prototype.getColumnCells = function (cell) {
+Sudoku.prototype.getColumnCells = function (cell) {
 	var start = this.getColumnStart(cell);
 	var arr = [ ];
 	var end = start + 61;
@@ -960,7 +1220,7 @@ Sodoku.prototype.getColumnCells = function (cell) {
  * showCells()
  * Summary:
  **/
-Sodoku.prototype.showCells = function () {
+Sudoku.prototype.showCells = function () {
 	for(var i=0;i<81;i++){
 		this.gameBoard[i] = i;
 	}
@@ -972,7 +1232,7 @@ Sodoku.prototype.showCells = function () {
  * startSolver()
  * Summary:
  **/
-Sodoku.prototype.startSolver = function () {
+Sudoku.prototype.startSolver = function () {
 	
 	// this.step = parseInt(document.getElementById('stepValue').value);
 	// this.interval  = document.getElementById('interval').value;
@@ -991,7 +1251,7 @@ Sodoku.prototype.startSolver = function () {
  * Summary: Sets step and interval for 'setInterval' and sets timer.
  *
  **/
-Sodoku.prototype.startStepSolver = function () {
+Sudoku.prototype.startStepSolver = function () {
 	
 	this.step = parseInt(document.getElementById('stepValue').value);
 	this.interval  = document.getElementById('interval').value;
@@ -1004,7 +1264,7 @@ Sodoku.prototype.startStepSolver = function () {
  * Summary: Clears the interval and pops up an alert to shop the timer has stopped.
  * @return 	void
  **/
-Sodoku.prototype.stopTimer = function () {
+Sudoku.prototype.stopTimer = function () {
 	this.timer = window.clearInterval(this.timer);
 	alert("Solver stopped.")
 };
@@ -1013,7 +1273,7 @@ Sodoku.prototype.stopTimer = function () {
  * highlightCell()
  * Summary:
  **/
-Sodoku.prototype.highlightCell = function (cell) {
+Sudoku.prototype.highlightCell = function (cell) {
 	var last = this.currentCell + ( this.direction * -1);
 	if(last >= 0 && last < 81){
 		this.unHighlightCell(last);
@@ -1030,7 +1290,7 @@ Sodoku.prototype.highlightCell = function (cell) {
  * @param 	int 	cell 	Numerical position of the cell to highlight.
  *
  **/
-Sodoku.prototype.unHighlightCell = function (cell){
+Sudoku.prototype.unHighlightCell = function (cell){
 	var cellStr = "small-"+cell;
 	document.getElementById(cellStr).className = document.getElementById(cellStr).className.replace(/\bhighlight\b/,'');
 };
@@ -1041,7 +1301,7 @@ Sodoku.prototype.unHighlightCell = function (cell){
  * Summary: Highlights a number of cells regarding the position. Highlights row, column, and box of the cell.
  * @param 	int 	cell 	Numeric position of the cell in the puzzle.
  **/
-Sodoku.prototype.highlightCells = function(cell){
+Sudoku.prototype.highlightCells = function(cell){
 	//boxArr = this.getBoxCells(cell);
 	rowArr = this.getRowCells(cell);
 	colArr = this.getColumnCells(cell);
@@ -1062,7 +1322,7 @@ Sodoku.prototype.highlightCells = function(cell){
 /**
  * unhighlightCells() NOT USED
  **/
-Sodoku.prototype.unhighlightCells = function(cell){
+Sudoku.prototype.unhighlightCells = function(cell){
 };
 
 

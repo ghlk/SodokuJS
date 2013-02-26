@@ -1,4 +1,4 @@
-SodokuJS
+sudokuJS
 ========
 
-A simple sodoku game and solver coded in JavaScript.
+A simple sudoku game and solver coded in JavaScript.
