@@ -11,8 +11,6 @@
  *
  **/
 function Sudoku(name, size, divID) {
-	"use strict"; // Enforce strict
-
 	/* Creates the boards */
 	var board = [ ], i;
 	for (i = 0; i < size; i = i + 1) { board.push(''); }
@@ -46,7 +44,7 @@ function Sudoku(name, size, divID) {
 	this.testBoard = ['', 9, 2, '', '', 1, '', 8, '', '', '', '', '', '', '', 1, 7, '', '', '', 7, '', 3, '', 4, 6, 2, '', '', '', 3, '', '', 9, 1, '', '', 9, 6, 5, '', 1, 7, 4, '', '', 4, 1, '', '', 9, '', '', '', 1, 3, 6, '', 4, '', 7, '', '', '', 5, 2, '', '', '', '', '', '', '', 8, '', 2, '', '', 6, 9, ''];
 	this.evilBoard = [5, '', 9, '', '', 6, '', 7, 8, 4, '', '', 2, '', '', '', '', 9, 7, '', '', '', '', '', '', '', 1, '', 6, '', '', '', 4, '', '', '', 9, '', '', '', '', '', '', '', 4, '', '', '', 9, '', '', '', 6, '', 1, '', '', '', '', '', '', '', 5, 6, '', '', '', '', 1, '', '', 8, 2, 5, '', 3, '', '', 1, '', 9];
 
-	//this.displaySkelaton(divID);
+	this.displaySkelaton(divID);
 
 	return true;
 }
@@ -67,7 +65,6 @@ function Sudoku(name, size, divID) {
  **/
 Sudoku.prototype.newPuzzle = function (lines, divID) {
 
-	"use strict";
 	/** Reset all boards **/
 	this.gameBoard = this.emptyBoard.slice(0);
 	this.possBoard = this.emptyBoard.slice(0);
@@ -96,13 +93,11 @@ Sudoku.prototype.newPuzzle = function (lines, divID) {
  * Summary: Sets the premade test puzzle in the board.
  **/
 Sudoku.prototype.testPuzzle = function () {
-	"use strict";
 	this.gameBoard = this.testBoard.slice(0);
 	this.refreshDisplay();
 };
 
 Sudoku.prototype.recurseGenerate = function (currentNumber, direction) {
-	"use strict";
 	var count = 0, x, possibleMoves;
 	// Puzzle is complete and valid - End
 	if (!this.gameBoard.indexOf('')) {
@@ -117,14 +112,14 @@ Sudoku.prototype.recurseGenerate = function (currentNumber, direction) {
 
 	// Count how many of this value is in the puzzle
 	for (x = 0; x < 81; x = x + 1) {
-		if (this.gameBoard == currentNumber) {
-			count++;
+		if (this.gameBoard === currentNumber) {
+			count += 1;
 		}
 	}
 
 	// Exhausted all moves for this number, move on.
 	if (!possibleMoves && count === 9) {
-		return this.recurseGenerate( currentNumber+1 );
+		return this.recurseGenerate(currentNumber + 1);
 	}
 
 	// Select a possible move by random
@@ -136,7 +131,7 @@ Sudoku.prototype.recurseGenerate = function (currentNumber, direction) {
 	// Check for "dead cells" - if so, backpedal
 	if (!this.checkDeadCells()) {
 
-		return this.recurseGenerate( currentNumber-1, direction )
+		return this.recurseGenerate(currentNumber - 1, direction)
 	}
 
 
@@ -482,9 +477,7 @@ Sudoku.prototype.checkPuzzle = function(alertFlag){
 
 
 Sudoku.prototype.displaySkelaton = function (div) {
-	document.getElementById('game').innerHTML = this.getHTMLSkelaton();
-	//document.getElementById('game').innerHTML = 'pushit on me ';//this.getHTML(this.t_possibles, true);
-	//document.getElementById('controls').innerHTML  = '';
+	document.getElementById(div).innerHTML = this.getHTMLSkelaton();
 };
 
 /**
@@ -509,6 +502,8 @@ Sudoku.prototype.getHTMLSkelaton = function(){
 		}
 		
 		str += '<div id="small-'+i+'" class="small">';//#small - start
+
+		str += '<div class="value"></div>';
 
 		for(var j=1;j<=9;j++){
 			str += '<div id="tiny-'+j+'" class="tiny">'+j+'</div>';	
@@ -608,24 +603,28 @@ Sudoku.prototype.togglePossibles = function(override){
  *
  **/
 Sudoku.prototype.refreshDisplay = function(divID){
-	//if(!divID){divID='game';}
-	//document.getElementById(divID).innerHTML = mysudoku.getHTML(this.t_possibles, true);
-	
-	var i;
-	var cellID;
+	var i, cellID, temp;
 
 	for(i=0;i<81;i++){
+
+		cellID = 'small-'+i;
+
 		if( this.solveBoard[i] ){
-			cellID = 'small-'+i;
-			document.getElementById(cellID).innerHTML = this.solveBoard[i];
+			temp = document.getElementById(cellID).getElementsByClassName("value")[0];
+			temp.innerHTML = this.solveBoard[i];
 			document.getElementById(cellID).className += " entered-value";
+
+		}else if( this.gameBoard[i] ){
+			temp = document.getElementById(cellID).getElementsByClassName("value")[0];
+			temp.innerHTML = this.gameBoard[i];
+			cellID.className += " game-value";
+			//alert(cellID.className);
+		}else{
+			// Empty - show possibles
+			document.getElementById(cellID).className = document.getElementById(cellID).className.replace(/\bentered-value\b/,'');
+
 		}
 
-		if( this.gameBoard[i] ){
-			cellID = 'small-'+i;
-			document.getElementById(cellID).innerHTML = this.solveBoard[i];
-			document.getElementById(cellID).className += " game-value";
-		}
 	};
 
 

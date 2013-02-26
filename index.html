@@ -9,18 +9,20 @@
 	<script type="text/javascript" src="sudoku.js"></script>
 	<script type="text/javascript">
 		
-		/** Create sudoku problem **/
-		var mysudoku = new Sudoku("mysudoku", 81);
-		mysudoku.testPuzzle();
-
+		
 		// *************************** //
-		window.read = function() {
+		window.onload = function() {
 			
+			/** Create sudoku problem **/
+			var mysudoku = new Sudoku("mysudoku", 81, 'game');
 			// Create new puzzle (2-lines 20chars)
 			//mysudoku.displaySkelaton('game');
 			mysudoku.testPuzzle();
-			document.getElementById('possibles-checkbox').checked = true;
+			//document.getElementById('possibles-checkbox').checked = true;
 			
+
+
+
 			//sudoku edit delegation (MUST BE FOR CONTAINER BECAUSE SODO GETS REMADE IN HTML PRINTING)
 			var sodo = document.getElementById('game');
 			
@@ -28,7 +30,7 @@
 				var t = getTarget(e);
 				var x;
 				console.log(t.className);
-				//mysudoku.refreshDisplay();
+				mysudoku.refreshDisplay();
 
 				if(t.className === 'tiny' || t.className === 'entered-value' ){
 					t = t.parentNode;
@@ -79,12 +81,12 @@
 		var commit = function(){
 			
 			var gameClass = document.getElementById('game').className;
-			//alert(sodo.className);
-				
+			
 			// Find the textbox and parent
 			var txtbox = document.getElementById('edit-txtbox');
 			var parent = txtbox.parentNode;
-			
+			parent.className = parent.className.replace(/\bhighlight\b/,'');
+			parent.innerHTML='';
 			//Grab the text value from the textbox - 
 			var value = txtbox.value;
 
@@ -148,7 +150,7 @@
 					<option value="9">9</option>
 				</select>
 				<input type="button" onClick="newPuzzle();" Value="Create"><br>
-				
+	
 				<input type="button" onClick="mysudoku.testPuzzle();" Value="Pre #1">				
 				<input type="button" onClick="mysudoku.generatePuzzle();" Value="Gen">				
 				<input type="button" onClick="mysudoku.checkPuzzle(true);" Value="check">				
@@ -211,6 +213,7 @@
 		<br style="clear:both;">
 		
 		<div id="game">
+			
 		</div>
 		
 	</div>	
