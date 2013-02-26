@@ -60,7 +60,7 @@ function Sudoku(name, size, divID) {
  * Notes: This can result in non-solvable puzzles. Keep that in mind.
  * 
  * @param	int		lines	Number of "lines" or times to use the values 1-9 in the puzzle.
- * @param	str		divID 	The div ID to display the puzzle in.
+ * @param	str		divID	The div ID to display the puzzle in.
  * @return	void
  **/
 Sudoku.prototype.newPuzzle = function (lines, divID) {
@@ -106,7 +106,7 @@ Sudoku.prototype.recurseGenerate = function (currentNumber, direction) {
 
 	// Select current number
 	currentNumber = currentNumber || 1;
-	
+
 	// Get array of possible cell moves.
 	possibleMoves = this.getPossibleCells(currentNumber, 'val');
 
@@ -124,72 +124,68 @@ Sudoku.prototype.recurseGenerate = function (currentNumber, direction) {
 
 	// Select a possible move by random
 	// randMove = Math.floor( Math.random()* 1)+1;
-	
+
 	// Place our current number into that random available cell.
 	// this.gameBoard[randMove] = currentNumber;
-	
+
 	// Check for "dead cells" - if so, backpedal
 	if (!this.checkDeadCells()) {
 
-		return this.recurseGenerate(currentNumber - 1, direction)
+		return this.recurseGenerate(currentNumber - 1, direction);
 	}
 
 
-	if (possible.indexOf(cell) >= 0) {
+	// if (possible.indexOf(cell) >= 0) {
 
-	}	
+	// }	
 };
 
 Sudoku.prototype.generatePuzzle = function (generations) {
 
 	this.empty();
 	//Recursive function that fills the board with values.
-	var rand, timeout=0;
-	var max = 1000;
+	var rand, timeout = 0, max = 1000;
 	var boxBoolArr = [], valBoxArr = [];
-	var possibleMoves = 0;
-	var randCell = 0;
+	var possibleMoves = 0, randCell = 0, val, x, i, randNum;
 
-	for(var val=1; val<=6; val++){
-		
+	for (val = 1; val <= 6; val += 1) {
+
 		// Need each number 9 times, one for each box.
-		for(var x=0; x<9; x++){
-			
+		for (x = 0; x < 9; x += 1) {
+
 			// Array for this box only
-			var possArr = this.getPossibleCells( val );
-			var boolBoxArr = possArr.slice( (x*9), x*9+(9));
-			var valBoxArr = [];
-			
-			for(var i=0;i<boolBoxArr.length;i++){
-				if( boolBoxArr[i] === true ){
-					valBoxArr.push(i + (x*9));
+			var possArr = this.getPossibleCells(val);
+			var boolBoxArr = possArr.slice((x * 9), x * 9 + (9));
+			valBoxArr = [];
+
+			for (i = 0; i < boolBoxArr.length; i += 1) {
+				if( boolBoxArr[i] === true ) {
+					valBoxArr.push(i + (x * 9));
 				}
 			}
-			
-			
-			
-			do{
+
+			do {
 				// Pick a random cell from the number
 				randNum = Math.floor(Math.random() * valBoxArr.length);
 				randCell = valBoxArr[randNum];
 				//console.log('Random Number: '+randNum);
 				//console.log('Random Cell: '+randCell);
-				timeout++;
+				timeout += 1;
 				// If this loops, we have a conflict from a previous move with this same number.
 				// 
-			
-			}while( !this.check(randCell, val) && (timeout < max) && (valBoxArr.length > 0) );
+
+			} while (!this.check(randCell, val) && (timeout < max) && (valBoxArr.length > 0) );
 
 			this.gameBoard[randCell] = val;
 			//console.log('Num: '+val+' - Box: '+x+' - Cell: '+randCell+' - '+boolBoxArr.join()+' - ' + valBoxArr.join() );
 			//console.log(this.gameBoard[randCell]);
-			
-			if(timeout >= max){ console.log('GeneratePuzzleTimeout'); timeout=0;}
-			if(valBoxArr.length === 0 ){console.log('No Possible Moves-'); }
+
+			if (timeout >= max) { console.log('GeneratePuzzleTimeout'); timeout = 0; }
+			if (valBoxArr.length === 0 ) {console.log('No Possible Moves-'); }
 			//console.log('-=-');
 		};
 	};// Puzzle is created.
-		generations = generations || 1;
+	generations = generations || 1;
 
 	if( !this.checkPuzzle() ){
 		generations++;
@@ -608,26 +604,38 @@ Sudoku.prototype.refreshDisplay = function(divID){
 	for(i=0;i<81;i++){
 
 		cellID = 'small-'+i;
+		small = document.getElementById(cellID);
 
 		if( this.solveBoard[i] ){
-			temp = document.getElementById(cellID).getElementsByClassName("value")[0];
+			temp = small.getElementsByClassName("value")[0];
 			temp.innerHTML = this.solveBoard[i];
-			document.getElementById(cellID).className += " entered-value";
+			small.className += " entered-value";
 
 		}else if( this.gameBoard[i] ){
-			temp = document.getElementById(cellID).getElementsByClassName("value")[0];
+			temp = small.getElementsByClassName("value")[0];
 			temp.innerHTML = this.gameBoard[i];
-			document.getElementById(cellID).className += " game-value";
-			//alert(cellID.className);
+			small.className += " game-value";
+			
 		}else{
 			// Empty - show possibles
 			document.getElementById(cellID).className = document.getElementById(cellID).className.replace(/\bentered-value\b/,'');
+			arr = this.getPossibles(i, 'bool');
+			for(j=1;j<=9;j++){
 
+				tiny = 'tiny-'+j;
+				tinyObj = document.getElementById(cellID).getElementsByClassName('tiny')[j-1];
+				
+				if( arr[j] === true ){
+
+					tinyObj.className = tinyObj.className.replace(/\bhidden\b/,'');
+
+				}else{
+					tinyObj.className += ' hidden';	
+				}	
+			};
 		}
 
 	};
-
-
 };
 
 
@@ -773,13 +781,14 @@ Sudoku.prototype.solveCell = function(cell){
 		return false;
 	}
 
-	//Cell Not Solved
+	// Cell Not Solved
 	else if(!this.solveBoard[cell]){
 		this.solveBoard[cell] = possVals[0];
 		this.moves += 1;	
 		return true;
 	}
-	//Solved: Needs value larger than current value
+
+	// Solved: Needs value larger than current value
 	else{
 		for(i=0; i<possVals.length; i++){
 			if(possVals[i] > this.solveBoard[cell]){
@@ -831,16 +840,13 @@ Sudoku.prototype.solver = function(){
 		else if(x === true){
 			this.currentCell++;
 			this.direction = 1;
-			//this.moves += 1;
 		}
 		else if(x === false){
 			this.currentCell--;
 			this.direction = -1;
-			//this.moves += 1;
 		}
 	}
 	document.getElementById('numofmoves').value = this.moves;
-
 };
 
 Sudoku.prototype.fillSinglePossiblesRecurse = function (cell){
