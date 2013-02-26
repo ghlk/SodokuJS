@@ -503,12 +503,12 @@ Sudoku.prototype.getHTMLSkelaton = function(){
 		
 		str += '<div id="small-'+i+'" class="small">';//#small - start
 
-		str += '<div class="value"></div>';
-
+		// # Tiny matrix
 		for(var j=1;j<=9;j++){
 			str += '<div id="tiny-'+j+'" class="tiny">'+j+'</div>';	
 		}
 		
+		str += '<div class="value"></div>';
 
 		str += '</div>';// #small-end	
 		
@@ -617,7 +617,7 @@ Sudoku.prototype.refreshDisplay = function(divID){
 		}else if( this.gameBoard[i] ){
 			temp = document.getElementById(cellID).getElementsByClassName("value")[0];
 			temp.innerHTML = this.gameBoard[i];
-			cellID.className += " game-value";
+			document.getElementById(cellID).className += " game-value";
 			//alert(cellID.className);
 		}else{
 			// Empty - show possibles
