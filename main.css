@@ -122,12 +122,13 @@ body {
 fieldset{
 	float:left;
 	max-width:200px;
-	height:80px;
-	padding:.25em 1em;
+	1min-height:100px;
+	padding:.25em 1em 1em 1em;
 	border:1px solid #333;
 	border-radius: 4px;
 	font-size:.75em;
 	color:#eee;
+	overflow: hidden;
 }
 #controls legend{
 	color:#fff;
@@ -138,18 +139,12 @@ fieldset{
 	border-radius:3px;
 }
 label {
-	1font-size:1.2em;
-	1line-height:1.5;
+	font-size:1em;
+	line-height:2;
 	color:#ccc;
-	1letter-spacing:1px;
-	1display:block;
+	padding:.3em;
 	background:#444;
-	1margin-bottom:.5em;
-}
-.small-label {
-	font-size:12px;
-	line-height:12px;
-	letter-spacing:0px;
+	margin:0;
 }
 input[type="text"] {
 	width:30px;
@@ -171,6 +166,7 @@ input[type="text"] {
 	box-shadow:0px 0px 10px #333;
 	position:absolute;
 	text-align: center;
+	z-index:10;
 }
 
 .entered-value > .value{
@@ -202,4 +198,15 @@ input[type="text"] {
 
 .empty-value{
 	z-index:0;
+}
+
+#debug label{
+	1float:left;
+	1padding:0;
+}
+#debug input[type="text"]{
+	width:3em;
+	1float:right;
+	1background:red;
+	2clear:both;
 }
