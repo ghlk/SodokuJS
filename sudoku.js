@@ -32,13 +32,18 @@ function Sudoku(name, size, divID) {
 	this.name = name || 'mysudoku'; //Name of the sudoku class created by the page (@params)
 	this.t_possibles = true; //Show possibles or not
 
+	/* Algorithm Settings */
+	this.groundZero_checkDeadCells = true;
+	this.groundZero_checkOnlyMoveLeft = true;
+
 	/* Helper Values */
-	this.timer		= null;				// Timer used for solving the puzzle in intervals.
+	this.timer		= null;	// Timer used for solving the puzzle in intervals.
 	this.interval	= 1;	// Interval for timers. (ms)(1000 = 1s)
 	this.step		= 1;
 	this.solverStr	= this.name + ".solver();";
 	this.stepStr	= this.name + ".stepSolver();";
-	this.moves = 0; //To count how long it takes to solve the problem.	
+	this.moves = 0; // Counts when we move our focus from one cell to another.
+	this.pencils = 0; // Counts times we place a value in a cell
 
 	/* Premade puzzles */
 	this.easyBoard = ['', 9, 2, '', '', 1, '', 8, '', '', '', '', '', '', '', 1, 7, '', '', '', 7, '', 3, '', 4, 6, 2, '', '', '', 3, '', '', 9, 1, '', '', 9, 6, 5, '', 1, 7, 4, '', '', 4, 1, '', '', 9, '', '', '', 1, 3, 6, '', 4, '', 7, '', '', '', 5, 2, '', '', '', '', '', '', '', 8, '', 2, '', '', 6, 9, ''];
@@ -73,6 +78,7 @@ Sudoku.prototype.newPuzzle = function (lines, divID) {
 	/** Reset all values **/
 	this.solveBookmark = 0;
 	this.moves = 0;
+	this.pencils = 0;
 
 	/** Optional Resets (Maybe get rid of) **/
 	this.direction = 1;
@@ -96,6 +102,8 @@ Sudoku.prototype.testPuzzle = function (num) {
 	num = num || 1;
 	this.empty();
 	this.moves = 0;
+	this.pencils = 0;
+
 	if( num == 1 ){
 		this.gameBoard = this.easyBoard.slice(0);	
 	}else if( num == 2 ){
@@ -295,9 +303,11 @@ Sudoku.prototype.getRandomEmptyCell = function ( small ) {
 	return rand;
 };
 
-Sudoku.prototype.checkDeadCells = function ( ) {
+Sudoku.prototype.checkDeadCells = function () {
 	var cell, possibles;
 	
+
+
 	for(cell=0; cell<81; cell++){
 
 		if(!this.gameBoard[cell] && !this.solveBoard[cell]) {
@@ -504,12 +514,11 @@ Sudoku.prototype.checkPuzzle = function(alertFlag){
 	return true;
 };
 
+
+
 // * -------------------------------------------
 // * Displaying & HTML
 // * -------------------------------------------
-
-
-
 
 Sudoku.prototype.displaySkelaton = function (div) {
 	document.getElementById(div).innerHTML = this.getHTMLSkelaton();
@@ -754,25 +763,26 @@ Sudoku.prototype.getPossibleCells = function ( value, type){
 Sudoku.prototype.solveCell = function(cell){
 	
 	var possVals, i;
-
+	this.moves += 1;
+	
 	// Gamebord - Can't Edit.
-	if(this.gameBoard[cell] !== ''){
+	if(this.gameBoard[cell]){
 		return null;
 	}
 	
-	//Grab possible values for "cell"
+	// Grab possible values for current cell
 	possVals = this.getPossibles(cell, "val");
 	
-	//No Possibles OR we've tried all possibles
+	// No Possibles OR we've tried all possibles
 	if( possVals.length < 1 || (this.solveBoard[cell] >= possVals[(possVals.length-1)]) ){
 		this.solveBoard[cell] = '';
 		return false;
 	}
 
-	//There is a No Possibles somewhere else on the board
-	if( !this.checkDeadCells() ){
+	// There is a No Possibles somewhere else on the board
+	if( this.groundZero_checkDeadCells && !this.checkDeadCells() ){
 		
-		//Check to see if this cell is the cause of problem
+		// Check to see if this cell is the cause of problem
 		temp = this.solveBoard[cell];
 		this.solveBoard[cell]='';
 		
@@ -781,7 +791,7 @@ Sudoku.prototype.solveCell = function(cell){
 			for(i=0; i<possVals.length; i++){
 				if(possVals[i] > temp){
 					this.solveBoard[cell] = possVals[i];
-					this.moves += 1;	
+					this.pencils += 1;	
 					return true;
 				}
 			}
@@ -791,19 +801,12 @@ Sudoku.prototype.solveCell = function(cell){
 		return false;
 	}
 
-	// Cell Not Solved - Attempt to Solve it
-	else if(!this.solveBoard[cell]){
-		this.solveBoard[cell] = possVals[0];
-		this.moves += 1;	
-		return true;
-	}
-
-	// Solved, but invalud - Needs value larger than current value
+	// Possibles moves - lets try lowest value one
 	else{
-		for(i=0; i<possVals.length; i++){
-			if(possVals[i] > this.solveBoard[cell]){
+		for (i = 0; i < possVals.length; i += 1 ){
+			if (possVals[i] > this.solveBoard[cell] || !this.solveBoard[cell]) {
 				this.solveBoard[cell] = possVals[i];
-				this.moves += 1;	
+				this.pencils += 1;	
 				return true;
 			}
 		}
@@ -832,13 +835,17 @@ Sudoku.prototype.solveCell = function(cell){
 Sudoku.prototype.solver = function(){
 
 	var cell, x;
-	if(this.currentCell === null){this.currentCell = 0;}
+	if(this.currentCell === null){
+		this.currentCell = 0;
+		this.startStopwatch();
+	}
 	cell = this.currentCell;
 	this.refreshDisplay();
 	
-	if(cell > 80 ){
+	if(cell > 80 || cell < 0){
 		this.stopTimer();
-		document.getElementById('numofmoves').value = this.moves;
+		this.stopStopwatch();
+		this.refreshMovesStatus();
 		return false;
 	}
 	else{
@@ -859,7 +866,7 @@ Sudoku.prototype.solver = function(){
 			this.direction = -1;
 		}
 	}
-	document.getElementById('numofmoves').value = this.moves;
+	this.refreshMovesStatus();
 };
 
 
@@ -919,8 +926,9 @@ Sudoku.prototype.fillSinglePossibles = function() {
  *	stopTimer();
  */
 Sudoku.prototype.stepSolver = function () {
-
-	this.startTime = new Date().getTime();
+	alert('STEP SOLVER');
+	// Keep time of how long it takes.
+	this.startStopwatch();
 
 	var start, end, bwall;
 
@@ -934,7 +942,7 @@ Sudoku.prototype.stepSolver = function () {
 	bwall = start - (end-start); 
 
 	//Update view
-	this.showSolution();
+	//this.showSolution();
 	
 	//Don't let the end go past the end of the puzzle.
 	if( end > 80 ) { end = 80; }
@@ -979,21 +987,17 @@ Sudoku.prototype.stepSolver = function () {
  */
 Sudoku.prototype.dumbBruteRecurse = function(cell, direction, wall, bwall) {
 
-	// Increment 'move counter'
-	document.getElementById('numofmoves').value = this.moves;
-
 	// Default value for cell if value not present
 	if(!cell && cell !== 0){
 		cell = 0;
 		this.startStopwatch();
 	}
+	this.moves += 1;
 
 	// Break Recursion - When solver goes "out-of-bounds"
 	if( cell < 0 || cell > 80 || cell > wall || ( cell <= bwall && !this.gameBoard[cell]) ){
+		this.refreshMovesStatus();
 		this.refreshDisplay();
-		//var now = new Date().getTime();
-		//document.getElementById('txt-timer').value = (now-this.temptime)/1000;
-		this.stopStopwatch();
 		return true;
 	}
 
@@ -1011,7 +1015,7 @@ Sudoku.prototype.dumbBruteRecurse = function(cell, direction, wall, bwall) {
 			for(i=0; i<possVals.length; i++){
 				if(possVals[i] > temp){
 					this.solveBoard[cell] = possVals[i];
-					this.moves += 1;	
+					this.pencils += 1;	
 	
 					return this.dumbBruteRecurse((cell+1), 'pos', wall, bwall);
 				}
@@ -1046,7 +1050,7 @@ Sudoku.prototype.dumbBruteRecurse = function(cell, direction, wall, bwall) {
 			//Possible Values (try the lowest value)
 			else{
 				this.solveBoard[cell] = possVals[0];
-				this.moves += 1;		
+				this.pencils += 1;		
 				this.calcPossibles(cell); //Change made, refresh possible values.
 				return this.dumbBruteRecurse( (cell+1), 'pos', wall, bwall);
 			}
@@ -1065,7 +1069,7 @@ Sudoku.prototype.dumbBruteRecurse = function(cell, direction, wall, bwall) {
 					//Only try a value if it's larger than the current "solved" value.
 					if(possVals[i] > this.solveBoard[cell]){
 						this.solveBoard[cell] = possVals[i];
-						this.moves += 1;	
+						this.pencils += 1;	
 							
 						return this.dumbBruteRecurse( (cell+1), 'pos', wall, bwall);
 					}
@@ -1085,7 +1089,105 @@ Sudoku.prototype.dumbBruteRecurse = function(cell, direction, wall, bwall) {
 };
 
 
+/**
+ * groundZeroAlgo
+ * @param  {int} cell      
+ * @param  {str} direction [description]
+ * @param  {int} wall 
+ * @param  {int} bwall     
+ */
+Sudoku.prototype.groundZeroAlgo = function(cell, direction, wall, bwall) {
 
+	this.refreshMovesStatus();
+	this.moves += 1;
+	
+	// First Algo call - Set default values and start timer.
+	if(!cell && cell !== 0 && cell !== -1){
+		cell = 0;
+		this.startStopwatch();
+	}
+
+	// Increment the cell by the direction (-1 or +1) we're going in 
+	cell += direction;
+
+	// Break Recursion - When solver goes "out-of-bounds"
+	if (cell < 0 || cell > (this.size - 1) || cell > wall || (cell <= bwall && !this.gameBoard[cell])) {
+		
+		this.refreshDisplay();
+		console.log('- Ground Zero Done ' );
+		return true;
+	}
+
+
+	// Check 1 - Are there any dead cells on the board?
+		// A - This cell is problem - increment value
+		// B - Cell not the problem - backpedal
+	// Check 2 - Are there any conflicting "only choice left" cells on the board?
+
+
+	// DEAD CELLS CHECKING
+	if( this.groundZero_checkDeadCells && !this.checkDeadCells() ){
+		
+		// Check to see if this cell is the cause of problem
+		temp = this.solveBoard[cell];
+		this.solveBoard[cell]='';
+		
+		if( this.checkDeadCells() ){
+			//This cell is the problem, just increment its value.
+			var possVals = this.getPossibles(cell, "val");
+
+			for (i = 0; i < possVals.length; i += 1){
+				if (possVals[i] > temp) {
+					this.solveBoard[cell] = possVals[i];
+					this.pencils += 1;	
+					return this.groundZeroAlgo(cell, 1, wall, bwall);
+				}
+			}
+		}
+		//Cell is not the problem - keep backpedeling
+		return this.groundZeroAlgo(cell, -1, wall, bwall);
+	}
+
+	// CONFLICTING ONLY MOVE CHECKING
+	
+
+	/** Ground Zero Algo Portion **/
+	
+	var possVals, i;
+	
+	// Go 'forward' by default
+	direction = direction || 1;
+	
+	// Current cell not part of gameBoard - All good for editing
+	if (!this.gameBoard[cell]) {
+		
+		// Get numerical array of possible values for this current cell
+		possVals = this.getPossibles(cell, "val");
+
+		// No possible values ( or we tried them all )
+		if( (possVals.length < 1) || (this.solveBoard[cell] >= possVals[(possVals.length-1)]) ){
+			this.solveBoard[cell] = ''; //Clear cell since we are backstepping.
+			return this.groundZeroAlgo( cell, -1, wall, bwall);
+		}
+		// Possible values found - attempt lowest possible
+		else{
+			// Step through possible values
+			for (i = 0; i < possVals.length; i += 1){
+					
+				// Only try a value if it's larger than the current "solved" value.
+				if (possVals[i] > this.solveBoard[cell] || !this.solveBoard[cell]){
+					this.solveBoard[cell] = possVals[i];
+					this.pencils += 1;	
+					return this.groundZeroAlgo( cell, 1, wall, bwall);
+				}
+			}
+		}
+	}
+	//GameBoard Cell - Can't edit. Skip it. ( This is why we need to know the direction we're going in. )
+	else{
+		return this.groundZeroAlgo( cell, direction, wall, bwall);
+	}
+};
 
 
 
@@ -1325,6 +1427,14 @@ Sudoku.prototype.stopStopwatch = function () {
 	document.getElementById('txt-timer').value = diff;
 };
 
+Sudoku.prototype.refreshStopwatch = function () {
+	var now = new Date().getTime();
+	var diff = now-this.startTime;
+	//diff = Math.floor((diff/100))/10;
+	diff = diff/1000;
+	document.getElementById('txt-timer').value = diff;
+}
+
 /**
  * stopTimer()
  * Summary: Clears the interval and pops up an alert to shop the timer has stopped.
@@ -1394,5 +1504,22 @@ Sudoku.prototype.highlightCells = function(cell){
  **/
 Sudoku.prototype.unhighlightCells = function(cell){
 };
+
+
+Sudoku.prototype.refreshMovesStatus = function(){
+	// Increment 'move counter'
+	document.getElementById('numofmoves').value = this.moves;
+	document.getElementById('numofpencils').value = this.pencils;
+	this.refreshStopwatch();
+};
+
+
+
+Sudoku.prototype.toggleDeadCells = function(){
+	this.groundZero_checkDeadCells = !this.groundZero_checkDeadCells;
+}
+
+
+
 
 

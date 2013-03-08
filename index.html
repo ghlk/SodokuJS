@@ -93,16 +93,16 @@
 			
 			
 			/** Brute Force Algorithm Buttons **/
-			document.getElementById('dumb-brute-toggle').onclick = function(){
+			document.getElementById('ground-zero-toggle').onclick = function(){
 				mysudoku.startSolver();
 			};
 
-			document.getElementById('dumb-brute-step').onclick = function(){
+			document.getElementById('ground-zero-step').onclick = function(){
 				mysudoku.solver();
 			};
 
-			document.getElementById('dumb-brute-recurse').onclick = function(){
-				mysudoku.dumbBruteRecurse();
+			document.getElementById('ground-zero-recurse').onclick = function(){
+				mysudoku.groundZeroAlgo();
 			};
 
 			/** Edit Mode Toggle **/
@@ -138,7 +138,7 @@
 		<div id="controls">
 			
 			<fieldset id="puzzle-controls">
-				<legend> New Puzzle </legend>
+				<legend>New Puzzle</legend>
 				<label>Premade:</label>
 				<input type="button" onClick="mysudoku.testPuzzle(1);" Value="Easy">				
 				<input type="button" onClick="mysudoku.testPuzzle(2);" Value="Evil">				
@@ -150,9 +150,7 @@
 
 			<fieldset id="solving-controls">	
 				<legend>User Mode</legend>
-				<input type="button" onclick="mysudoku.empty();" value="Empty Board">
-				<hr>
-				<select id="edit-mode">
+ 				<select id="edit-mode">
 					<option value="solve" selected>solve mode</option>
 					<option value="edit" >edit mode</option>
 				</select>
@@ -160,12 +158,15 @@
 			</fieldset>
 
 			<fieldset>
-				<legend>Dumb Brute Algo</legend>
-				<span id="dumb-brute-status" class="status">Algo <strong>not</strong> currently running...</span>
-				<input id="dumb-brute-toggle"  type="button" value="Start/Stop">
-				<input id="dumb-brute-step" type="button" value="Step">
+				<legend>Ground Zero Algo</legend>
+				<label>Dead Cells:</label><input id="ground-zero-dead" type="checkbox">
+				<label>Matching Only-s:</label><input id="ground-zero-dead" type="checkbox">
+				<span id="ground-zero-status" class="status">Algo <strong>not</strong> currently running...</span>
 				<hr>
-				<input id="dumb-brute-recurse" type="button" value="Recursive">
+				<input id="ground-zero-toggle"  type="button" value="Start/Stop">
+				<input id="ground-zero-step" type="button" value="Step">
+				<hr>
+				<input id="ground-zero-recurse" type="button" value="Solve Puzzle">
 			</fieldset>
 
 			<fieldset>
@@ -175,9 +176,12 @@
 			</fieldset>
 
 			<fieldset id="debug">
-				<legend>Debug</legend>
-				<label for="moves" class="small-label">Penciled:</label>
+				<legend>Status</legend>
+				<label for="numofmoves" class="small-label">Moves:</label>
 				<input type="text" id="numofmoves" disabled>
+				<br>
+				<label for="numofpencils" class="small-label">Penciled:</label>
+				<input type="text" id="numofpencils" disabled>
 				<br>
 				<label for="timer" class="small-label">Time (s):</label>
 				<input type="text" id="txt-timer" disabled>
