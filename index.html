@@ -105,6 +105,19 @@
 				mysudoku.groundZeroAlgo();
 			};
 
+			var check = document.getElementById('dead-cells-chkbox');
+			check.onchange = function(e){
+				var t = getTarget(e);
+
+				if( t.checked ){
+					mysudoku.addOn_deadCells = true;
+				}else{
+					mysudoku.addOn_deadCells = false;	
+				}
+				
+
+			}
+
 			/** Edit Mode Toggle **/
 			var edits = document.getElementById('edit-mode');
 			edits.onchange = function(e){
@@ -159,8 +172,8 @@
 
 			<fieldset>
 				<legend>Ground Zero Algo</legend>
-				<label>Dead Cells:</label><input id="ground-zero-dead" type="checkbox">
-				<label>Matching Only-s:</label><input id="ground-zero-dead" type="checkbox">
+				<label>Dead Cells:</label><input id="dead-cells-chkbox" type="checkbox" checked>
+				<label>Last Move Twins:</label><input id="last-move-twins-chkbox" type="checkbox" checked>
 				<span id="ground-zero-status" class="status">Algo <strong>not</strong> currently running...</span>
 				<hr>
 				<input id="ground-zero-toggle"  type="button" value="Start/Stop">

@@ -33,8 +33,8 @@ function Sudoku(name, size, divID) {
 	this.t_possibles = true; //Show possibles or not
 
 	/* Algorithm Settings */
-	this.groundZero_checkDeadCells = true;
-	this.groundZero_checkOnlyMoveLeft = true;
+	this.addOn_deadCells = true;
+	this.addOn_lastMoveTwins = true;
 
 	/* Helper Values */
 	this.timer		= null;	// Timer used for solving the puzzle in intervals.
@@ -50,7 +50,7 @@ function Sudoku(name, size, divID) {
 	this.evilBoard = [5, '', 9, '', '', 6, '', 7, 8, 4, '', '', 2, '', '', '', '', 9, 7, '', '', '', '', '', '', '', 1, '', 6, '', '', '', 4, '', '', '', 9, '', '', '', '', '', '', '', 4, '', '', '', 9, '', '', '', 6, '', 1, '', '', '', '', '', '', '', 5, 6, '', '', '', '', 1, '', '', 8, 2, 5, '', 3, '', '', 1, '', 9];
 
 	this.displaySkelaton(divID);
-
+	this.refreshControls();
 	return true;
 }
 
@@ -305,9 +305,6 @@ Sudoku.prototype.getRandomEmptyCell = function ( small ) {
 
 Sudoku.prototype.checkDeadCells = function () {
 	var cell, possibles;
-	
-
-
 	for(cell=0; cell<81; cell++){
 
 		if(!this.gameBoard[cell] && !this.solveBoard[cell]) {
@@ -317,6 +314,56 @@ Sudoku.prototype.checkDeadCells = function () {
 			}
 		}
 	}
+	return true;
+};
+
+Sudoku.prototype.checkLastMoveTwins = function () {
+	return true;
+	// Grab groups.
+	// Box 1 - 9
+	// Column 1 - 9
+	// Row 1 - 9
+	
+	var i, j, val, possibles, cell, cells;
+	var tempTwinsArr = [];
+
+	// iterate through our 9 boxes
+	for(i=0;i<9;i+=1){
+
+		cells = this.getBoxCells( i * 9);
+		
+		console.log(cells.join());
+		// Iterate through the cells in the current box
+		for(j = 0; j < cells.length; j += 1){
+
+			cell = cells[j];
+
+			// Make sure cell we're inspecting isn't a gamePiece
+			if( !this.gameBoard[cell]){
+			
+				// Gather the possibles moves for this current cell
+				possibles = this.getPossibles(cell);
+				
+				// If it has only one move left, it's a single. Mark that value.
+				if( possibles.length === 1 ){
+
+					val = possibles[0];
+					if( tempTwinsArr[val] === 'greg' ){
+						// This has already been marked - we have TWINS
+						console.log(' WE HAVE TWINS - ' + cell );
+						return false;
+					}else{
+						console.log('logging single - ' + cell );
+						tempTwinsArr[val] = 'greg';
+					}
+					
+				}	
+			}
+		}
+		tempTwinsArr = []; // Clear the twins array for each box.
+		
+	}
+	this.refreshDisplay();
 	return true;
 };
 
@@ -568,7 +615,6 @@ Sudoku.prototype.getHTMLSkelaton = function(){
 	return str;
 };
 
-
 /**
  * refreshDisplay()
  * Summary: DOM walking refresh method. This replaced html string creation.
@@ -634,6 +680,19 @@ Sudoku.prototype.refreshDisplay = function(divID){
 	};
 };
 
+Sudoku.prototype.refreshControls = function(){
+
+	document.getElementById('dead-cells-chkbox').checked = this.addOn_deadCells;
+	document.getElementById('last-move-twins-chkbox').checked = this.addOn_lastMoveTwins;
+	document.getElementById('numofmoves').value = 0;
+	document.getElementById('numofpencils').value = 0;
+	document.getElementById('txt-timer').value = 0;
+};
+
+
+// * -------------------------------------------
+// * Manipulating Puzzle
+// * -------------------------------------------
 
 /**
  * empty()
@@ -682,7 +741,6 @@ Sudoku.prototype.getPossibles = function (cell, type) {
 	}
 	return valArr;
 };
-
 
 /**
  * calcPossibles
@@ -869,6 +927,7 @@ Sudoku.prototype.solver = function(){
 	this.refreshMovesStatus();
 };
 
+// --- 
 
 /**
  * filleSinglePossibles()
@@ -913,182 +972,6 @@ Sudoku.prototype.fillSinglePossibles = function() {
 	return true;
 };
 
-
-/**
- * -------------------------------------------
- * sudoku.stepSolver(step)
- * -------------------------------------------
- * Purpose: 
- * 	To show the incremental progress of our recursive solving method.
- * 	Function is called by "startStepSolver" which is a setInterval of 1000ms.
- * Calls:
- *	solve(start,'pos', end, bwall);
- *	stopTimer();
- */
-Sudoku.prototype.stepSolver = function () {
-	alert('STEP SOLVER');
-	// Keep time of how long it takes.
-	this.startStopwatch();
-
-	var start, end, bwall;
-
-	//Begin where we left off.
-	start = this.solveBookmark;
-	
-	//End when we've done "step" amount of moves.
-	end = start + this.step;
-	
-	//ie: bwall = 4 - (5-4) = 3;
-	bwall = start - (end-start); 
-
-	//Update view
-	//this.showSolution();
-	
-	//Don't let the end go past the end of the puzzle.
-	if( end > 80 ) { end = 80; }
-	
-	//If we're done.
-	if( start > 80){
-		this.stopTimer();
-		now = new Date().getTime();
-		document.getElementById('txt-timer').value = (now-this.startTime)/1000;
-
-		return false;
-	}else{
-		this.solveBookmark = this.solve(start, 'pos', end, bwall);
-	}
-	document.getElementById('numofmoves').value = this.moves;
-	return true;
-};
-
-/**
- * -------------------------------------------
- * sudoku.dumbBruteRecurse(cell, direction, wall, backWall)
- * -------------------------------------------
- * 
- * Summary: 
- *  A recursive method that can call itself any number of times.
- * 
- * Parents:
- *	stepSolver();
- *
- * Children:
- *	showSolution();
- *	getPossibles(cell,"val");
- * 	calcPossibles();
- *	solve(cell, direction, wall, backWall); -- Recursive Calls
- *
- * Params:
- * 	cell: req - (0-80) - Represents the current cell # that has to be processed.
- * 	dir: req - (1 or -1) - Represents which direction the solver is currently going in. (1=pos) (-1=neg)
- *	wall: opt - (0-80) - Value is used by the method "stepSolver" to place a arbitrary wall for the recursion to close on.
- * 	backWall: opt - (0-80) - Used by the method "stepSolver" to place a arbitrary wall behind the current cell.
- * 		~ If no value provided: Backstepping recursion will be included into forwardstepping...
- */
-Sudoku.prototype.dumbBruteRecurse = function(cell, direction, wall, bwall) {
-
-	// Default value for cell if value not present
-	if(!cell && cell !== 0){
-		cell = 0;
-		this.startStopwatch();
-	}
-	this.moves += 1;
-
-	// Break Recursion - When solver goes "out-of-bounds"
-	if( cell < 0 || cell > 80 || cell > wall || ( cell <= bwall && !this.gameBoard[cell]) ){
-		this.refreshMovesStatus();
-		this.refreshDisplay();
-		return true;
-	}
-
-	// Check for 'dead cells' - a unsolved cell with no possible moves.
-	if( !this.checkDeadCells() ){
-		
-		//Check to see if this cell is the cause of problem
-		temp = this.solveBoard[cell];
-		this.solveBoard[cell]='';
-		
-		if( this.checkDeadCells() ){
-			//This cell is the problem, just increment its value.
-			var possVals = this.getPossibles(cell, "val");
-
-			for(i=0; i<possVals.length; i++){
-				if(possVals[i] > temp){
-					this.solveBoard[cell] = possVals[i];
-					this.pencils += 1;	
-	
-					return this.dumbBruteRecurse((cell+1), 'pos', wall, bwall);
-				}
-			}
-		}
-
-		//Cell is not the problem - keep backpedeling
-		return this.dumbBruteRecurse((cell-1), 'neg', wall, bwall);
-	}
-
-
-	var possVals;
-	var i;
-	
-	// Go 'forward' by default
-	direction = direction || 'pos';
-	
-	// Cell not part of puzzle - Player can edit 
-	if(!this.gameBoard[cell]) {
-		
-		// Get numerical array of possible values.
-		possVals = this.getPossibles(cell, "val");
-
-		// Cell Not Solved - First solution attempt.
-		if(!this.solveBoard[cell]){
-						
-			// No possible values
-			if(possVals.length < 1){
-				this.solveBoard[cell] = ''; //Clear cell since we are backstepping.
-				return this.dumbBruteRecurse( (cell-1), 'neg', wall, bwall);
-			}
-			//Possible Values (try the lowest value)
-			else{
-				this.solveBoard[cell] = possVals[0];
-				this.pencils += 1;		
-				this.calcPossibles(cell); //Change made, refresh possible values.
-				return this.dumbBruteRecurse( (cell+1), 'pos', wall, bwall);
-			}
-		}
-		//Cell Solved - But not correct. ( Backstepping )
-		else{
-			
-			//If no-poss values OR value on SolveBoard >= last/greatest possible value
-			if( (possVals.length < 1) || (this.solveBoard[cell] >= possVals[(possVals.length-1)]) ){
-				this.solveBoard[cell] = '';
-				return this.dumbBruteRecurse( (cell-1), 'neg', wall, bwall);
-			}
-			else{
-				//Step through possible values
-				for(i=0; i<possVals.length; i++){
-					//Only try a value if it's larger than the current "solved" value.
-					if(possVals[i] > this.solveBoard[cell]){
-						this.solveBoard[cell] = possVals[i];
-						this.pencils += 1;	
-							
-						return this.dumbBruteRecurse( (cell+1), 'pos', wall, bwall);
-					}
-				}
-			}
-		}
-	}
-	//Exposed Cell - Can't edit. Skip.
-	else{
-		if(direction == 'pos'){
-			return this.dumbBruteRecurse( (cell+1), 'pos', wall, bwall);
-		}
-		else if(direction == 'neg'){
-			return this.dumbBruteRecurse( (cell-1), 'neg', wall, bwall);
-		}
-	}
-};
-
-
 /**
  * groundZeroAlgo
  * @param  {int} cell      
@@ -1096,14 +979,16 @@ Sudoku.prototype.dumbBruteRecurse = function(cell, direction, wall, bwall) {
  * @param  {int} wall 
  * @param  {int} bwall     
  */
-Sudoku.prototype.groundZeroAlgo = function(cell, direction, wall, bwall) {
+Sudoku.prototype.groundZeroAlgo = function(cell, direction) {
 
-	this.refreshMovesStatus();
+	// Increment moves and refresh statuses
 	this.moves += 1;
+	this.refreshMovesStatus();
 	
 	// First Algo call - Set default values and start timer.
 	if(!cell && cell !== 0 && cell !== -1){
-		cell = 0;
+		cell = -1;
+		direction = 1;
 		this.startStopwatch();
 	}
 
@@ -1111,81 +996,50 @@ Sudoku.prototype.groundZeroAlgo = function(cell, direction, wall, bwall) {
 	cell += direction;
 
 	// Break Recursion - When solver goes "out-of-bounds"
-	if (cell < 0 || cell > (this.size - 1) || cell > wall || (cell <= bwall && !this.gameBoard[cell])) {
-		
+	if (cell < 0 || cell > (this.size - 1)) {
 		this.refreshDisplay();
-		console.log('- Ground Zero Done ' );
 		return true;
 	}
 
-
-	// Check 1 - Are there any dead cells on the board?
-		// A - This cell is problem - increment value
-		// B - Cell not the problem - backpedal
-	// Check 2 - Are there any conflicting "only choice left" cells on the board?
-
-
-	// DEAD CELLS CHECKING
-	if( this.groundZero_checkDeadCells && !this.checkDeadCells() ){
-		
-		// Check to see if this cell is the cause of problem
-		temp = this.solveBoard[cell];
-		this.solveBoard[cell]='';
-		
-		if( this.checkDeadCells() ){
-			//This cell is the problem, just increment its value.
-			var possVals = this.getPossibles(cell, "val");
-
-			for (i = 0; i < possVals.length; i += 1){
-				if (possVals[i] > temp) {
-					this.solveBoard[cell] = possVals[i];
-					this.pencils += 1;	
-					return this.groundZeroAlgo(cell, 1, wall, bwall);
-				}
-			}
-		}
-		//Cell is not the problem - keep backpedeling
-		return this.groundZeroAlgo(cell, -1, wall, bwall);
+	// Dead Cells on Board - Mistake made by cell behind most likely
+	if( this.addOn_deadCells && !this.checkDeadCells() && !this.solveBoard[cell]){
+		return this.groundZeroAlgo(cell, -1);
 	}
 
-	// CONFLICTING ONLY MOVE CHECKING
+	// Last Move Twins on Board - Mistake made by cell behind most likely
+	if( this.addOn_lastMoveTwins  && !this.checkLastMoveTwins() && !this.solveBoard[cell]){
+		//console.log('-Backpedal - twins');
+		return this.groundZeroAlgo(cell, -1);
+	}
 	
-
-	/** Ground Zero Algo Portion **/
-	
+	// "Ground Zero" Algo - Increments through cells numerically
 	var possVals, i;
 	
-	// Go 'forward' by default
-	direction = direction || 1;
-	
-	// Current cell not part of gameBoard - All good for editing
+	// Current cell not part of gameBoard - Editing allowed
 	if (!this.gameBoard[cell]) {
 		
 		// Get numerical array of possible values for this current cell
 		possVals = this.getPossibles(cell, "val");
 
-		// No possible values ( or we tried them all )
-		if( (possVals.length < 1) || (this.solveBoard[cell] >= possVals[(possVals.length-1)]) ){
-			this.solveBoard[cell] = ''; //Clear cell since we are backstepping.
-			return this.groundZeroAlgo( cell, -1, wall, bwall);
-		}
-		// Possible values found - attempt lowest possible
-		else{
-			// Step through possible values
-			for (i = 0; i < possVals.length; i += 1){
-					
-				// Only try a value if it's larger than the current "solved" value.
-				if (possVals[i] > this.solveBoard[cell] || !this.solveBoard[cell]){
-					this.solveBoard[cell] = possVals[i];
-					this.pencils += 1;	
-					return this.groundZeroAlgo( cell, 1, wall, bwall);
-				}
+		for (i = 0; i < possVals.length; i += 1){
+			
+			// Only try a value if it's larger than the current "solved" value.
+			if (possVals[i] > this.solveBoard[cell] || !this.solveBoard[cell]){
+			
+				this.solveBoard[cell] = possVals[i];
+				this.pencils += 1;	
+				return this.groundZeroAlgo( cell, 1);
 			}
 		}
+
+		// Failed to place a new value in cell
+		this.solveBoard[cell] = ''; // Clear cell as we backpedal
+		return this.groundZeroAlgo(cell, -1);
+
 	}
 	//GameBoard Cell - Can't edit. Skip it. ( This is why we need to know the direction we're going in. )
 	else{
-		return this.groundZeroAlgo( cell, direction, wall, bwall);
+		return this.groundZeroAlgo( cell, direction );
 	}
 };
 
@@ -1220,7 +1074,6 @@ Sudoku.prototype.getBig = function (cell){
 	return Math.floor(cell/9);
 };
 
-
 /**
  * getBigRow()
  * @param 	int 	cell 	Numeric position of cell.
@@ -1228,7 +1081,6 @@ Sudoku.prototype.getBig = function (cell){
 Sudoku.prototype.getBigRow = function (cell){
 	return Math.floor( Math.floor(cell/9) / 3);
 };
-
 
 /**
  * getBigColumn()
@@ -1239,7 +1091,6 @@ Sudoku.prototype.getBigColumn = function (cell){
 	return ( Math.floor(cell/9) % 3 );
 };
 
-
 /**
  * getSmall()
  * @param 	int 	cell 	Numeric position of cell
@@ -1248,7 +1099,6 @@ Sudoku.prototype.getBigColumn = function (cell){
 Sudoku.prototype.getSmall = function (cell){
 	return cell % 9;
 };
-
 
 /**
  * getSmallRow()
@@ -1260,7 +1110,6 @@ Sudoku.prototype.getSmallRow = function (cell){
 	return Math.floor( ( cell % 9 ) / 3);
 };
 
-
 /**
  * getSmallColumn()
  * Summary:
@@ -1269,7 +1118,6 @@ Sudoku.prototype.getSmallRow = function (cell){
 Sudoku.prototype.getSmallColumn = function (cell){
 	return ( cell % 9 ) % 3;
 };
-
 
 /**
  * getBoxStart()
@@ -1280,7 +1128,6 @@ Sudoku.prototype.getBoxStart = function (cell){
 	return this.getBig(cell) * 9;
 };
 
-
 /**
  * getRowStart()
  * Summary: Returns the position of the cell that is at the beginning of the row cell param is in.
@@ -1290,7 +1137,6 @@ Sudoku.prototype.getBoxStart = function (cell){
 Sudoku.prototype.getRowStart = function (cell){
 	return (( Math.floor(this.getBig(cell) / 3) * 3) * 9) + ( this.getSmallRow(cell) * 3 );
 };
-
 
 /**
  * getColumnStart()
@@ -1326,7 +1172,6 @@ Sudoku.prototype.getRowCells = function (cell) {
 	return arr;
 };
 
-
 /**
  * getColumnCells()
  * Summary:
@@ -1353,7 +1198,7 @@ Sudoku.prototype.getColumnCells = function (cell) {
 
 Sudoku.prototype.getBoxCells = function (cell){
 	var start = this.getBoxStart(cell);
-	var end = start + 8;
+	var end = start + 9;
 	var arr = [];
 	var i;
 	for(i=start; i < end; i += 1){
