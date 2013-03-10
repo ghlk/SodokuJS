@@ -258,31 +258,22 @@ Sudoku.prototype.generateCell = function (cell) {
 
 Sudoku.prototype.generateController = function (){
 
+	var cell, result;
+	var tempArr = [];
+	var i;
+	
 	// Make a randomized board we use as a guide and solve puzzle that way.
 	if( !this.randomBoard ){
-		var tempArr = [];
-		var i;
 		for(i=0;i<81;i+=1){
 			tempArr.push(i);
 		}
 		this.randomBoard = this.randomizeArray(tempArr);
-	}
-
-	var cell, result;
-	if( !this.generateArr ){
-		this.generateArr = [];
 		this.direction = 1;
 		this.startStopwatch();
+		this.cellCounter = 0;
 	}
 
-	if( this.direction === -1 ){
-		// We're backpedaling, so we use last cell on queue.
-		//this.currentCell = this.generateArr[this.generateArr.length-1];
-		this.currentCell = this.randomBoard[cell];
-	}else{
-		this.currentCell = this.getRandomEmptyCell();
-
-	}
+	this.currentCell = this.randomBoard[this.cellCounter];
 	cell = this.currentCell;
 	
 	// Null means we have no more empty cells to play with.
@@ -290,10 +281,12 @@ Sudoku.prototype.generateController = function (){
 		this.stopTimer();
 		this.refreshMovesStatus();
 		this.currentCell = null;
+		this.cellCounter = null;
 		return false;
 	
 	}else{
 		
+		// Solve the cell
 		result = this.generateCell(cell);
 		
 		this.refreshDisplay(cell);
@@ -303,7 +296,6 @@ Sudoku.prototype.generateController = function (){
 		if( this.direction === -1 ){
 			this.lowlightCell(cell);	
 		}else{
-			this.generateArr.push(cell);
 			this.highlightCell(cell);	
 		}
 		
@@ -313,15 +305,15 @@ Sudoku.prototype.generateController = function (){
 		if(result === true){
 			// We placed a new cell.
 			this.direction = 1;
-			console.log('Adding move : ' + this.generateArr.length);
+			this.cellCounter += this.direction;
 		}
 		else if(result === false){
-			// backpedal
+			// We need to backpedal - clear the current cell.
 			this.gameBoard[cell] = '';
-			this.generateArr.pop();
 			this.direction = -1;
-			console.log('backpedal : ' + this.generateArr.length);
+			this.cellCounter += this.direction;			
 		}
+		document.getElementById('cell-counter').value = this.cellCounter;
 	}
 	this.refreshMovesStatus();
 };
@@ -379,7 +371,7 @@ Sudoku.prototype.checkDeadCells = function () {
 };
 
 Sudoku.prototype.checkLastMoveTwins = function () {
-	return true;
+	
 	// Grab groups.
 	// Box 1 - 9
 	// Column 1 - 9
@@ -393,14 +385,14 @@ Sudoku.prototype.checkLastMoveTwins = function () {
 
 		cells = this.getBoxCells( i * 9);
 		
-		console.log(cells.join());
+		//console.log(cells.join());
 		// Iterate through the cells in the current box
 		for(j = 0; j < cells.length; j += 1){
 
 			cell = cells[j];
 
 			// Make sure cell we're inspecting isn't a gamePiece
-			if( !this.gameBoard[cell]){
+			if( !this.gameBoard[cell] && !this.solveBoard[cell]){
 			
 				// Gather the possibles moves for this current cell
 				possibles = this.getPossibles(cell);
@@ -409,22 +401,23 @@ Sudoku.prototype.checkLastMoveTwins = function () {
 				if( possibles.length === 1 ){
 
 					val = possibles[0];
-					if( tempTwinsArr[val] === 'greg' ){
+					if( tempTwinsArr[val] === true ){
 						// This has already been marked - we have TWINS
-						console.log(' WE HAVE TWINS - ' + cell );
+						//console.log(' WE HAVE TWINS - ' + cell );
+						//console.log('   TWINS  - cell: ' + cell + ' val: ' + val);
 						return false;
 					}else{
-						console.log('logging single - ' + cell );
-						tempTwinsArr[val] = 'greg';
+						//console.log('Last Move - cell: ' + cell + ' val: ' + val);
+						tempTwinsArr[val] = true;
 					}
 					
 				}	
 			}
 		}
-		tempTwinsArr = []; // Clear the twins array for each box.
-		
-	}
-	this.refreshDisplay();
+		tempTwinsArr = []; // Clear the twins array for each box.	
+	}// Do all 9 boxes
+
+	//this.refreshDisplay();
 	return true;
 };
 
@@ -892,7 +885,7 @@ Sudoku.prototype.solveCell = function(cell){
 	
 	// No Possibles OR we've tried all possibles
 	if( possVals.length < 1 || (this.solveBoard[cell] >= possVals[(possVals.length-1)]) ){
-		this.solveBoard[cell] = '';
+		//this.solveBoard[cell] = '';
 		return false;
 	}
 
@@ -902,9 +895,9 @@ Sudoku.prototype.solveCell = function(cell){
 	}
 
 	// Last Move Twins on Board - Mistake made by cell behind most likely
-	if( this.addOn_lastMoveTwins  && !this.checkLastMoveTwins() && !this.solveBoard[cell]){
-		//console.log('-Backpedal - twins');
-		return this.groundZeroAlgo(cell, -1);
+	if( this.addOn_lastMoveTwins && !this.checkLastMoveTwins() && !this.solveBoard[cell]){
+		console.log('-Backpedal - twins');
+		return false;
 	}
 
 	// Possibles moves - lets try lowest value one
@@ -954,13 +947,16 @@ Sudoku.prototype.solver = function(){
 		return false;
 	}
 	else{
-		if( this.direction === 1){
+		
+		x = this.solveCell(cell);
+		this.refreshDisplay(cell);
+		if (this.direction) {
 			this.highlightCell(cell);	
-		}else{
+		} else {
 			this.lowlightCell(cell);
 		}
-		x = this.solveCell(cell);
-		this.calcPossibles(cell);
+
+		//this.calcPossibles(cell);
 		
 		// GameBoard - Cant play this cell
 		if(x === null){
@@ -971,6 +967,7 @@ Sudoku.prototype.solver = function(){
 			this.direction = 1;
 		}
 		else if(x === false){
+			this.solveBoard[this.currentCell] = '';
 			this.currentCell--;
 			this.direction = -1;
 		}
@@ -1059,7 +1056,7 @@ Sudoku.prototype.groundZeroAlgo = function(cell, direction) {
 
 	// Last Move Twins on Board - Mistake made by cell behind most likely
 	if( this.addOn_lastMoveTwins  && !this.checkLastMoveTwins() && !this.solveBoard[cell]){
-		//console.log('-Backpedal - twins');
+		console.log('-Backpedal - twins');
 		return this.groundZeroAlgo(cell, -1);
 	}
 	

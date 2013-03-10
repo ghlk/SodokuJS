@@ -66,7 +66,7 @@
 			/** Create sudoku object **/
 			mysudoku = new Sudoku("mysudoku", 81, 'game');
 			
-			//mysudoku.testPuzzle(); //Default to a test puzzle
+			mysudoku.testPuzzle(); //Default to a test puzzle
 
 			
 			/** Edit Puzzle Delegation **/
@@ -144,9 +144,18 @@
 				}else{
 					mysudoku.addOn_deadCells = false;	
 				}
-				
+			};
 
-			}
+			var check = document.getElementById('last-move-twins-chkbox');
+			check.onchange = function(e){
+				var t = getTarget(e);
+
+				if( t.checked ){
+					mysudoku.addOn_lastMoveTwins = true;
+				}else{
+					mysudoku.addOn_lastMoveTwins = false;	
+				}
+			};
 
 			/** Edit Mode Toggle **/
 			var edits = document.getElementById('edit-mode');
@@ -239,6 +248,9 @@
 				<br>
 				<input type="text" id="txt-timer" disabled>
 				<label for="timer" class="small-label">Time (s):</label>
+				<br>
+				<input type="text" id="cell-counter" disabled>
+				<label for="timer" class="small-label">Cell Cnt:</label>
 				
 			</fieldset>
 			</form>

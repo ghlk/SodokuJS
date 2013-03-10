@@ -101,9 +101,12 @@ body {
 }
 
 .highlight {
-	background:#FFA07A;
+	1background:#FFA07A;
 	1background:#ff3300;
-	background:#faa !important;/*
+	1background:#faa !important;
+	background-color: #fcc !important;
+
+	/*
 	-webkit-transition: background-color 1ms linear;
 	-moz-transition: background-color 1ms linear;
 	-o-transition: background-color 1ms linear;
@@ -112,15 +115,13 @@ body {
 	}
 
 .highlight > .value{
-	background:#faa !important;
+	background-color:#FFD6D6 !important;
 }
 .lowlight {
-	background:#aaf !important;
+	background-color: #ccf;
 }
 .lowlight > .value{
-	1background-color: rgba(255,0,0,.2);
-	background-color: #aaf !important;
-
+	background-color: #D6D6FF !important;
 }
 fieldset{
 	float:left;
@@ -174,6 +175,7 @@ input[type="text"] {
 
 .entered-value > .value{
 	color:#f80;
+	color:#66f;
 	background:#fff;
 	z-index:10;
 }
