@@ -379,12 +379,6 @@ Sudoku.prototype.checkLastMoveTwins = function () {
 		possibles = [];
 	var affectedCell, i, j, val;
 
-	//specialCells = [0,1,2,3,4,5,6,7,8];
-	// for(i=0;i<specialCells.length;i+=1){
-	// 	this.highlightCell(specialCells[i]);
-	// 	console.log(specialCells[i]);
-	// }
-	
 	for( i = 0; i < specialCells.length; i += 1){
 
 		// Check the BOX, ROW, and COLUMN seperately
@@ -393,10 +387,9 @@ Sudoku.prototype.checkLastMoveTwins = function () {
 		colCells = this.getColumnCells(specialCells[i]);
 
 		if( !this.checkArrayForTwins( boxCells ) || !this.checkArrayForTwins(rowCells) || !this.checkArrayForTwins(colCells) ){
-			// Success - 
+			// Last move twins found somewhere
 			return false;
 		}
-
 	}
 	return true;
 };
@@ -417,7 +410,6 @@ Sudoku.prototype.checkArrayForTwins = function (arrayCells){
 					return false;
 				}else{
 					tempArr[val] = true;
-
 				}
 			}
 		}
@@ -625,6 +617,7 @@ Sudoku.prototype.checkPuzzle = function(alertFlag){
 // * Displaying & HTML
 // * -------------------------------------------
 
+
 Sudoku.prototype.displaySkelaton = function (div) {
 	document.getElementById(div).innerHTML = this.getHTMLSkelaton();
 };
@@ -634,7 +627,7 @@ Sudoku.prototype.displaySkelaton = function (div) {
  * Summary: Returns the HTML skelaton for the sudoku game.
  * @return 	str 	str 
  **/
-Sudoku.prototype.getHTMLSkelaton = function(){
+Sudoku.prototype.getHTMLSkelaton = function (){
 	var str, i, j;
 
 	// Sudoku container - Start
@@ -737,6 +730,7 @@ Sudoku.prototype.refreshDisplay = function(divID){
 
 	};
 };
+
 
 Sudoku.prototype.refreshControls = function(){
 
@@ -868,7 +862,7 @@ Sudoku.prototype.getPossibleCells = function ( value, type){
  * @param 	int 	cell
  * @return 	boll 	true 	Increment solver.
  * @return 	bool 	false 	Decrement solver.
- * @return 	bool 	null 	Continue solver. (, in same direction as you were)
+ * @return 	bool 	null 	Continue solver. (in current direction)
  *
  * Parents: 
  *	solver();
@@ -899,7 +893,6 @@ Sudoku.prototype.solveCell = function(cell){
 
 	// Last Move Twins on Board - Mistake made by cell behind most likely
 	if( this.addOn_lastMoveTwins && !this.checkLastMoveTwins() && !this.solveBoard[cell]){
-		console.log('-Backpedal - twins');
 		return false;
 	}
 
@@ -954,10 +947,12 @@ Sudoku.prototype.solver = function(){
 		this.refreshDisplay(cell);
 		x = this.solveCell(cell);
 		
-		if (this.direction) {
+		if (this.direction===1) {
 			this.highlightCell(cell);	
 		} else {
 			this.lowlightCell(cell);
+			this.unHighlightCell(cell+1);
+			
 		}
 
 		//this.calcPossibles(cell);
@@ -973,6 +968,7 @@ Sudoku.prototype.solver = function(){
 		else if(x === false){
 			this.solveBoard[this.currentCell] = '';
 			this.currentCell--;
+
 			this.direction = -1;
 		}
 	}
@@ -1287,18 +1283,26 @@ Sudoku.prototype.showCells = function () {
 Sudoku.prototype.startSolver = function () {
 	
 	
-	// Timer is active - deactivate it
+	// Timer is already active - Toggle off
 	if( this.timer ){
-		this.timer = window.clearInterval(this.timer);
-		var now = new Date().getTime();
-		document.getElementById('txt-timer').value = (now-this.startTime)/1000;
+		this.stopTimer();
+		this.refreshStopwatch();
+		// this.timer = window.clearInterval(this.timer);
+		// var now = new Date().getTime();
+		// document.getElementById('txt-timer').value = (now-this.startTime)/1000;
+		document.getElementById('ground-zero-status').className = 'inactive';
 
-	}else{
-		// Start the interval
+	}
+	// Start the interval
+	else{
+		//Update the interval
+		this.interval = document.getElementById('interval').value || this.interval ;
 		this.timer = self.setInterval(this.solverStr, this.interval);
 		// Grab time from the 
 		var oldTime = document.getElementById('txt-timer').value;
 		this.startTime = ( new Date().getTime() - oldTime );
+		document.getElementById('ground-zero-status').className = 'active';
+
 	}
 	
 };
@@ -1353,6 +1357,8 @@ Sudoku.prototype.refreshStopwatch = function () {
 	//diff = Math.floor((diff/100))/10;
 	diff = diff/1000;
 	document.getElementById('txt-timer').value = diff;
+	
+
 }
 
 /**
@@ -1362,7 +1368,8 @@ Sudoku.prototype.refreshStopwatch = function () {
  **/
 Sudoku.prototype.stopTimer = function () {
 	this.timer = window.clearInterval(this.timer);
-	alert("Solver stopped.")
+	document.getElementById('ground-zero-status').className = 'inactive';
+	//alert("Solver stopped.")
 };
 
 /**

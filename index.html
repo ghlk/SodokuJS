@@ -169,23 +169,6 @@
 				}
 			};
 
-			function blah(cell){
-
-				var arr = [], arr2 = [], arr3 = [];
-				arr  = mysudoku.getBoxCells(cell);
-				arr2 = mysudoku.getRowCells(cell);
-				arr3 = mysudoku.getColumnCells(cell);
-				var totalArr = arr.concat(arr2, arr3);
-				var str;
-				console.log(arr.length);
-				console.log(arr2.length);
-				console.log(arr3.length);
-				console.log(totalArr.length);								
-				for(var i=0; i<totalArr.length; i+=1){
-					str = 'small-'+totalArr[i];
-					document.getElementById(str).className += ' highlight';
-				}
-			}
 		}; // end onload
 	</script>
 
@@ -222,11 +205,20 @@
 
 			<fieldset>
 				<legend>Ground Zero Algo</legend>
+				<span id="ground-zero-status" class="status">
+					Algo <strong>not</strong> currently running...
+				</span>
 				<label>Dead Cells:</label><input id="dead-cells-chkbox" type="checkbox" checked>
 				<label>Last Move Twins:</label><input id="last-move-twins-chkbox" type="checkbox" checked>
-				<span id="ground-zero-status" class="status">Algo <strong>not</strong> currently running...</span>
 				<hr>
 				<input id="ground-zero-toggle"  type="button" value="Start/Stop">
+				<select id="interval">
+					<option value="1">1ms</option>
+					<option value="100">100</option>
+					<option value="200">200</option>
+					<option value="500">500</option>
+					<option value="1000">1000</option>
+				</select>
 				<input id="ground-zero-step" type="button" value="Step">
 				<hr>
 				<input id="ground-zero-recurse" type="button" value="Solve Puzzle">

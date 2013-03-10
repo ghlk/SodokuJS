@@ -182,6 +182,7 @@ input[type="text"] {
 	color:#66f;
 	background:#fff;
 	z-index:10;
+	font-size:1.2em;
 }
 
 .game-value > .value{
@@ -226,3 +227,24 @@ input[type="text"] {
 	margin-bottom:.3em;
 }
 
+#ground-zero-status{
+	1background-color:#fff;
+	color:#7afa12;
+	color:#fa3;
+	padding:0 1em;
+	margin:.1em 0;
+	line-height:2;
+	display:block;
+	font-weight:100;
+	text-shadow:0px -1px #000;
+	font-size:1.2em;
+}
+#ground-zero-status.active{
+	color:#0AFF99;
+}
+#ground-zero-status.active > strong{
+	display:none;
+}
+#ground-zero-status.inactive{
+	color:#fa3;
+}
