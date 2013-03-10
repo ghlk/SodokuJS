@@ -104,7 +104,7 @@ body {
 	1background:#FFA07A;
 	1background:#ff3300;
 	1background:#faa !important;
-	background-color: #fcc !important;
+	background-color:#FFD6D6 !important;
 
 	/*
 	-webkit-transition: background-color 1ms linear;
@@ -118,11 +118,15 @@ body {
 	background-color:#FFD6D6 !important;
 }
 .lowlight {
-	background-color: #ccf;
+	background-color: #D6D6FF !important;
 }
 .lowlight > .value{
 	background-color: #D6D6FF !important;
 }
+.lowlight.game-value{
+	background-color: #D6D6FF !important;
+}
+
 fieldset{
 	float:left;
 	max-width:200px;

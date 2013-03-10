@@ -372,52 +372,56 @@ Sudoku.prototype.checkDeadCells = function () {
 
 Sudoku.prototype.checkLastMoveTwins = function () {
 	
-	// Grab groups.
-	// Box 1 - 9
-	// Column 1 - 9
-	// Row 1 - 9
+	// Check all these cells and we check all cells
+	var specialCells = [0,28,56,12,40,68,24,52,80],
+		affectedCells = [],
+		tempArr = [],
+		possibles = [];
+	var affectedCell, i, j, val;
+
+	//specialCells = [0,1,2,3,4,5,6,7,8];
+	// for(i=0;i<specialCells.length;i+=1){
+	// 	this.highlightCell(specialCells[i]);
+	// 	console.log(specialCells[i]);
+	// }
 	
-	var i, j, val, possibles, cell, cells;
-	var tempTwinsArr = [];
+	for( i = 0; i < specialCells.length; i += 1){
 
-	// iterate through our 9 boxes
-	for(i=0;i<9;i+=1){
+		// Check the BOX, ROW, and COLUMN seperately
+		boxCells = this.getBoxCells(specialCells[i]);
+		rowCells = this.getRowCells(specialCells[i]);
+		colCells = this.getColumnCells(specialCells[i]);
 
-		cells = this.getBoxCells( i * 9);
-		
-		//console.log(cells.join());
-		// Iterate through the cells in the current box
-		for(j = 0; j < cells.length; j += 1){
+		if( !this.checkArrayForTwins( boxCells ) || !this.checkArrayForTwins(rowCells) || !this.checkArrayForTwins(colCells) ){
+			// Success - 
+			return false;
+		}
 
-			cell = cells[j];
+	}
+	return true;
+};
 
-			// Make sure cell we're inspecting isn't a gamePiece
-			if( !this.gameBoard[cell] && !this.solveBoard[cell]){
-			
-				// Gather the possibles moves for this current cell
-				possibles = this.getPossibles(cell);
-				
-				// If it has only one move left, it's a single. Mark that value.
-				if( possibles.length === 1 ){
+Sudoku.prototype.checkArrayForTwins = function (arrayCells){
 
-					val = possibles[0];
-					if( tempTwinsArr[val] === true ){
-						// This has already been marked - we have TWINS
-						//console.log(' WE HAVE TWINS - ' + cell );
-						//console.log('   TWINS  - cell: ' + cell + ' val: ' + val);
-						return false;
-					}else{
-						//console.log('Last Move - cell: ' + cell + ' val: ' + val);
-						tempTwinsArr[val] = true;
-					}
-					
-				}	
+	var i, tempArr = [], cell, possibles = [], val;
+	for(i = 0; i < arrayCells.length; i += 1){
+		cell = arrayCells[i];
+
+		if (!this.gameBoard[cell] && !this.solveBoard[cell]){
+
+			possibles = this.getPossibles(cell);
+
+			if( possibles.length === 1 ){
+				val = possibles[0];
+				if( tempArr[val] === true ){
+					return false;
+				}else{
+					tempArr[val] = true;
+
+				}
 			}
 		}
-		tempTwinsArr = []; // Clear the twins array for each box.	
-	}// Do all 9 boxes
-
-	//this.refreshDisplay();
+	}
 	return true;
 };
 
@@ -885,7 +889,6 @@ Sudoku.prototype.solveCell = function(cell){
 	
 	// No Possibles OR we've tried all possibles
 	if( possVals.length < 1 || (this.solveBoard[cell] >= possVals[(possVals.length-1)]) ){
-		//this.solveBoard[cell] = '';
 		return false;
 	}
 
@@ -938,7 +941,7 @@ Sudoku.prototype.solver = function(){
 		this.startStopwatch();
 	}
 	cell = this.currentCell;
-	this.refreshDisplay();
+	//this.refreshDisplay();
 	
 	if(cell > 80 || cell < 0){
 		this.stopTimer();
@@ -948,8 +951,9 @@ Sudoku.prototype.solver = function(){
 	}
 	else{
 		
-		x = this.solveCell(cell);
 		this.refreshDisplay(cell);
+		x = this.solveCell(cell);
+		
 		if (this.direction) {
 			this.highlightCell(cell);	
 		} else {
@@ -1256,6 +1260,10 @@ Sudoku.prototype.getBoxCells = function (cell){
 }
 
 
+Sudoku.prototype.getAffectedCells = function (cell){
+	return this.getBoxCells(cell).concat(this.getColumnCells(cell), this.getRowCells(cell));
+}
+
 /***************
  * UI-Controls *
  ***************/
@@ -1363,10 +1371,10 @@ Sudoku.prototype.stopTimer = function () {
  **/
 Sudoku.prototype.highlightCell = function (cell) {
 	
-	var last = this.currentCell + ( this.direction * -1);
-	if(last >= 0 && last < 81){
-		this.unHighlightCell(last);
-	}
+	// var last = this.currentCell + ( this.direction * -1);
+	// if(last >= 0 && last < 81){
+	// 	this.unHighlightCell(last);
+	// }
 	
 	var cellStr = "small-"+cell;	
 	document.getElementById(cellStr).className += " highlight";
@@ -1379,10 +1387,10 @@ Sudoku.prototype.highlightCell = function (cell) {
  **/
 Sudoku.prototype.lowlightCell = function (cell) {
 	
-	var last = this.currentCell + ( this.direction * -1);
-	if(last >= 0 && last < 81){
-		this.unHighlightCell(last);
-	}
+	// var last = this.currentCell + ( this.direction * -1);
+	// if(last >= 0 && last < 81){
+	// 	this.unHighlightCell(last);
+	// }
 	
 	var cellStr = "small-"+cell;	
 	document.getElementById(cellStr).className += " lowlight";
