@@ -10,23 +10,79 @@
 	<script type="text/javascript">
 		
 		var mysudoku;
+
+		/** Edit Delegation's Callback **/
+		var commit = function(){
+			
+			// Grab what class the sudoku funct is.
+			var gameClass = document.getElementById('game').className;
+			
+			// Find the textbox and parent
+			var txtbox = document.getElementById('edit-txtbox');
+			var parent = txtbox.parentNode.parentNode;
+			parent.className = parent.className.replace(/\bhighlight\b/,'');
+			//parent.innerHTML=''; 
+			//alert(parent.id)/;
+			// Grab the text value from the textbox - 
+			var value = txtbox.value;
+
+			// Decide where it goes
+			var cell = parent.id.substr(6);
+			
+			// No value - User's cancelling event
+			if(!value){
+
+				if( gameClass === 'game-edit'){
+					//Remove value if there is one.
+					if( mysudoku.gameBoard[cell] ){
+						mysudoku.gameBoard[cell] = '';
+					}
+				}else{
+					//Remove value if there is one.
+					if( mysudoku.solveBoard[cell] ){
+						mysudoku.solveBoard[cell] = '';
+					}
+				}
+
+			}else if( mysudoku.check(cell, value) === true ){
+				
+				if( gameClass === 'game-edit'){
+					mysudoku.gameBoard[cell] = value;
+				}else{
+					mysudoku.solveBoard[cell] = value;
+				}
+			}else{
+				//Show error
+				alert('That value is invalid. Try again.');
+			}
+			mysudoku.refreshDisplay();
+			return false;
+		};
+			
+
 		// *************************** //
 		window.onload = function() {
 			
 			/** Create sudoku object **/
 			mysudoku = new Sudoku("mysudoku", 81, 'game');
 			
-			mysudoku.testPuzzle(); //Default to a test puzzle
+			//mysudoku.testPuzzle(); //Default to a test puzzle
 
+			
 			/** Edit Puzzle Delegation **/
 			var sodo = document.getElementById('game');
 			sodo.onclick = function(e) {
 				var t = getTarget(e);
-				var x;
-				//mysudoku.refreshDisplay();
+				var div = document.getElementById('game').className;
+				var small;
+
+				// Check small class
+				if( t.className !== 'small' ){
+					small = t.parentNode;
+				}
 
 				// Iterate down to our 'value' node
-				if(t.className === 'tiny' || t.className === 'entered-value' ){
+				if(t.className === 'tiny'){
 
 					while (t.nextSibling) {
     					t = t.nextSibling;
@@ -35,61 +91,27 @@
     					}
     				}
 				}
-				if (t.className === 'value') {
-					var obj = document.getElementById(t.id);
+				if (t.className === 'value' ){
+
 					var txt = '<input type="text" id="edit-txtbox" value="" class="edit-txt" onblur="commit();"> ';
-					t.innerHTML = txt;
-					document.getElementById('edit-txtbox').focus();
+					
+					// Not game board - go ahead
+					if (small.className !== 'small game-value') {
+						t.innerHTML = txt;
+						document.getElementById('edit-txtbox').focus();
+					}
+					// Game board piece
+					if( small.className === 'small game-value'){
+
+						if( div === 'game-edit'){
+							t.innerHTML = txt;
+							document.getElementById('edit-txtbox').focus();
+						}
+					}
+					
 				}	
 			};
 
-			/** Edit Delegation's Callback **/
-			var commit = function(){
-				
-				// Grab what class the sudoku funct is.
-				var gameClass = document.getElementById('game').className;
-				
-				// Find the textbox and parent
-				var txtbox = document.getElementById('edit-txtbox');
-				var parent = txtbox.parentNode.parentNode;
-				parent.className = parent.className.replace(/\bhighlight\b/,'');
-				//parent.innerHTML=''; 
-				
-				// Grab the text value from the textbox - 
-				var value = txtbox.value;
-
-				// Decide where it goes
-				var cell = parent.id.substr(6);
-				
-				// No value - User's cancelling event
-				if(!value){
-
-					if( gameClass === 'game-edit'){
-						//Remove value if there is one.
-						if( mysudoku.gameBoard[cell] ){
-							mysudoku.gameBoard[cell] = '';
-						}
-					}else{
-						//Remove value if there is one.
-						if( mysudoku.solveBoard[cell] ){
-							mysudoku.solveBoard[cell] = '';
-						}
-					}
-
-				}else if( mysudoku.check(cell, value) === true ){
-					
-					if( gameClass === 'game-edit'){
-						mysudoku.gameBoard[cell] = value;
-					}else{
-						mysudoku.solveBoard[cell] = value;
-					}
-				}else{
-					//Show error
-					alert('That value is invalid. Try again.');
-				}
-				mysudoku.refreshDisplay();
-				return false;
-			};
 			
 			
 			/** Brute Force Algorithm Buttons **/
@@ -103,6 +125,14 @@
 
 			document.getElementById('ground-zero-recurse').onclick = function(){
 				mysudoku.groundZeroAlgo();
+			};
+
+			document.getElementById('generate-toggle').onclick = function(){
+				mysudoku.toggleGenerator();
+			};
+
+			document.getElementById('generate-step').onclick = function(){
+				mysudoku.generateController();
 			};
 
 			var check = document.getElementById('dead-cells-chkbox');
@@ -125,22 +155,28 @@
 				if (t.value == 'edit') {
 					document.getElementById('game').className = 'game-edit';
 				}else{
-					mysudoku.toggleEditMode(false);
+					//mysudoku.toggleEditMode(false);
 					document.getElementById('game').className = '';
 				}
 			};
 
-			/** Possible Values Toggle **/
-			var possibles = document.getElementById('possibles-checkbox');
-			possibles.onchange = function(e){
-				var t = getTarget(e);
-				if(t.checked){
-					mysudoku.togglePossibles(true);
-				}else{
-					mysudoku.togglePossibles(false);
-				}
-			};
+			function blah(cell){
 
+				var arr = [], arr2 = [], arr3 = [];
+				arr  = mysudoku.getBoxCells(cell);
+				arr2 = mysudoku.getRowCells(cell);
+				arr3 = mysudoku.getColumnCells(cell);
+				var totalArr = arr.concat(arr2, arr3);
+				var str;
+				console.log(arr.length);
+				console.log(arr2.length);
+				console.log(arr3.length);
+				console.log(totalArr.length);								
+				for(var i=0; i<totalArr.length; i+=1){
+					str = 'small-'+totalArr[i];
+					document.getElementById(str).className += ' highlight';
+				}
+			}
 		}; // end onload
 	</script>
 
@@ -159,12 +195,17 @@
 				<label>Generation: (not done)</label>
 				<input type="button" onClick="mysudoku.generatePuzzle();" Value="Generate">				
 				<input type="button" onClick="mysudoku.recurseGenerate();" Value="Recursive Generate">				
+				<input type="button" id="generate-toggle" Value="Toggle Gen">				
+				<input type="button" id="generate-step" Value="Step">				
 			</fieldset>
 
 			<fieldset id="solving-controls">	
-				<legend>User Mode</legend>
- 				<select id="edit-mode">
-					<option value="solve" selected>solve mode</option>
+				<legend>Editing</legend>
+ 				<input type="button" value="Clear Solved Cells" onclick="mysudoku.clear();"><br>
+ 				<input type="button" value="Clear Board" onclick="mysudoku.empty();">
+ 				<hr>
+				<select id="edit-mode">
+ 					<option value="solve" selected>solve mode</option>
 					<option value="edit" >edit mode</option>
 				</select>
 				
@@ -190,16 +231,14 @@
 
 			<fieldset id="debug">
 				<legend>Status</legend>
-				<label for="numofmoves" class="small-label">Moves:</label>
 				<input type="text" id="numofmoves" disabled>
+				<label for="numofmoves" class="small-label">Moves:</label>
 				<br>
-				<label for="numofpencils" class="small-label">Penciled:</label>
 				<input type="text" id="numofpencils" disabled>
+				<label for="numofpencils" class="small-label">Penciled:</label>
 				<br>
-				<label for="timer" class="small-label">Time (s):</label>
 				<input type="text" id="txt-timer" disabled>
-				<br>
-				<label for="possibles-checkbox" class="small-label">Possible Values</label><input id="possibles-checkbox" type="checkbox" value="1" checked="" >
+				<label for="timer" class="small-label">Time (s):</label>
 				
 			</fieldset>
 			</form>

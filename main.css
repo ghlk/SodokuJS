@@ -114,9 +114,12 @@ body {
 .highlight > .value{
 	background:#faa !important;
 }
-.lowlight{
+.lowlight {
+	background:#aaf !important;
+}
+.lowlight > .value{
 	1background-color: rgba(255,0,0,.2);
-	background-color: #faa;
+	background-color: #aaf !important;
 
 }
 fieldset{
@@ -202,11 +205,18 @@ input[type="text"] {
 
 #debug label{
 	1float:left;
+	float:right;
 	1padding:0;
+	1clear:left;
+	line-height:1.4;
 }
 #debug input[type="text"]{
-	width:3em;
-	1float:right;
+	width:4em;
+	float:left;
+	float:right;
+	clear:right;
 	1background:red;
-	2clear:both;
+	line-height:1;
+	margin-bottom:.3em;
 }
+
