@@ -42,7 +42,7 @@ function Sudoku(name, size, divID) {
 	this.step		= 1;
 	this.solverStr	= this.name + ".solver();";
 	this.genStr	= this.name + ".generateController();";
-	this.moves = 0; // Counts when we move our focus from one cell to another.
+	this.moves = 0;   // Counts when we move our focus from one cell to another.
 	this.pencils = 0; // Counts times we place a value in a cell
 
 	/* Premade puzzles */
@@ -59,53 +59,49 @@ function Sudoku(name, size, divID) {
 // * Puzzle Creation
 // * -------------------------------------------
 
-/**
- * newPuzzle()
- * Summary: Resets the puzzle board and other values, then populates it with a new puzzle, and displays the new game.
- * Notes: This can result in non-solvable puzzles. Keep that in mind.
- * 
- * @param	int		lines	Number of "lines" or times to use the values 1-9 in the puzzle.
- * @param	str		divID	The div ID to display the puzzle in.
- * @return	void
- **/
-Sudoku.prototype.newPuzzle = function (lines, divID) {
 
-	/** Reset all boards **/
+Sudoku.prototype.emptyAllBoards = function(){
+	
 	this.gameBoard = this.emptyBoard.slice(0);
 	this.possBoard = this.emptyBoard.slice(0);
 	this.solveBoard = this.emptyBoard.slice(0);
+};
 
-	/** Reset all values **/
+Sudoku.prototype.resetAllValues = function(){
+
 	this.solveBookmark = 0;
 	this.moves = 0;
 	this.pencils = 0;
-
-	/** Optional Resets (Maybe get rid of) **/
 	this.direction = 1;
 	this.solvePlace = 0;
-	this.currentCell = null;
-	/** --- **/
+	this.currentCell = null;	
 
-	/** Display the HTML **/
-	this.refreshDisplay(divID);
 };
 
+
+
+
 /**
- * testPuzzle()
+ * premadePuzzle()
  * Summary: Sets the selected test puzzle.
  **/
-Sudoku.prototype.testPuzzle = function (num) {
+Sudoku.prototype.premadePuzzle = function (num) {
 	
 	this.empty();
 	num = num || 1;
 	this.pencils = 0;
 	this.moves = 0;
+	var name = '';
 
 	if( num == 1 ){
-		this.gameBoard = this.easyBoard.slice(0);	
+		this.gameBoard = this.easyBoard.slice(0);
+		name = 'easy';
 	}else if( num == 2 ){
 		this.gameBoard = this.evilBoard.slice(0);	
+		name = 'evil';
 	}
+	name += ' puzzle';
+	document.getElementById('current-puzzle').innerHTML = name;
 	this.refreshDisplay();
 };
 
@@ -356,67 +352,6 @@ Sudoku.prototype.getRandomEmptyCell = function ( big ) {
 	return rand;
 };
 
-Sudoku.prototype.checkDeadCells = function () {
-	var cell, possibles;
-	for(cell=0; cell<81; cell++){
-
-		if(!this.gameBoard[cell] && !this.solveBoard[cell]) {
-			
-			if( this.getPossibles(cell).length == 0 ){
-				return false;
-			}
-		}
-	}
-	return true;
-};
-
-Sudoku.prototype.checkLastMoveTwins = function () {
-	
-	// Check all these cells and we check all cells
-	var specialCells = [0,28,56,12,40,68,24,52,80],
-		affectedCells = [],
-		tempArr = [],
-		possibles = [];
-	var affectedCell, i, j, val;
-
-	for( i = 0; i < specialCells.length; i += 1){
-
-		// Check the BOX, ROW, and COLUMN seperately
-		boxCells = this.getBoxCells(specialCells[i]);
-		rowCells = this.getRowCells(specialCells[i]);
-		colCells = this.getColumnCells(specialCells[i]);
-
-		if( !this.checkArrayForTwins( boxCells ) || !this.checkArrayForTwins(rowCells) || !this.checkArrayForTwins(colCells) ){
-			// Last move twins found somewhere
-			return false;
-		}
-	}
-	return true;
-};
-
-Sudoku.prototype.checkArrayForTwins = function (arrayCells){
-
-	var i, tempArr = [], cell, possibles = [], val;
-	for(i = 0; i < arrayCells.length; i += 1){
-		cell = arrayCells[i];
-
-		if (!this.gameBoard[cell] && !this.solveBoard[cell]){
-
-			possibles = this.getPossibles(cell);
-
-			if( possibles.length === 1 ){
-				val = possibles[0];
-				if( tempArr[val] === true ){
-					return false;
-				}else{
-					tempArr[val] = true;
-				}
-			}
-		}
-	}
-	return true;
-};
-
 
 // * -------------------------------------------
 // * Checking Methods
@@ -611,6 +546,66 @@ Sudoku.prototype.checkPuzzle = function(alertFlag){
 	return true;
 };
 
+Sudoku.prototype.checkDeadCells = function () {
+	var cell, possibles;
+	for(cell=0; cell<81; cell++){
+
+		if(!this.gameBoard[cell] && !this.solveBoard[cell]) {
+			
+			if( this.getPossibles(cell).length == 0 ){
+				return false;
+			}
+		}
+	}
+	return true;
+};
+
+Sudoku.prototype.checkLastMoveTwins = function () {
+	
+	// Check all these cells and we check all cells
+	var specialCells = [0,28,56,12,40,68,24,52,80],
+		affectedCells = [],
+		tempArr = [],
+		possibles = [];
+	var affectedCell, i, j, val;
+
+	for( i = 0; i < specialCells.length; i += 1){
+
+		// Check the BOX, ROW, and COLUMN seperately
+		boxCells = this.getBoxCells(specialCells[i]);
+		rowCells = this.getRowCells(specialCells[i]);
+		colCells = this.getColumnCells(specialCells[i]);
+
+		if( !this.checkArrayForTwins( boxCells ) || !this.checkArrayForTwins(rowCells) || !this.checkArrayForTwins(colCells) ){
+			// Last move twins found somewhere
+			return false;
+		}
+	}
+	return true;
+};
+
+Sudoku.prototype.checkArrayForTwins = function (arrayCells){
+
+	var i, tempArr = [], cell, possibles = [], val;
+	for(i = 0; i < arrayCells.length; i += 1){
+		cell = arrayCells[i];
+
+		if (!this.gameBoard[cell] && !this.solveBoard[cell]){
+
+			possibles = this.getPossibles(cell);
+
+			if( possibles.length === 1 ){
+				val = possibles[0];
+				if( tempArr[val] === true ){
+					return false;
+				}else{
+					tempArr[val] = true;
+				}
+			}
+		}
+	}
+	return true;
+};
 
 
 // * -------------------------------------------

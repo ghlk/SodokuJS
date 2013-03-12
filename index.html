@@ -66,7 +66,7 @@
 			/** Create sudoku object **/
 			mysudoku = new Sudoku("mysudoku", 81, 'game');
 			
-			mysudoku.testPuzzle(); //Default to a test puzzle
+			mysudoku.premadePuzzle(); //Default to a test puzzle
 
 			
 			/** Edit Puzzle Delegation **/
@@ -112,6 +112,11 @@
 				}	
 			};
 
+			document.getElementById('premade-btn').onclick = function (){
+				//alert('me');
+				var val = document.getElementById('premade-select').value;
+				mysudoku.premadePuzzle(val);
+			};
 			
 			
 			/** Brute Force Algorithm Buttons **/
@@ -181,11 +186,13 @@
 			<fieldset id="puzzle-controls">
 				<legend>New Puzzle</legend>
 				<label>Premade:</label>
-				<input type="button" onClick="mysudoku.testPuzzle(1);" Value="Easy">				
-				<input type="button" onClick="mysudoku.testPuzzle(2);" Value="Evil">				
+				<select id="premade-select">
+					<option value="1">Easy</option>
+					<option value="2">Evil</option>
+				</select>
+				<input type="button" id="premade-btn" value="Populate">				
 				<hr>
 				<label>Generation: (not done)</label>
-				<input type="button" onClick="mysudoku.generatePuzzle();" Value="Generate">				
 				<input type="button" onClick="mysudoku.recurseGenerate();" Value="Recursive Generate">				
 				<input type="button" id="generate-toggle" Value="Toggle Gen">				
 				<input type="button" id="generate-step" Value="Step">				
@@ -232,6 +239,7 @@
 
 			<fieldset id="debug">
 				<legend>Status</legend>
+				<span id="current-puzzle" class="status"></span>
 				<input type="text" id="numofmoves" disabled>
 				<label for="numofmoves" class="small-label">Moves:</label>
 				<br>
