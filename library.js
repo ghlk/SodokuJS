@@ -19,7 +19,7 @@
 
 
 	return {
-
+		newpuzzle: newPuzzle;
 	};
 
 })(this, document);

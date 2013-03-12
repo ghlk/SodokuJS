@@ -923,15 +923,15 @@ Sudoku.prototype.solveCell = function(cell){
  */
 Sudoku.prototype.solver = function(){
 
-	var cell, x;
-	if(this.currentCell === null){
+	var result, tempCell;
+
+	if (this.currentCell === null) {
 		this.currentCell = 0;
+		this.direction = 1;
 		this.startStopwatch();
 	}
-	cell = this.currentCell;
-	//this.refreshDisplay();
 	
-	if(cell > 80 || cell < 0){
+	if(this.currentCell > 80 || this.currentCell < 0){
 		this.stopTimer();
 		this.stopStopwatch();
 		this.refreshMovesStatus();
@@ -939,35 +939,50 @@ Sudoku.prototype.solver = function(){
 	}
 	else{
 		
-		this.refreshDisplay(cell);
-		x = this.solveCell(cell);
-		
-		if (this.direction===1) {
-			this.highlightCell(cell);	
-		} else {
-			this.lowlightCell(cell);
-			this.unHighlightCell(cell+1);
-			
+
+		if( this.currentCell > 0 && this.currentCell < 81 ){
+			this.unHighlightCell(this.currentCell + (-1*this.direction));	
 		}
 
-		//this.calcPossibles(cell);
-		
-		// GameBoard - Cant play this cell
-		if(x === null){
-			this.currentCell += this.direction;
+
+		if( this.gameBoard[this.currentCell]){
+			while( this.gameBoard[this.currentCell] ){
+				this.currentCell += this.direction;
+			}
+			//alert(tempCell+'_'+this.currentCell);
 		}
-		else if(x === true){
-			this.currentCell++;
+		
+
+
+		result = this.solveCell(this.currentCell);
+		
+		this.refreshDisplay(this.currentCell);
+		
+		if (this.direction === 1) {
+			this.highlightCell(this.currentCell);
+			//this.unHighlightCell(this.currentCell-1);			
+	
+		} else {
+			this.lowlightCell(this.currentCell);
+			//this.unHighlightCell(this.currentCell+1);			
+		}
+
+		// x===null if the value is being skipped.
+		// x===true - successful in placing value, next cell please.
+		
+		if(result === true){
 			this.direction = 1;
 		}
-		else if(x === false){
+		//x===false - We are backpedaling - clear current cell and lets go backwards.
+		else if(result === false){
 			this.solveBoard[this.currentCell] = '';
-			this.currentCell--;
-
 			this.direction = -1;
 		}
+		this.currentCell += this.direction;
+
 	}
 	this.refreshMovesStatus();
+	//alert(this.currentCell);
 };
 
 // --- 
@@ -1033,6 +1048,9 @@ Sudoku.prototype.groundZeroAlgo = function(cell, direction) {
 		cell = -1;
 		direction = 1;
 		this.startStopwatch();
+		this.moves = 0;
+		this.pencils = 0;
+		this.solveBoard = this.emptyBoard.slice(0);
 	}
 
 	// Increment the cell by the direction (-1 or +1) we're going in 
@@ -1050,8 +1068,7 @@ Sudoku.prototype.groundZeroAlgo = function(cell, direction) {
 	}
 
 	// Last Move Twins on Board - Mistake made by cell behind most likely
-	if( this.addOn_lastMoveTwins  && !this.checkLastMoveTwins() && !this.solveBoard[cell]){
-		console.log('-Backpedal - twins');
+	if( this.addOn_lastMoveTwins && !this.checkLastMoveTwins() && !this.solveBoard[cell]){
 		return this.groundZeroAlgo(cell, -1);
 	}
 	
