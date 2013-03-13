@@ -1,3 +1,24 @@
+
+/**
+ * LIBRARY
+ * 
+ */
+
+
+(function (window, undefined){
+
+	// Private Vals
+	// var gameBoard = [],
+	// 	possBoard = [],
+	// 	solveBoard = [],
+	// 	emptyBoard = [],
+
+	// 	direction = 1,
+	// 	currentCell = null;
+
+
+
+
 /**
  * Class sudoku
  * Summary: A sudoku class that contains solving and editing capabilities.
@@ -29,7 +50,7 @@ function Sudoku(name, size, divID) {
 
 	/* Puzzle Settings */
 	this.size = size || 81; //size of the sudoku puzzle
-	this.name = name || 'mysudoku'; //Name of the sudoku class created by the page (@params)
+	this.name = name || 'mySudoku'; //Name of the sudoku class created by the page (@params)
 	this.t_possibles = true; //Show possibles or not
 
 	/* Algorithm Settings */
@@ -49,9 +70,21 @@ function Sudoku(name, size, divID) {
 	this.easyBoard = ['', 9, 2, '', '', 1, '', 8, '', '', '', '', '', '', '', 1, 7, '', '', '', 7, '', 3, '', 4, 6, 2, '', '', '', 3, '', '', 9, 1, '', '', 9, 6, 5, '', 1, 7, 4, '', '', 4, 1, '', '', 9, '', '', '', 1, 3, 6, '', 4, '', 7, '', '', '', 5, 2, '', '', '', '', '', '', '', 8, '', 2, '', '', 6, 9, ''];
 	this.evilBoard = [5, '', 9, '', '', 6, '', 7, 8, 4, '', '', 2, '', '', '', '', 9, 7, '', '', '', '', '', '', '', 1, '', 6, '', '', '', 4, '', '', '', 9, '', '', '', '', '', '', '', 4, '', '', '', 9, '', '', '', 6, '', 1, '', '', '', '', '', '', '', 5, 6, '', '', '', '', 1, '', '', 8, 2, 5, '', 3, '', '', 1, '', 9];
 
-	this.displaySkelaton(divID);
-	this.refreshControls();
+	//Move these "initiating calls" 
 	return true;
+}
+
+
+
+function init(){
+
+	// Initiate any remaining values.
+	
+
+	var mySudoku = window.mySudoku = new Sudoku(); 
+	//this.displaySkelaton(divID);
+	//this.refreshControls();
+
 }
 
 
@@ -59,9 +92,11 @@ function Sudoku(name, size, divID) {
 // * Puzzle Creation
 // * -------------------------------------------
 
+Sudoku.prototype.meow = function(){
+	alert('meow!');
+};
 
 Sudoku.prototype.emptyAllBoards = function(){
-	
 	this.gameBoard = this.emptyBoard.slice(0);
 	this.possBoard = this.emptyBoard.slice(0);
 	this.solveBoard = this.emptyBoard.slice(0);
@@ -1488,3 +1523,19 @@ Sudoku.prototype.randomizeArray = function( array ) {
     return array;
 
 };
+
+init();
+// (function(){
+
+// 	doStuff();
+// 	setTimeout(arguments.callee,100);
+
+// })();
+
+// (function recursiveTimeout(){
+// 	doStuff();
+// 	setTimeout(recursiveTimeout,100);
+// })();
+
+
+})(window);

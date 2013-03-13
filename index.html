@@ -65,9 +65,11 @@
 			
 			//sudoku.meowmix();
 			/** Create sudoku object **/
-			mysudoku = new Sudoku("mysudoku", 81, 'game');
+			//mysudoku = new Sudoku("mysudoku", 81, 'game');
 			
-			mysudoku.premadePuzzle(); //Default to a test puzzle
+			//mySudoku.meow();
+			mySudoku.displaySkelaton('game');
+			//mysudoku.premadePuzzle(); //Default to a test puzzle
 
 			
 			/** Edit Puzzle Delegation **/
@@ -116,7 +118,7 @@
 			document.getElementById('premade-btn').onclick = function (){
 				//alert('me');
 				var val = document.getElementById('premade-select').value;
-				mysudoku.premadePuzzle(val);
+				mySudoku.premadePuzzle(val);
 			};
 			
 			
