@@ -949,7 +949,6 @@ Sudoku.prototype.solver = function(){
 			while( this.gameBoard[this.currentCell] ){
 				this.currentCell += this.direction;
 			}
-			//alert(tempCell+'_'+this.currentCell);
 		}
 		
 
