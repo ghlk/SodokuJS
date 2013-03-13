@@ -11,54 +11,7 @@
 		
 		var mysudoku;
 
-		/** Edit Delegation's Callback **/
-		var commit = function(){
-			
-			// Grab what class the sudoku funct is.
-			var gameClass = document.getElementById('game').className;
-			
-			// Find the textbox and parent
-			var txtbox = document.getElementById('edit-txtbox');
-			var parent = txtbox.parentNode.parentNode;
-			parent.className = parent.className.replace(/\bhighlight\b/,'');
-			//parent.innerHTML=''; 
-			//alert(parent.id)/;
-			// Grab the text value from the textbox - 
-			var value = txtbox.value;
 
-			// Decide where it goes
-			var cell = parent.id.substr(6);
-			
-			// No value - User's cancelling event
-			if(!value){
-
-				if( gameClass === 'game-edit'){
-					//Remove value if there is one.
-					if( mysudoku.gameBoard[cell] ){
-						mysudoku.gameBoard[cell] = '';
-					}
-				}else{
-					//Remove value if there is one.
-					if( mysudoku.solveBoard[cell] ){
-						mysudoku.solveBoard[cell] = '';
-					}
-				}
-
-			}else if( mysudoku.check(cell, value) === true ){
-				
-				if( gameClass === 'game-edit'){
-					mysudoku.gameBoard[cell] = value;
-				}else{
-					mysudoku.solveBoard[cell] = value;
-				}
-			}else{
-				//Show error
-				alert('That value is invalid. Try again.');
-			}
-			mysudoku.refreshDisplay();
-			return false;
-		};
-			
 
 		// *************************** //
 		window.onload = function() {
@@ -69,51 +22,51 @@
 			
 			//mySudoku.meow();
 			mySudoku.displaySkelaton('game');
-			//mysudoku.premadePuzzle(); //Default to a test puzzle
+			mySudoku.premadePuzzle(); //Default to a test puzzle
 
 			
 			/** Edit Puzzle Delegation **/
-			var sodo = document.getElementById('game');
-			sodo.onclick = function(e) {
-				var t = getTarget(e);
-				var div = document.getElementById('game').className;
-				var small;
+			// var sodo = document.getElementById('game');
+			// sodo.onclick = function(e) {
+			// 	var t = getTarget(e);
+			// 	var div = document.getElementById('game').className;
+			// 	var small;
 
-				// Check small class
-				if( t.className !== 'small' ){
-					small = t.parentNode;
-				}
+			// 	// Check small class
+			// 	if( t.className !== 'small' ){
+			// 		small = t.parentNode;
+			// 	}
 
-				// Iterate down to our 'value' node
-				if(t.className === 'tiny'){
+			// 	// Iterate down to our 'value' node
+			// 	if(t.className === 'tiny'){
 
-					while (t.nextSibling) {
-    					t = t.nextSibling;
-    					if (t.nodeName === 'DIV' && t.className === 'value') {
-    						break;
-    					}
-    				}
-				}
-				if (t.className === 'value' ){
+			// 		while (t.nextSibling) {
+   //  					t = t.nextSibling;
+   //  					if (t.nodeName === 'DIV' && t.className === 'value') {
+   //  						break;
+   //  					}
+   //  				}
+			// 	}
+			// 	if (t.className === 'value' ){
 
-					var txt = '<input type="text" id="edit-txtbox" value="" class="edit-txt" onblur="commit();"> ';
+			// 		var txt = '<input type="text" id="edit-txtbox" value="" class="edit-txt" onblur="commit();"> ';
 					
-					// Not game board - go ahead
-					if (small.className !== 'small game-value') {
-						t.innerHTML = txt;
-						document.getElementById('edit-txtbox').focus();
-					}
-					// Game board piece
-					if( small.className === 'small game-value'){
+			// 		// Not game board - go ahead
+			// 		if (small.className !== 'small game-value') {
+			// 			t.innerHTML = txt;
+			// 			document.getElementById('edit-txtbox').focus();
+			// 		}
+			// 		// Game board piece
+			// 		if( small.className === 'small game-value'){
 
-						if( div === 'game-edit'){
-							t.innerHTML = txt;
-							document.getElementById('edit-txtbox').focus();
-						}
-					}
+			// 			if( div === 'game-edit'){
+			// 				t.innerHTML = txt;
+			// 				document.getElementById('edit-txtbox').focus();
+			// 			}
+			// 		}
 					
-				}	
-			};
+			// 	}	
+			// };
 
 			document.getElementById('premade-btn').onclick = function (){
 				//alert('me');

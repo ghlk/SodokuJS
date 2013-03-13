@@ -1,23 +1,43 @@
 
 /**
- * LIBRARY
+ * SudokuJS Library ( Consider rename: SudokuSandboxJS or SudokuJSSandbox )
+ * Version: 0.1
+ * Requirements: None (Maybe a version of ECMAScript? or uncooperative browsers?)
  * 
+ * This library is to be a stand-alone JS Sudoku sandbox.
+ * Solving puzzles will have different algorithm options and "add-ons" that will expedite the solving.
+ * This library also includes complete event delegation and user interaction.
+ * Allowing user-inputted solutions and puzzles, as well as a "step-by-step" solver.
+ * Which shows each move the algorithm attempts at a speed the user can follow (and alter).
+ *
  */
+
 
 
 (function (window, undefined){
 
 	// Private Vals
-	// var gameBoard = [],
-	// 	possBoard = [],
-	// 	solveBoard = [],
-	// 	emptyBoard = [],
+	
+		// Gameboards 
+	var gameBoard = [],
+		possBoard = [],
+		solveBoard = [],
+		emptyBoard = [],
 
-	// 	direction = 1,
-	// 	currentCell = null;
+		// Solving / Generation Vals
+		direction = 1,
+		currentCell = null;
 
+		// UI Vals
+		timer = null,
+		interval = 1,
+		moves = 0,
+		pencils = 0,
+		step = 1,
 
-
+		// Premade puzzles
+		easyPuzzle = Array(),
+		evilPuzzle = Array();
 
 /**
  * Class sudoku
@@ -43,16 +63,13 @@ function Sudoku(name, size, divID) {
 	this.emptyBoard = board.slice(0); //Used for resetting other boards.
 
 	/* Bookmarks - Used to navigate when solving puzzle */
-	this.solveBookmark = 0; //Used to step through solving process. 
 	this.direction = 1;		//'1' represents "positive" direction
-	this.solvePlace = 0;
 	this.currentCell = null;
 
 	/* Puzzle Settings */
 	this.size = size || 81; //size of the sudoku puzzle
 	this.name = name || 'mySudoku'; //Name of the sudoku class created by the page (@params)
-	this.t_possibles = true; //Show possibles or not
-
+	
 	/* Algorithm Settings */
 	this.addOn_deadCells = true;
 	this.addOn_lastMoveTwins = true;
@@ -67,10 +84,11 @@ function Sudoku(name, size, divID) {
 	this.pencils = 0; // Counts times we place a value in a cell
 
 	/* Premade puzzles */
+	this.easyStr = ".92..1.8.......17...7.3.462...3..91..965.174..41..9...136.4.7...52.......8.2..69."
 	this.easyBoard = ['', 9, 2, '', '', 1, '', 8, '', '', '', '', '', '', '', 1, 7, '', '', '', 7, '', 3, '', 4, 6, 2, '', '', '', 3, '', '', 9, 1, '', '', 9, 6, 5, '', 1, 7, 4, '', '', 4, 1, '', '', 9, '', '', '', 1, 3, 6, '', 4, '', 7, '', '', '', 5, 2, '', '', '', '', '', '', '', 8, '', 2, '', '', 6, 9, ''];
 	this.evilBoard = [5, '', 9, '', '', 6, '', 7, 8, 4, '', '', 2, '', '', '', '', 9, 7, '', '', '', '', '', '', '', 1, '', 6, '', '', '', 4, '', '', '', 9, '', '', '', '', '', '', '', 4, '', '', '', 9, '', '', '', 6, '', 1, '', '', '', '', '', '', '', 5, 6, '', '', '', '', 1, '', '', 8, 2, 5, '', 3, '', '', 1, '', 9];
 
-	//Move these "initiating calls" 
+	
 	return true;
 }
 
@@ -88,13 +106,59 @@ function init(){
 }
 
 
+		/** Edit Delegation's Callback **/
+	var commit = function(){
+			
+			// Grab what class the sudoku funct is.
+			var gameClass = document.getElementById('game').className;
+			
+			// Find the textbox and parent
+			var txtbox = document.getElementById('edit-txtbox');
+			var parent = txtbox.parentNode.parentNode;
+			parent.className = parent.className.replace(/\bhighlight\b/,'');
+			//parent.innerHTML=''; 
+			//alert(parent.id)/;
+			// Grab the text value from the textbox - 
+			var value = txtbox.value;
+
+			// Decide where it goes
+			var cell = parent.id.substr(6);
+			
+			// No value - User's cancelling event
+			if(!value){
+
+				if( gameClass === 'game-edit'){
+					//Remove value if there is one.
+					if( mysudoku.gameBoard[cell] ){
+						mysudoku.gameBoard[cell] = '';
+					}
+				}else{
+					//Remove value if there is one.
+					if( mysudoku.solveBoard[cell] ){
+						mysudoku.solveBoard[cell] = '';
+					}
+				}
+
+			}else if( mysudoku.check(cell, value) === true ){
+				
+				if( gameClass === 'game-edit'){
+					mysudoku.gameBoard[cell] = value;
+				}else{
+					mysudoku.solveBoard[cell] = value;
+				}
+			}else{
+				//Show error
+				alert('That value is invalid. Try again.');
+			}
+			mysudoku.refreshDisplay();
+			return false;
+		};
+
+
+
 // * -------------------------------------------
 // * Puzzle Creation
 // * -------------------------------------------
-
-Sudoku.prototype.meow = function(){
-	alert('meow!');
-};
 
 Sudoku.prototype.emptyAllBoards = function(){
 	this.gameBoard = this.emptyBoard.slice(0);
@@ -648,8 +712,9 @@ Sudoku.prototype.checkArrayForTwins = function (arrayCells){
 // * -------------------------------------------
 
 
-Sudoku.prototype.displaySkelaton = function (div) {
-	document.getElementById(div).innerHTML = this.getHTMLSkelaton();
+Sudoku.prototype.displaySkelaton = function (divID) {
+	var elem = document.getElementById(divID);
+	elem.innerHTML = this.getHTMLSkelaton();
 };
 
 /**
