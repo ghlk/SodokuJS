@@ -12,57 +12,11 @@
 		// *************************** //
 		window.onload = function() {
 			
-			//sudoku.meowmix();
-			/** Create sudoku object **/
-			//mysudoku = new Sudoku("mysudoku", 81, 'game');
-			
-			//mySudoku.meow();
 			mySudoku.displaySkelaton('game');
 			mySudoku.premadePuzzle(); //Default to a test puzzle
 
 			
-			/** Edit Puzzle Delegation **/
-			// var sodo = document.getElementById('game');
-			// sodo.onclick = function(e) {
-			// 	var t = getTarget(e);
-			// 	var div = document.getElementById('game').className;
-			// 	var small;
 
-			// 	// Check small class
-			// 	if( t.className !== 'small' ){
-			// 		small = t.parentNode;
-			// 	}
-
-			// 	// Iterate down to our 'value' node
-			// 	if(t.className === 'tiny'){
-
-			// 		while (t.nextSibling) {
-   //  					t = t.nextSibling;
-   //  					if (t.nodeName === 'DIV' && t.className === 'value') {
-   //  						break;
-   //  					}
-   //  				}
-			// 	}
-			// 	if (t.className === 'value' ){
-
-			// 		var txt = '<input type="text" id="edit-txtbox" value="" class="edit-txt" onblur="commit();"> ';
-					
-			// 		// Not game board - go ahead
-			// 		if (small.className !== 'small game-value') {
-			// 			t.innerHTML = txt;
-			// 			document.getElementById('edit-txtbox').focus();
-			// 		}
-			// 		// Game board piece
-			// 		if( small.className === 'small game-value'){
-
-			// 			if( div === 'game-edit'){
-			// 				t.innerHTML = txt;
-			// 				document.getElementById('edit-txtbox').focus();
-			// 			}
-			// 		}
-					
-			// 	}	
-			// };
 
 			document.getElementById('premade-btn').onclick = function (){
 				//alert('me');
@@ -73,7 +27,7 @@
 			
 			/** Brute Force Algorithm Buttons **/
 			document.getElementById('ground-zero-toggle').onclick = function(){
-				mysudoku.startSolver();
+				mySudoku.startSolver();
 			};
 
 			document.getElementById('ground-zero-step').onclick = function(){

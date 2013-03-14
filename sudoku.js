@@ -12,10 +12,8 @@
  * NOTES:
  * Brute force algo vs EvilBoard = 112144 moves. 1move/1sec = 31hours
  *
+ * 
  */
-
-
-
 (function (window, undefined){
 
 	/* Private Values */
@@ -28,8 +26,10 @@ var gameBoard = [],
 
 	// Dynamic Values
 	boardContainer = '',
+	boardSizeSmall = 3,
+	boardSizeBig = 9,
 	boardSize = 81,
-
+	
 	// Solving / Generation Vals
 	direction = 1,
 	currentCell = null,
@@ -46,7 +46,6 @@ var gameBoard = [],
 	// Premade puzzles
 	easyBoard = ['', 9, 2, '', '', 1, '', 8, '', '', '', '', '', '', '', 1, 7, '', '', '', 7, '', 3, '', 4, 6, 2, '', '', '', 3, '', '', 9, 1, '', '', 9, 6, 5, '', 1, 7, 4, '', '', 4, 1, '', '', 9, '', '', '', 1, 3, 6, '', 4, '', 7, '', '', '', 5, 2, '', '', '', '', '', '', '', 8, '', 2, '', '', 6, 9, ''],
 	evilBoard = [5, '', 9, '', '', 6, '', 7, 8, 4, '', '', 2, '', '', '', '', 9, 7, '', '', '', '', '', '', '', 1, '', 6, '', '', '', 4, '', '', '', 9, '', '', '', '', '', '', '', 4, '', '', '', 9, '', '', '', 6, '', 1, '', '', '', '', '', '', '', 5, 6, '', '', '', '', 1, '', '', 8, 2, 5, '', 3, '', '', 1, '', 9]
-
 ;
 
 /**
@@ -60,7 +59,6 @@ var gameBoard = [],
  *
  **/
 function Sudoku(name, size, divID) {
-
 }
 
 
@@ -129,9 +127,6 @@ var commit = function(){
 // * -------------------------------------------
 // * Puzzle Creation
 // * -------------------------------------------
-Sudoku.prototype.meow = function(){
-	alert(greg);
-};
 
 /**
  * emptyAllBoards
@@ -143,15 +138,18 @@ var emptyAllBoards = function(){
 	solveBoard = emptyBoard.slice(0);
 };
 
-Sudoku.prototype.resetAllValues = function(){
+/**
+ * 
+ * @return {[type]} [description]
+ */
+var resetAllValues = function(){
 
 	this.solveBookmark = 0;
-	this.moves = 0;
-	this.pencils = 0;
-	this.direction = 1;
+	moves = 0;
+	pencils = 0;
+	direction = 1;
 	this.solvePlace = 0;
-	this.currentCell = null;	
-
+	currentCell = null;	
 };
 
 
@@ -196,13 +194,13 @@ Sudoku.prototype.recurseGenerate = function (currentNumber, direction, moves, fl
 	// Break Recursion - Puzzle done.
 	if ( currentNumber > 2 || flag > 10 ) {
 		console.log(' --- END --- ' );
-		this.refreshDisplay();
+		refreshDisplay();
 		return true;
 	}
 
 
 	// Check for Dead cells - Will trigger backpedaling
-	if( !this.checkDeadCells() ){
+	if( !checkDeadCells() ){
 		return 
 	}
 
@@ -213,7 +211,7 @@ Sudoku.prototype.recurseGenerate = function (currentNumber, direction, moves, fl
 
 	// Count how many of this value is in the puzzle
 	for (x = 0; x < 81; x += 1) {
-		if (this.gameBoard[x] === currentNumber) { count += 1; }
+		if (gameBoard[x] === currentNumber) { count += 1; }
 	};
 	
 	
@@ -229,15 +227,15 @@ Sudoku.prototype.recurseGenerate = function (currentNumber, direction, moves, fl
 	// 	randMove = Math.floor (Math.random () * possibleMoves.length - 1); // 0-length
 
 	// 	// Place our current number into that random available cell.
-	// 	this.gameBoard[possibleMoves[randMove]] = currentNumber;
+	// 	gameBoard[possibleMoves[randMove]] = currentNumber;
 		
 	// 	// This move just created some dead-cells, so let's remove this cell-option and lets try another.
-	// 	if( !this.checkDeadCells() ){
+	// 	if( !checkDeadCells() ){
 	// 		// Remove that cell from our possible list
 	// 		possibleMoves[randMove].splice(randMove,1);
 	// 	}
 
-	// }while( !this.checkDeadCells() && possiblesMoves.length > 0 );
+	// }while( !checkDeadCells() && possiblesMoves.length > 0 );
 
 	
 
@@ -247,7 +245,7 @@ Sudoku.prototype.recurseGenerate = function (currentNumber, direction, moves, fl
 		console.log('backpedaling');
 		//- we need to choose the last value placed and remove it
 		var lastmove = moves[moves.length-1];
-		this.gameBoard[lastmove] = '';
+		gameBoard[lastmove] = '';
 
 		// Remove this cell from possible cells to use. 
 		var index = possibleMoves.indexOf(lastmove);
@@ -261,71 +259,67 @@ Sudoku.prototype.recurseGenerate = function (currentNumber, direction, moves, fl
 	// We have a move we can make
 	if( possibleMoves.length > 0 ){
 		console.log(possibleMoves.join());
-		this.gameBoard[cell] = currentNumber;
+		gameBoard[cell] = currentNumber;
 		moves.push(cell);
 		return this.recurseGenerate( currentNumber, 1, moves, flag+1 );
 	
 	}else{
 		// No moves left - Clear cell
-		this.gameBoard[cell] = '';
+		gameBoard[cell] = '';
 		moves.pop();
 		return this.recurseGenerate( currentNumber, -1, moves, flag+1 )
 	}
-
-
-
 };
 
 Sudoku.prototype.generateCell = function (cell) {
 
 	var possVals, i;
-	this.moves += 1;
+	moves += 1;
 	
 	// Grab possible values for current cell
 	possVals = this.getPossibles(cell, "val");
 	
 	// No Possibles OR we've tried all possibles
 	if( possVals.length < 1 ){
-		//this.gameBoard[cell] = '';
+		//gameBoard[cell] = '';
 		return false; // Backpedal
 	}
 
-	if( this.gameBoard[cell] >= possVals[possVals.length-1]){
-		//this.gameBoard[cell] = '';
+	if( gameBoard[cell] >= possVals[possVals.length-1]){
+		//gameBoard[cell] = '';
 		return false; // Backpedal
 	}
 
 	// There is a No Possibles somewhere else on the board
-	if( this.addOn_deadCells && !this.checkDeadCells() && !this.gameBoard[cell]){
+	if( this.addOn_deadCells && !checkDeadCells() && !gameBoard[cell]){
 		return false; // Backpedal
 	}
 
 	// Last Move Twins on Board - Mistake made by cell behind most likely
-	if( this.addOn_lastMoveTwins  && !this.checkLastMoveTwins() && !this.gameBoard[cell]){
+	if( this.addOn_lastMoveTwins  && !checkLastMoveTwins() && !gameBoard[cell]){
 		return false; // Backpedal
 	}
 	
 	// Possibles moves - lets try lowest value one
 	for (i = 0; i < possVals.length; i += 1 ){
-		if (possVals[i] > this.gameBoard[cell] || !this.gameBoard[cell]) {
-			this.gameBoard[cell] = possVals[i];
-			this.pencils += 1;	
+		if (possVals[i] > gameBoard[cell] || !gameBoard[cell]) {
+			gameBoard[cell] = possVals[i];
+			pencils += 1;	
 			return true;
 		}
 	}
 
 
 	// rand = Math.floor( Math.random() * possVals.length );
-	// if (possVals[rand] > this.gameBoard[cell] || !this.gameBoard[cell]) {
-	// 	this.gameBoard[cell] = possVals[rand];
-	// 	this.pencils += 1;	
+	// if (possVals[rand] > gameBoard[cell] || !gameBoard[cell]) {
+	// 	gameBoard[cell] = possVals[rand];
+	// 	pencils += 1;	
 	// 	return true;
 	// }else{
-	// 	this.gameBoard[cell] = '';
+	// 	gameBoard[cell] = '';
 	// 	return false;
 
 	// }
-
 };
 
 Sudoku.prototype.generateController = function (){
@@ -335,25 +329,25 @@ Sudoku.prototype.generateController = function (){
 	var i;
 	
 	// Make a randomized board we use as a guide and solve puzzle that way.
-	if( !this.randomBoard ){
+	if( !randomBoard ){
 		for(i=0;i<81;i+=1){
 			tempArr.push(i);
 		}
-		this.randomBoard = this.randomizeArray(tempArr);
-		this.direction = 1;
-		this.startStopwatch();
-		this.cellCounter = 0;
+		randomBoard = randomizeArray(tempArr);
+		direction = 1;
+		startStopwatch();
+		cellCounter = 0;
 	}
 
-	this.currentCell = this.randomBoard[this.cellCounter];
-	cell = this.currentCell;
+	currentCell = randomBoard[cellCounter];
+	cell = currentCell;
 	
 	// Null means we have no more empty cells to play with.
 	if( cell === null ){
 		this.stopTimer();
-		this.refreshMovesStatus();
-		this.currentCell = null;
-		this.cellCounter = null;
+		refreshMovesStatus();
+		currentCell = null;
+		cellCounter = null;
 		return false;
 	
 	}else{
@@ -361,14 +355,14 @@ Sudoku.prototype.generateController = function (){
 		// Solve the cell
 		result = this.generateCell(cell);
 		
-		this.refreshDisplay(cell);
+		refreshDisplay(cell);
 		
-		this.unhighlightCells();
+		unHighlightCells();
 		
-		if( this.direction === -1 ){
-			this.lowlightCell(cell);	
+		if( direction === -1 ){
+			lowlightCell(cell);	
 		}else{
-			this.highlightCell(cell);	
+			highlightCell(cell);	
 		}
 		
 			
@@ -376,18 +370,18 @@ Sudoku.prototype.generateController = function (){
 		// We placed a value in a cell - we can continue on.
 		if(result === true){
 			// We placed a new cell.
-			this.direction = 1;
-			this.cellCounter += this.direction;
+			direction = 1;
+			cellCounter += direction;
 		}
 		else if(result === false){
 			// We need to backpedal - clear the current cell.
-			this.gameBoard[cell] = '';
-			this.direction = -1;
-			this.cellCounter += this.direction;			
+			gameBoard[cell] = '';
+			direction = -1;
+			cellCounter += direction;			
 		}
-		document.getElementById('cell-counter').value = this.cellCounter;
+		document.getElementById('cell-counter').value = cellCounter;
 	}
-	this.refreshMovesStatus();
+	refreshMovesStatus();
 };
 
 
@@ -396,12 +390,12 @@ Sudoku.prototype.generateController = function (){
  * Summary: Returns the location of a random empty cell. Used for puzzle creation.
  * @return 	int 	rand 	Random empty cell number.
  **/
-Sudoku.prototype.getRandomEmptyCell = function ( big ) {
+var getRandomEmptyCell = function ( big ) {
 	var rand;
 	var emptyArr = [];
 
-	for(var i=0; i<this.gameBoard.length; i+=1 ){
-		if(!this.gameBoard[i]){
+	for(var i=0; i<gameBoard.length; i+=1 ){
+		if(!gameBoard[i]){
 			emptyArr.push(i);
 		}
 	}
@@ -416,14 +410,14 @@ Sudoku.prototype.getRandomEmptyCell = function ( big ) {
 		do{
 			rand = Math.floor( Math.random() * 9 ); //
 			rand += small*9;
-		}while( this.gameBoard[rand] );
+		}while( gameBoard[rand] );
 		return rand;
 	}
 
 	// Pick a random cell 
 	do{
 		rand = Math.floor( Math.random() * emptyArr.length );
-	}while( this.gameBoard[rand] );
+	}while( gameBoard[rand] );
 
 	return rand;
 };
@@ -444,21 +438,21 @@ Sudoku.prototype.getRandomEmptyCell = function ( big ) {
  * @return 	bool 	false
  * @return 	arr 	arr 	Array of boolean values representing what values are possible moves.
  **/
-Sudoku.prototype.check = function (cell, val) {
+var check = function (cell, val) {
 	
 	/** BOX CHECK **/
-	var box = this.checkBox(cell, val);
+	var box = checkBox(cell, val);
 	
 	/** ROW CHECK **/
-	var row = this.checkRow(cell, val);
+	var row = checkRow(cell, val);
 	
 	/** COLUMN CHECK **/
-	var column = this.checkColumn(cell, val);
+	var column = checkColumn(cell, val);
 	
 	/** EMPTY CHECK **/
 	var empty = true;
 
-	// if( this.gameBoard[cell] || this.solveBoard[cell]){
+	// if( gameBoard[cell] || solveBoard[cell]){
 	// 	return false;
 	// }
 
@@ -501,16 +495,16 @@ Sudoku.prototype.check = function (cell, val) {
  * @return 	bool 	false
  * @return 	arr 	arr 	Array of booleans representing what values are possible moves.
  **/
-Sudoku.prototype.checkBox = function (cell, val){
+var checkBox = function (cell, val){
 	
 	/* Represents moves 1-9*/
 	var arr = [ true, true, true, true, true, true, true, true, true ];
 
 	/* Iterate through the entire box, starting with it's starting square. */
-	var start = this.getBoxStart(cell);
-
+	var start = getBoxStart(cell);
+	
 	//Create array of valid moves for this box
-	for(var i=start; i < (start+9); i++){
+	for(var i = start; i < (start + 9); i += 1){
 		
 		// Look for cell with value
 		if( gameBoard[i] ){
@@ -537,10 +531,10 @@ Sudoku.prototype.checkBox = function (cell, val){
  * @return 	bool 	false
  * @return 	arr 	arr
  **/
-Sudoku.prototype.checkRow = function (cell, val){
+var checkRow = function (cell, val){
 	
 	var i, x, boolArr, cells;
-	cells = this.getRowCells(cell);
+	cells = getRowCells(cell);
 	arr = [ true, true, true, true, true, true, true, true, true ]; 
 
 	for(i=0; i<9; i++){
@@ -571,18 +565,18 @@ Sudoku.prototype.checkRow = function (cell, val){
  * @return 	bool 	True 	If value is passed and it's a valid possible move for the cell
  * @return 	bool 	False 	If the value passed and it's an invalid move for the cell.
  **/
-Sudoku.prototype.checkColumn = function (cell, val){
+var checkColumn = function (cell, val){
 	
 	var x, arr, cells;
-	cells = this.getColumnCells(cell);
+	cells = getColumnCells(cell);
 	arr = [ true, true, true, true, true, true, true, true, true ]; 
 
 	for(var i=0; i<9; i++){
 		x = cells[i];
-		if( this.gameBoard[x] ){
-			arr[ (this.gameBoard[x] - 1) ] = false;
-		}else if( this.solveBoard[x]  ){
-			arr[ (this.solveBoard[x] - 1) ] = false;
+		if( gameBoard[x] ){
+			arr[ (gameBoard[x] - 1) ] = false;
+		}else if( solveBoard[x]  ){
+			arr[ (solveBoard[x] - 1) ] = false;
 		}
 	}
 	if(val){
@@ -599,36 +593,36 @@ Sudoku.prototype.checkColumn = function (cell, val){
  * @param  {bool} alertFlag Debug value used to show an alert if it fails.
  * @return {bool}           Whether or not the value failed the check.
  */
-Sudoku.prototype.checkPuzzle = function(alertFlag){
+var checkPuzzle = function(alertFlag){
 
 	var x, y;
 	for(x=0;x<81;x++){
 		
-		if(this.gameBoard[x]){
-			//console.log('check cell:'+x+' value:'+this.gameBoard[x]);
-			y = this.gameBoard[x];
-			this.gameBoard[x] = '';
-			if( !this.check(x, y) ){
+		if(gameBoard[x]){
+			//console.log('check cell:'+x+' value:'+gameBoard[x]);
+			y = gameBoard[x];
+			gameBoard[x] = '';
+			if( !check(x, y) ){
 				//console.log('THIS PUZZLE FAILED');
-				this.gameBoard[x] = y;
+				gameBoard[x] = y;
 				if(alertFlag===true){ alert('Puzzle FAILED'); }
 				
 				return false;
 			}
-			this.gameBoard[x] = y;
+			gameBoard[x] = y;
 		}
 	}
 	if(alertFlag===true){alert('Puzzle SUCCESS');}
 	return true;
 };
 
-Sudoku.prototype.checkDeadCells = function () {
+var checkDeadCells = function () {
 	var cell, possibles;
 	for(cell=0; cell<81; cell++){
 
-		if(!this.gameBoard[cell] && !this.solveBoard[cell]) {
+		if(!gameBoard[cell] && !solveBoard[cell]) {
 			
-			if( this.getPossibles(cell).length == 0 ){
+			if( getPossibles(cell).length == 0 ){
 				return false;
 			}
 		}
@@ -636,7 +630,7 @@ Sudoku.prototype.checkDeadCells = function () {
 	return true;
 };
 
-Sudoku.prototype.checkLastMoveTwins = function () {
+var checkLastMoveTwins = function () {
 	
 	// Check all these cells and we check all cells
 	var specialCells = [0,28,56,12,40,68,24,52,80],
@@ -648,11 +642,11 @@ Sudoku.prototype.checkLastMoveTwins = function () {
 	for( i = 0; i < specialCells.length; i += 1){
 
 		// Check the BOX, ROW, and COLUMN seperately
-		boxCells = this.getBoxCells(specialCells[i]);
-		rowCells = this.getRowCells(specialCells[i]);
-		colCells = this.getColumnCells(specialCells[i]);
+		boxCells = getBoxCells(specialCells[i]);
+		rowCells = getRowCells(specialCells[i]);
+		colCells = getColumnCells(specialCells[i]);
 
-		if( !this.checkArrayForTwins( boxCells ) || !this.checkArrayForTwins(rowCells) || !this.checkArrayForTwins(colCells) ){
+		if( !checkArrayForTwins( boxCells ) || !checkArrayForTwins(rowCells) || !checkArrayForTwins(colCells) ){
 			// Last move twins found somewhere
 			return false;
 		}
@@ -660,15 +654,15 @@ Sudoku.prototype.checkLastMoveTwins = function () {
 	return true;
 };
 
-Sudoku.prototype.checkArrayForTwins = function (arrayCells){
+var checkArrayForTwins = function (arrayCells){
 
 	var i, tempArr = [], cell, possibles = [], val;
 	for(i = 0; i < arrayCells.length; i += 1){
 		cell = arrayCells[i];
 
-		if (!this.gameBoard[cell] && !this.solveBoard[cell]){
+		if (!gameBoard[cell] && !solveBoard[cell]){
 
-			possibles = this.getPossibles(cell);
+			possibles = getPossibles(cell);
 
 			if( possibles.length === 1 ){
 				val = possibles[0];
@@ -692,7 +686,7 @@ Sudoku.prototype.checkArrayForTwins = function (arrayCells){
 Sudoku.prototype.displaySkelaton = function (divID) {
 	boardContainer = divID;
 	var elem = document.getElementById(divID);
-	elem.innerHTML = this.getHTMLSkelaton();
+	elem.innerHTML = getHTMLSkelaton();
 };
 
 /**
@@ -700,7 +694,7 @@ Sudoku.prototype.displaySkelaton = function (divID) {
  * Summary: Returns the HTML skelaton for the sudoku game.
  * @return 	str 	str 
  **/
-Sudoku.prototype.getHTMLSkelaton = function (){
+var getHTMLSkelaton = function (){
 	var str, i, j;
 
 	// Sudoku container - Start
@@ -709,15 +703,15 @@ Sudoku.prototype.getHTMLSkelaton = function (){
 	for (i = 0; i < boardSize; i += 1){
 		
 		// Big/Box - Start
-		if (this.getSmall(i) === 0) { 
-			str += '<div id="big-' + this.getBig(i) + '" class="big">';
+		if (getSmall(i) === 0) { 
+			str += '<div id="big-' + getBig(i) + '" class="big">';
 		}
 		
 		// Small - Start
 		str += '<div id="small-'+i+'" class="small">';//#small - start
 
-		// Tiny - Entire matrix ( We use these for possible move values )
-		for (j = 1; j <= 9; j+=1) {
+		// Tiny - Entire matrix (Used to display possible moves)
+		for (j = 1; j <= 9; j += 1) {
 			str += '<div id="tiny-' + j + '" class="tiny">' + j + '</div>';	
 		}
 		
@@ -728,7 +722,7 @@ Sudoku.prototype.getHTMLSkelaton = function (){
 		str += '</div>';
 		
 		// Big/Box - End 
-		if(this.getSmall(i) == 8){
+		if(getSmall(i) == 8){
 			str += '</div>';
 		}
 	};
@@ -778,7 +772,7 @@ var refreshDisplay = function(cellID){
 			small.className = small.className.replace( /(?:^|\s)game-value(?!\S)/g , '' );
 
 			// Get list of possible moves for cell
-			arr = mySudoku.getPossibles(i, 'bool');
+			arr = getPossibles(i, 'bool');
 			
 			// Clear value - just in case
 			temp = small.getElementsByClassName("value")[0];
@@ -805,7 +799,7 @@ var refreshDisplay = function(cellID){
 };
 
 
-Sudoku.prototype.refreshControls = function(){
+var refreshControls = function(){
 
 	document.getElementById('dead-cells-chkbox').checked = this.addOn_deadCells;
 	document.getElementById('last-move-twins-chkbox').checked = this.addOn_lastMoveTwins;
@@ -824,10 +818,10 @@ Sudoku.prototype.refreshControls = function(){
  * Summary: Empties the board and refreshes the display.
  *
  **/
-Sudoku.prototype.empty = function () {
-	this.gameBoard = this.emptyBoard.slice(0);
-	this.solveBoard = this.emptyBoard.slice(0);
-	this.refreshDisplay();
+var empty = function () {
+	gameBoard = emptyBoard.slice(0);
+	solveBoard = emptyBoard.slice(0);
+	refreshDisplay();
 };
 
 /**
@@ -835,9 +829,9 @@ Sudoku.prototype.empty = function () {
  * Summary: Empties the board and refreshes the display.
  *
  **/
-Sudoku.prototype.clear = function () {
-	this.solveBoard = this.emptyBoard.slice(0);
-	this.refreshDisplay();
+var clear = function () {
+	solveBoard = emptyBoard.slice(0);
+	refreshDisplay();
 };
 
 /**
@@ -847,65 +841,63 @@ Sudoku.prototype.clear = function () {
  * @return 	arr 	boolArr Array of boolean values to represent possible values for cell.
  * @return 	arr 	valArr 	Array of values that are possible values for cell.
  */
-Sudoku.prototype.getPossibles = function (cell, type) {
+var getPossibles = function (cell, type) {
 	
 	// Possibles arr (boolean)
-	var boolArr = this.check(cell);
-	
-	var valArr = [ ];
-	for(var z=0;z<9;z++){
-		if(boolArr[z]){
-			valArr.push(z+1);
+	var boolArr = check(cell),
+		valArr = [ ],
+		i;
+	for(i = 0; i < 9; i += 1){
+		if (boolArr[i]) {
+			valArr.push(i + 1);
 		}
 	}
-	if(type == "bool"){
+	if(type === "bool"){
 		return boolArr;
-	}
-	if(type == "val"){
+	}else{
 		return valArr;
 	}
-	return valArr;
 };
 
 /**
  * calcPossibles
  * Summary: 
  **/
-Sudoku.prototype.calcPossibles = function (changedCell) {
+var calcPossibles = function (changedCell) {
 	
 	// If given a cell that has changed, we know what possibles could have changed.
 	// It's box, it's row, and it's column.
 	if( changedCell >= 0 && changedCell < 81 ){
 		var affectedCells = [];
-		affectedCells = this.getBoxCells(changedCell).concat( this.getColumnCells(changedCell), this.getRowCells(changedCell)  );
+		affectedCells = getBoxCells(changedCell).concat( getColumnCells(changedCell), getRowCells(changedCell)  );
 		
 		var cell;
 		for(i=0; i<affectedCells.length-1; i+=1 ){
 			cell = affectedCells[i];
-			if( !this.gameBoard[cell] && !this.solveBoard[cell] ) {
-				this.possBoard[cell] = this.check(cell);
+			if( !gameBoard[cell] && !solveBoard[cell] ) {
+				possBoard[cell] = check(cell);
 			}
 		}
 	}else{
 		var cell;
 		for(cell=0; cell<81; cell++){
-			if( !this.gameBoard[cell] && !this.solveBoard[cell] ) {
-				this.possBoard[cell] = this.check(cell);
+			if( !gameBoard[cell] && !solveBoard[cell] ) {
+				possBoard[cell] = check(cell);
 			}
 		}
 	}
 };
 
-Sudoku.prototype.getPossibleCells = function ( value, type){
+var getPossibleCells = function ( value, type){
 
 	//Go through ALL the cells, and return an array of which I can use.
 	var cell;
 	var boolArr = [];
 	for(cell=0;cell<81;cell++){
 
-		if( !this.gameBoard[cell] && !this.solveBoard[cell] ){
+		if( !gameBoard[cell] && !solveBoard[cell] ){
 			// Value is able to be placed here
-			boolArr[cell] = this.check(cell, value);
+			boolArr[cell] = check(cell, value);
 		}else{
 			boolArr[cell] = false;
 		}
@@ -944,36 +936,36 @@ Sudoku.prototype.getPossibleCells = function ( value, type){
 Sudoku.prototype.solveCell = function(cell){
 	
 	var possVals, i;
-	this.moves += 1;
+	moves += 1;
 	
 	// Gamebord - Can't Edit.
-	if(this.gameBoard[cell]){
+	if(gameBoard[cell]){
 		return null;
 	}
 	
 	// Grab possible values for current cell
-	possVals = this.getPossibles(cell, "val");
+	possVals = getPossibles(cell, "val");
 	
 	// No Possibles OR we've tried all possibles
-	if( possVals.length < 1 || (this.solveBoard[cell] >= possVals[(possVals.length-1)]) ){
+	if( possVals.length < 1 || (solveBoard[cell] >= possVals[(possVals.length-1)]) ){
 		return false;
 	}
 
 	// There is a No Possibles somewhere else on the board
-	if( this.addOn_deadCells && !this.checkDeadCells() && !this.solveBoard[cell]){
+	if( addOn_deadCells && !checkDeadCells() && !solveBoard[cell]){
 		return false;
 	}
 
 	// Last Move Twins on Board - Mistake made by cell behind most likely
-	if( this.addOn_lastMoveTwins && !this.checkLastMoveTwins() && !this.solveBoard[cell]){
+	if( addOn_lastMoveTwins && !checkLastMoveTwins() && !solveBoard[cell]){
 		return false;
 	}
 
 	// Possibles moves - lets try lowest value one
 	for (i = 0; i < possVals.length; i += 1 ){
-		if (possVals[i] > this.solveBoard[cell] || !this.solveBoard[cell]) {
-			this.solveBoard[cell] = possVals[i];
-			this.pencils += 1;	
+		if (possVals[i] > solveBoard[cell] || !solveBoard[cell]) {
+			solveBoard[cell] = possVals[i];
+			pencils += 1;	
 			return true;
 		}
 	}
@@ -1003,63 +995,62 @@ Sudoku.prototype.solver = function(){
 
 	var result, tempCell;
 
-	if (this.currentCell === null) {
-		this.currentCell = 0;
-		this.direction = 1;
-		this.startStopwatch();
+	if (currentCell === null) {
+		currentCell = 0;
+		direction = 1;
+		startStopwatch();
 	}
 	
-	if(this.currentCell > 80 || this.currentCell < 0){
-		this.stopTimer();
-		this.stopStopwatch();
-		this.refreshMovesStatus();
+	if(currentCell > 80 || currentCell < 0){
+		stopTimer();
+		stopStopwatch();
+		refreshMovesStatus();
 		return false;
 	}
 	else{
-		
 
-		if( this.currentCell > 0 && this.currentCell < 81 ){
-			this.unHighlightCell(this.currentCell + (-1*this.direction));	
+		if( currentCell > 0 && currentCell < 81 ){
+			unHighlightCell(currentCell + (-1*direction));	
 		}
 
 
-		if( this.gameBoard[this.currentCell]){
-			while( this.gameBoard[this.currentCell] ){
-				this.currentCell += this.direction;
+		if( gameBoard[currentCell]){
+			while( gameBoard[currentCell] ){
+				currentCell += direction;
 			}
 		}
 		
 
 
-		result = this.solveCell(this.currentCell);
+		result = this.solveCell(currentCell);
 		
-		this.refreshDisplay(this.currentCell);
+		refreshDisplay(currentCell);
 		
-		if (this.direction === 1) {
-			this.highlightCell(this.currentCell);
-			//this.unHighlightCell(this.currentCell-1);			
+		if (direction === 1) {
+			highlightCell(currentCell);
+			//unHighlightCell(currentCell-1);			
 	
 		} else {
-			this.lowlightCell(this.currentCell);
-			//this.unHighlightCell(this.currentCell+1);			
+			lowlightCell(currentCell);
+			//unHighlightCell(currentCell+1);			
 		}
 
 		// x===null if the value is being skipped.
 		// x===true - successful in placing value, next cell please.
 		
 		if(result === true){
-			this.direction = 1;
+			direction = 1;
 		}
 		//x===false - We are backpedaling - clear current cell and lets go backwards.
 		else if(result === false){
-			this.solveBoard[this.currentCell] = '';
-			this.direction = -1;
+			solveBoard[currentCell] = '';
+			direction = -1;
 		}
-		this.currentCell += this.direction;
+		currentCell += direction;
 
 	}
-	this.refreshMovesStatus();
-	//alert(this.currentCell);
+	refreshMovesStatus();
+	//alert(currentCell);
 };
 
 // --- 
@@ -1080,12 +1071,12 @@ Sudoku.prototype.fillSinglePossibles = function() {
 	for(i=0; i<81; i++){
 		
 		//If not game-pice----
-		if(!this.gameBoard[i]){
+		if(!gameBoard[i]){
 			
 			possVals = this.getPossibles(i, "val");
 			
 			if( possVals.length === 1 ){
-				this.solveBoard[i] = possVals[0];
+				solveBoard[i] = possVals[0];
 				x++;
 			}
 			else if( possVals.length > 1){
@@ -1093,7 +1084,7 @@ Sudoku.prototype.fillSinglePossibles = function() {
 			}
 		}
 	}
-	this.moves += x;
+	moves += x;
 	
 	//if(!finished){
 	//	this.smartSolver();
@@ -1101,8 +1092,8 @@ Sudoku.prototype.fillSinglePossibles = function() {
 	//Update Possibles
 	//this.calcPossibles();
 	//this.showSolution();
-	document.getElementById('numofmoves').value = this.moves;
-	this.refreshDisplay();
+	document.getElementById('numofmoves').value = moves;
+	refreshDisplay();
 	//Return
 	return true;
 };
@@ -1117,17 +1108,17 @@ Sudoku.prototype.fillSinglePossibles = function() {
 Sudoku.prototype.groundZeroAlgo = function(cell, direction) {
 
 	// Increment moves and refresh statuses
-	this.moves += 1;
-	this.refreshMovesStatus();
+	moves += 1;
+	refreshMovesStatus();
 	
 	// First Algo call - Set default values and start timer.
 	if(!cell && cell !== 0 && cell !== -1){
 		cell = -1;
 		direction = 1;
 		this.startStopwatch();
-		this.moves = 0;
-		this.pencils = 0;
-		this.solveBoard = this.emptyBoard.slice(0);
+		moves = 0;
+		pencils = 0;
+		solveBoard = emptyBoard.slice(0);
 	}
 
 	// Increment the cell by the direction (-1 or +1) we're going in 
@@ -1135,17 +1126,17 @@ Sudoku.prototype.groundZeroAlgo = function(cell, direction) {
 
 	// Break Recursion - When solver goes "out-of-bounds"
 	if (cell < 0 || cell > (this.size - 1)) {
-		this.refreshDisplay();
+		refreshDisplay();
 		return true;
 	}
 
 	// Dead Cells on Board - Mistake made by cell behind most likely
-	if( this.addOn_deadCells && !this.checkDeadCells() && !this.solveBoard[cell]){
+	if( this.addOn_deadCells && !checkDeadCells() && !solveBoard[cell]){
 		return this.groundZeroAlgo(cell, -1);
 	}
 
 	// Last Move Twins on Board - Mistake made by cell behind most likely
-	if( this.addOn_lastMoveTwins && !this.checkLastMoveTwins() && !this.solveBoard[cell]){
+	if( this.addOn_lastMoveTwins && !checkLastMoveTwins() && !solveBoard[cell]){
 		return this.groundZeroAlgo(cell, -1);
 	}
 	
@@ -1153,7 +1144,7 @@ Sudoku.prototype.groundZeroAlgo = function(cell, direction) {
 	var possVals, i;
 	
 	// Current cell not part of gameBoard - Editing allowed
-	if (!this.gameBoard[cell]) {
+	if (!gameBoard[cell]) {
 		
 		// Get numerical array of possible values for this current cell
 		possVals = this.getPossibles(cell, "val");
@@ -1161,16 +1152,16 @@ Sudoku.prototype.groundZeroAlgo = function(cell, direction) {
 		for (i = 0; i < possVals.length; i += 1){
 			
 			// Only try a value if it's larger than the current "solved" value.
-			if (possVals[i] > this.solveBoard[cell] || !this.solveBoard[cell]){
+			if (possVals[i] > solveBoard[cell] || !solveBoard[cell]){
 			
-				this.solveBoard[cell] = possVals[i];
-				this.pencils += 1;	
+				solveBoard[cell] = possVals[i];
+				pencils += 1;	
 				return this.groundZeroAlgo( cell, 1);
 			}
 		}
 
 		// Failed to place a new value in cell
-		this.solveBoard[cell] = ''; // Clear cell as we backpedal
+		solveBoard[cell] = ''; // Clear cell as we backpedal
 		return this.groundZeroAlgo(cell, -1);
 
 	}
@@ -1207,7 +1198,7 @@ Sudoku.prototype.groundZeroAlgo = function(cell, direction) {
  * @param 	int 	cell 	Numeric position of cell.
  * @return 	int 	Numeric position 
  **/ 
-Sudoku.prototype.getBig = function (cell){
+var getBig = function (cell){
 	return Math.floor(cell/9);
 };
 
@@ -1215,7 +1206,7 @@ Sudoku.prototype.getBig = function (cell){
  * getBigRow()
  * @param 	int 	cell 	Numeric position of cell.
  **/
-Sudoku.prototype.getBigRow = function (cell){
+var getBigRow = function (cell){
 	return Math.floor( Math.floor(cell/9) / 3);
 };
 
@@ -1224,7 +1215,7 @@ Sudoku.prototype.getBigRow = function (cell){
  * @param 	int 	cell 	Numeric position of cell.
  * @return 	int 	Big Column that the cell belongs to.
  **/
-Sudoku.prototype.getBigColumn = function (cell){
+var getBigColumn = function (cell){
 	return ( Math.floor(cell/9) % 3 );
 };
 
@@ -1233,7 +1224,7 @@ Sudoku.prototype.getBigColumn = function (cell){
  * @param 	int 	cell 	Numeric position of cell
  * @return 	int 	Numeric position of the cell's small 
  */
-Sudoku.prototype.getSmall = function (cell){
+var getSmall = function (cell){
 	return cell % 9;
 };
 
@@ -1243,7 +1234,7 @@ Sudoku.prototype.getSmall = function (cell){
  * @param 	int 	cell 	Numerical position of the cell in question
  * @return 	int 	pos 	
  **/
-Sudoku.prototype.getSmallRow = function (cell){
+var getSmallRow = function (cell){
 	return Math.floor( ( cell % 9 ) / 3);
 };
 
@@ -1252,7 +1243,7 @@ Sudoku.prototype.getSmallRow = function (cell){
  * Summary:
  * @param 	int 	cell
  **/
-Sudoku.prototype.getSmallColumn = function (cell){
+var getSmallColumn = function (cell){
 	return ( cell % 9 ) % 3;
 };
 
@@ -1261,8 +1252,8 @@ Sudoku.prototype.getSmallColumn = function (cell){
  * Summary: Returns the cell number of the beginning of the box that the cell lives.
  * @param 	int 	cell 	Numerical value of the cell in question.
  **/
-Sudoku.prototype.getBoxStart = function (cell){
-	return this.getBig(cell) * 9;
+var getBoxStart = function (cell){
+	return getBig(cell) * 9;
 };
 
 /**
@@ -1271,8 +1262,8 @@ Sudoku.prototype.getBoxStart = function (cell){
  * @param 	int 	cell
  * @return 	int 	start 	Numerical value of cell at beginning of row.
  **/
-Sudoku.prototype.getRowStart = function (cell){
-	return (( Math.floor(this.getBig(cell) / 3) * 3) * 9) + ( this.getSmallRow(cell) * 3 );
+var getRowStart = function (cell){
+	return (( Math.floor(getBig(cell) / 3) * 3) * 9) + ( getSmallRow(cell) * 3 );
 };
 
 /**
@@ -1281,8 +1272,8 @@ Sudoku.prototype.getRowStart = function (cell){
  * @param 	int 	cell
  * @return 	int 	cell 	The numerical value of the cell that is at the beginning of the column that the cell param belongs to.
  **/
-Sudoku.prototype.getColumnStart = function (cell){
-	return ( this.getBig(cell) % 3) * 9 + ( this.getSmallColumn(cell) );
+var getColumnStart = function (cell){
+	return ( getBig(cell) % 3) * 9 + ( getSmallColumn(cell) );
 };
 
 /**
@@ -1291,15 +1282,15 @@ Sudoku.prototype.getColumnStart = function (cell){
  * @param 	int 	cell
  * @return 	int 	cell 
  **/
-Sudoku.prototype.getRowCells = function (cell) {
-	var start = this.getRowStart(cell);
+var getRowCells = function (cell) {
+	var start = getRowStart(cell);
 	var arr = [ ];
 	var end = start + 20 + 1;
 	var step = 1;
 	var i;
 	for(i=start; i<end; i+=step){
 		arr.push(i);
-		if( this.getSmallColumn(i) === 2 ){
+		if( getSmallColumn(i) === 2 ){
 			step = 7;
 		}
 		else{
@@ -1315,15 +1306,15 @@ Sudoku.prototype.getRowCells = function (cell) {
  * @param 	int 	cell
  * @return 	 int 	cell
  **/
-Sudoku.prototype.getColumnCells = function (cell) {
-	var start = this.getColumnStart(cell);
+var getColumnCells = function (cell) {
+	var start = getColumnStart(cell);
 	var arr = [ ];
 	var end = start + 61;
 	var step = 1;
 	var i;
 	for(i=start; i<end; i+=step){
 		arr.push(i);
-		if( this.getSmallRow(i) === 2 ){
+		if( getSmallRow(i) === 2 ){
 			step = 21;
 		}
 		else{
@@ -1333,8 +1324,8 @@ Sudoku.prototype.getColumnCells = function (cell) {
 	return arr;
 };
 
-Sudoku.prototype.getBoxCells = function (cell){
-	var start = this.getBoxStart(cell);
+var getBoxCells = function (cell){
+	var start = getBoxStart(cell);
 	var end = start + 9;
 	var arr = [];
 	var i;
@@ -1345,24 +1336,13 @@ Sudoku.prototype.getBoxCells = function (cell){
 }
 
 
-Sudoku.prototype.getAffectedCells = function (cell){
-	return this.getBoxCells(cell).concat(this.getColumnCells(cell), this.getRowCells(cell));
+var getAffectedCells = function (cell){
+	return getBoxCells(cell).concat(getColumnCells(cell), getRowCells(cell));
 }
 
 /***************
  * UI-Controls *
  ***************/
-
-/**
- * showCells()
- * Summary:
- **/
-Sudoku.prototype.showCells = function () {
-	for(var i=0;i<81;i++){
-		this.gameBoard[i] = i;
-	}
-	this.refreshDisplay();
-};
 
 
 /**
@@ -1373,23 +1353,36 @@ Sudoku.prototype.startSolver = function () {
 	
 	
 	// Timer is already active - Toggle off
-	if( this.timer ){
-		this.stopTimer();
-		this.refreshStopwatch();
+	if( timer ){
+		//stopTimer();
+		refreshStopwatch();
 		// this.timer = window.clearInterval(this.timer);
 		// var now = new Date().getTime();
 		// document.getElementById('txt-timer').value = (now-this.startTime)/1000;
 		document.getElementById('ground-zero-status').className = 'inactive';
-
+		timer = false;
 	}
 	// Start the interval
 	else{
 		//Update the interval
-		this.interval = document.getElementById('interval').value || this.interval ;
-		this.timer = self.setInterval(this.solverStr, this.interval);
+		interval = document.getElementById('interval').value || interval ;
+		//timer = self.setInterval(solverStr, interval);
+		timer = true;
+		(function(){
+
+			//doStuff();
+			mySudoku.solver();
+			if( timer === true ){
+				setTimeout(arguments.callee, interval);
+	
+			}
+			
+		})();
+
+
 		// Grab time from the 
 		var oldTime = document.getElementById('txt-timer').value;
-		this.startTime = ( new Date().getTime() - oldTime );
+		startTime = ( new Date().getTime() - oldTime );
 		document.getElementById('ground-zero-status').className = 'active';
 
 	}
@@ -1428,7 +1421,7 @@ Sudoku.prototype.startStepSolver = function () {
 };
 
 
-Sudoku.prototype.startStopwatch = function () {
+var startStopwatch = function () {
 	this.startTime = new Date().getTime();
 };
 
@@ -1440,7 +1433,7 @@ Sudoku.prototype.stopStopwatch = function () {
 	document.getElementById('txt-timer').value = diff;
 };
 
-Sudoku.prototype.refreshStopwatch = function () {
+var refreshStopwatch = function () {
 	var now = new Date().getTime();
 	var diff = now-this.startTime;
 	//diff = Math.floor((diff/100))/10;
@@ -1465,32 +1458,20 @@ Sudoku.prototype.stopTimer = function () {
  * highlightCell()
  * Summary:
  **/
-Sudoku.prototype.highlightCell = function (cell) {
-	
-	// var last = this.currentCell + ( this.direction * -1);
-	// if(last >= 0 && last < 81){
-	// 	this.unHighlightCell(last);
-	// }
-	
+var highlightCell = function (cell) {
 	var cellStr = "small-"+cell;	
 	document.getElementById(cellStr).className += " highlight";
-	this.currentCell = cell;
+	//currentCell = cell;
 };
 
 /**
  * lowlightCell()
  * Summary:
  **/
-Sudoku.prototype.lowlightCell = function (cell) {
-	
-	// var last = this.currentCell + ( this.direction * -1);
-	// if(last >= 0 && last < 81){
-	// 	this.unHighlightCell(last);
-	// }
-	
+var lowlightCell = function (cell) {
 	var cellStr = "small-"+cell;	
 	document.getElementById(cellStr).className += " lowlight";
-	this.currentCell = cell;
+	//currentCell = cell;
 };
 
 /**
@@ -1499,7 +1480,7 @@ Sudoku.prototype.lowlightCell = function (cell) {
  * @param 	int 	cell 	Numerical position of the cell to highlight.
  *
  **/
-Sudoku.prototype.unHighlightCell = function (cell){
+var unHighlightCell = function (cell){
 	var cellStr = "small-"+cell;
 	document.getElementById(cellStr).className = document.getElementById(cellStr).className.replace(/\bhighlight\b/,'');
 	document.getElementById(cellStr).className = document.getElementById(cellStr).className.replace(/\blowlight\b/,'');
@@ -1507,44 +1488,21 @@ Sudoku.prototype.unHighlightCell = function (cell){
 
 
 /**
- * highlightCells
- * Summary: Highlights a number of cells regarding the position. Highlights row, column, and box of the cell.
- * @param 	int 	cell 	Numeric position of the cell in the puzzle.
- **/
-Sudoku.prototype.highlightCells = function(cell){
-	//boxArr = this.getBoxCells(cell);
-	rowArr = this.getRowCells(cell);
-	colArr = this.getColumnCells(cell);
-	for (var i = colArr.length - 1; i >= 0; i--) {
-		//document.getElementById('small-'+cell));
-		cellStr = 'small-'+colArr[i];
-		document.getElementById(cellStr).className += " lowlight";
-	};
-	// for (var i = rowArr.length - 1; i >= 0; i--) {
-	// 	//document.getElementById('small-'+cell));
-	// 	cellStr = 'small-'+rowArr[i];
-	// 	document.getElementById(cellStr).className += " lowlight";
-
-	// };
-};
-
-
-/**
  * unhighlightCells() NOT USED
  **/
-Sudoku.prototype.unhighlightCells = function(){
+var unhighlightCells = function(){
 	var i;
 	for(i=0;i<81;i+=1){
-		this.unHighlightCell(i);
+		unHighlightCell(i);
 	}
 };
 
 
-Sudoku.prototype.refreshMovesStatus = function(){
+var refreshMovesStatus = function(){
 	// Increment 'move counter'
-	document.getElementById('numofmoves').value = this.moves;
-	document.getElementById('numofpencils').value = this.pencils;
-	this.refreshStopwatch();
+	document.getElementById('numofmoves').value = moves;
+	document.getElementById('numofpencils').value = pencils;
+	refreshStopwatch();
 };
 
 
@@ -1555,7 +1513,7 @@ Sudoku.prototype.toggleDeadCells = function(){
 
 
 
-Sudoku.prototype.randomizeArray = function( array ) {
+var randomizeArray = function( array ) {
 
     for (var i = array.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
@@ -1579,7 +1537,9 @@ Sudoku.prototype.randomizeArray = function( array ) {
 // 	setTimeout(recursiveTimeout,100);
 // })();
 
-// Bring to the global scope
+
+
+// Initialize & bring to the global scope
 init();
 
 
