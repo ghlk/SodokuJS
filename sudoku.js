@@ -9,6 +9,8 @@
  * This library also includes complete event delegation and user interaction.
  * Allowing user-inputted solutions and puzzles, as well as a "step-by-step" solver.
  * Which shows each move the algorithm attempts at a speed the user can follow (and alter).
+ * NOTES:
+ * Brute force algo vs EvilBoard = 112144 moves. 1move/1sec = 31hours
  *
  */
 
@@ -16,154 +18,129 @@
 
 (function (window, undefined){
 
-	// Private Vals
+	/* Private Values */
 	
-		// Gameboards 
-	var gameBoard = [],
-		possBoard = [],
-		solveBoard = [],
-		emptyBoard = [],
+	// Gameboards 
+var gameBoard = [],
+	possBoard = [],
+	solveBoard = [],
+	emptyBoard = [],
 
-		// Solving / Generation Vals
-		direction = 1,
-		currentCell = null;
+	// Dynamic Values
+	boardContainer = '',
+	boardSize = 81,
 
-		// UI Vals
-		timer = null,
-		interval = 1,
-		moves = 0,
-		pencils = 0,
-		step = 1,
+	// Solving / Generation Vals
+	direction = 1,
+	currentCell = null,
+	addOn_deadCells = true,
+	addOn_lastMoveTwins = true,
 
-		// Premade puzzles
-		easyPuzzle = Array(),
-		evilPuzzle = Array();
+	// UI Vals
+	timer = null,
+	interval = 1,
+	moves = 0,
+	pencils = 0,
+	step = 1,
+
+	// Premade puzzles
+	easyBoard = ['', 9, 2, '', '', 1, '', 8, '', '', '', '', '', '', '', 1, 7, '', '', '', 7, '', 3, '', 4, 6, 2, '', '', '', 3, '', '', 9, 1, '', '', 9, 6, 5, '', 1, 7, 4, '', '', 4, 1, '', '', 9, '', '', '', 1, 3, 6, '', 4, '', 7, '', '', '', 5, 2, '', '', '', '', '', '', '', 8, '', 2, '', '', 6, 9, ''],
+	evilBoard = [5, '', 9, '', '', 6, '', 7, 8, 4, '', '', 2, '', '', '', '', 9, 7, '', '', '', '', '', '', '', 1, '', 6, '', '', '', 4, '', '', '', 9, '', '', '', '', '', '', '', 4, '', '', '', 9, '', '', '', 6, '', 1, '', '', '', '', '', '', '', 5, 6, '', '', '', '', 1, '', '', 8, 2, 5, '', 3, '', '', 1, '', 9]
+
+;
 
 /**
- * Class sudoku
+ * Class Sudoku
  * Summary: A sudoku class that contains solving and editing capabilities.
  * @param	str		name	Name of sudoku obj created.
  * @param	int		size	Size of the sudoku puzzle to create.
  *
  *  size - Default 81
  *
- * NOTES:
- * Brute force algo vs EvilBoard = 112144 moves. 1move/1sec = 31hours
  *
  **/
 function Sudoku(name, size, divID) {
-	/* Creates the boards */
-	var board = [ ], i;
-	for (i = 0; i < size; i = i + 1) { board.push(''); }
 
-	/* Complete list of boards */
-	this.gameBoard  = board.slice(0); //Exposed cells. (Puzzle to solve)
-	this.possBoard  = board.slice(0); //Possible cell values.
-	this.solveBoard = board.slice(0); //Solving values.
-	this.emptyBoard = board.slice(0); //Used for resetting other boards.
-
-	/* Bookmarks - Used to navigate when solving puzzle */
-	this.direction = 1;		//'1' represents "positive" direction
-	this.currentCell = null;
-
-	/* Puzzle Settings */
-	this.size = size || 81; //size of the sudoku puzzle
-	this.name = name || 'mySudoku'; //Name of the sudoku class created by the page (@params)
-	
-	/* Algorithm Settings */
-	this.addOn_deadCells = true;
-	this.addOn_lastMoveTwins = true;
-
-	/* Helper Values */
-	this.timer		= null;	// Timer used for solving the puzzle in intervals.
-	this.interval	= 1;	// Interval for timers. (ms)(1000 = 1s)
-	this.step		= 1;
-	this.solverStr	= this.name + ".solver();";
-	this.genStr	= this.name + ".generateController();";
-	this.moves = 0;   // Counts when we move our focus from one cell to another.
-	this.pencils = 0; // Counts times we place a value in a cell
-
-	/* Premade puzzles */
-	this.easyStr = ".92..1.8.......17...7.3.462...3..91..965.174..41..9...136.4.7...52.......8.2..69."
-	this.easyBoard = ['', 9, 2, '', '', 1, '', 8, '', '', '', '', '', '', '', 1, 7, '', '', '', 7, '', 3, '', 4, 6, 2, '', '', '', 3, '', '', 9, 1, '', '', 9, 6, 5, '', 1, 7, 4, '', '', 4, 1, '', '', 9, '', '', '', 1, 3, 6, '', 4, '', 7, '', '', '', 5, 2, '', '', '', '', '', '', '', 8, '', 2, '', '', 6, 9, ''];
-	this.evilBoard = [5, '', 9, '', '', 6, '', 7, 8, 4, '', '', 2, '', '', '', '', 9, 7, '', '', '', '', '', '', '', 1, '', 6, '', '', '', 4, '', '', '', 9, '', '', '', '', '', '', '', 4, '', '', '', 9, '', '', '', 6, '', 1, '', '', '', '', '', '', '', 5, 6, '', '', '', '', 1, '', '', 8, 2, 5, '', 3, '', '', 1, '', 9];
-
-	
-	return true;
 }
 
 
 
 function init(){
 
-	// Initiate any remaining values.
+	// Initialize the boards
+	emptyBoard = Array(boardSize);
 	
 
 	var mySudoku = window.mySudoku = new Sudoku(); 
-	//this.displaySkelaton(divID);
-	//this.refreshControls();
 
 }
 
 
-		/** Edit Delegation's Callback **/
-	var commit = function(){
-			
-			// Grab what class the sudoku funct is.
-			var gameClass = document.getElementById('game').className;
-			
-			// Find the textbox and parent
-			var txtbox = document.getElementById('edit-txtbox');
-			var parent = txtbox.parentNode.parentNode;
-			parent.className = parent.className.replace(/\bhighlight\b/,'');
-			//parent.innerHTML=''; 
-			//alert(parent.id)/;
-			// Grab the text value from the textbox - 
-			var value = txtbox.value;
+/** Edit Delegation's Callback **/
+var commit = function(){
+		
+	// Grab what class the sudoku funct is.
+	var gameClass = document.getElementById('game').className;
+	
+	// Find the textbox and parent
+	var txtbox = document.getElementById('edit-txtbox');
+	var parent = txtbox.parentNode.parentNode;
+	parent.className = parent.className.replace(/\bhighlight\b/,'');
+	//parent.innerHTML=''; 
+	//alert(parent.id)/;
+	// Grab the text value from the textbox - 
+	var value = txtbox.value;
 
-			// Decide where it goes
-			var cell = parent.id.substr(6);
-			
-			// No value - User's cancelling event
-			if(!value){
+	// Decide where it goes
+	var cell = parent.id.substr(6);
+	
+	// No value - User's cancelling event
+	if(!value){
 
-				if( gameClass === 'game-edit'){
-					//Remove value if there is one.
-					if( mysudoku.gameBoard[cell] ){
-						mysudoku.gameBoard[cell] = '';
-					}
-				}else{
-					//Remove value if there is one.
-					if( mysudoku.solveBoard[cell] ){
-						mysudoku.solveBoard[cell] = '';
-					}
-				}
-
-			}else if( mysudoku.check(cell, value) === true ){
-				
-				if( gameClass === 'game-edit'){
-					mysudoku.gameBoard[cell] = value;
-				}else{
-					mysudoku.solveBoard[cell] = value;
-				}
-			}else{
-				//Show error
-				alert('That value is invalid. Try again.');
+		if( gameClass === 'game-edit'){
+			//Remove value if there is one.
+			if( mysudoku.gameBoard[cell] ){
+				mysudoku.gameBoard[cell] = '';
 			}
-			mysudoku.refreshDisplay();
-			return false;
-		};
+		}else{
+			//Remove value if there is one.
+			if( mysudoku.solveBoard[cell] ){
+				mysudoku.solveBoard[cell] = '';
+			}
+		}
+
+	}else if( mysudoku.check(cell, value) === true ){
+		
+		if( gameClass === 'game-edit'){
+			mysudoku.gameBoard[cell] = value;
+		}else{
+			mysudoku.solveBoard[cell] = value;
+		}
+	}else{
+		//Show error
+		alert('That value is invalid. Try again.');
+	}
+	mysudoku.refreshDisplay();
+	return false;
+};
 
 
 
 // * -------------------------------------------
 // * Puzzle Creation
 // * -------------------------------------------
+Sudoku.prototype.meow = function(){
+	alert(greg);
+};
 
-Sudoku.prototype.emptyAllBoards = function(){
-	this.gameBoard = this.emptyBoard.slice(0);
-	this.possBoard = this.emptyBoard.slice(0);
-	this.solveBoard = this.emptyBoard.slice(0);
+/**
+ * emptyAllBoards
+ * @return void
+ */
+var emptyAllBoards = function(){
+	gameBoard = emptyBoard.slice(0);
+	possBoard = emptyBoard.slice(0);
+	solveBoard = emptyBoard.slice(0);
 };
 
 Sudoku.prototype.resetAllValues = function(){
@@ -186,22 +163,22 @@ Sudoku.prototype.resetAllValues = function(){
  **/
 Sudoku.prototype.premadePuzzle = function (num) {
 	
-	this.empty();
+	emptyAllBoards();
 	num = num || 1;
-	this.pencils = 0;
-	this.moves = 0;
+	pencils = 0;
+	moves = 0;
 	var name = '';
 
 	if( num == 1 ){
-		this.gameBoard = this.easyBoard.slice(0);
+		gameBoard = easyBoard.slice(0);
 		name = 'easy';
 	}else if( num == 2 ){
-		this.gameBoard = this.evilBoard.slice(0);	
+		gameBoard = evilBoard.slice(0);	
 		name = 'evil';
 	}
 	name += ' puzzle';
 	document.getElementById('current-puzzle').innerHTML = name;
-	this.refreshDisplay();
+	refreshDisplay();
 };
 
 Sudoku.prototype.recurseGenerate = function (currentNumber, direction, moves, flag) {
@@ -536,11 +513,11 @@ Sudoku.prototype.checkBox = function (cell, val){
 	for(var i=start; i < (start+9); i++){
 		
 		// Look for cell with value
-		if( this.gameBoard[i] ){
+		if( gameBoard[i] ){
 			// We've found a value, let's mark that value as not usable for the box.
-			arr[ ( this.gameBoard[i]-1 ) ] = false;
-		}else if( this.solveBoard[i]  ){
-			arr[ ( this.solveBoard[i]-1) ] = false;
+			arr[ ( gameBoard[i]-1 ) ] = false;
+		}else if( solveBoard[i]  ){
+			arr[ ( solveBoard[i]-1) ] = false;
 		}
 	}
 	if(val){
@@ -569,10 +546,10 @@ Sudoku.prototype.checkRow = function (cell, val){
 	for(i=0; i<9; i++){
 		x = cells[i];
 		
-		if( this.gameBoard[x] ){
-			arr[ (this.gameBoard[x] - 1) ] = false;
-		}else if( this.solveBoard[x]  ){
-			arr[ (this.solveBoard[x] - 1) ] = false;
+		if( gameBoard[x] ){
+			arr[ (gameBoard[x] - 1) ] = false;
+		}else if( solveBoard[x]  ){
+			arr[ (solveBoard[x] - 1) ] = false;
 		}
 	}
 	if(val){
@@ -713,6 +690,7 @@ Sudoku.prototype.checkArrayForTwins = function (arrayCells){
 
 
 Sudoku.prototype.displaySkelaton = function (divID) {
+	boardContainer = divID;
 	var elem = document.getElementById(divID);
 	elem.innerHTML = this.getHTMLSkelaton();
 };
@@ -728,7 +706,7 @@ Sudoku.prototype.getHTMLSkelaton = function (){
 	// Sudoku container - Start
 	str = '<div id="sudoku">';
 	
-	for (i = 0; i < this.size; i += 1){
+	for (i = 0; i < boardSize; i += 1){
 		
 		// Big/Box - Start
 		if (this.getSmall(i) === 0) { 
@@ -769,7 +747,7 @@ Sudoku.prototype.getHTMLSkelaton = function (){
  * @return 	void
  *
  **/
-Sudoku.prototype.refreshDisplay = function(divID){
+var refreshDisplay = function(cellID){
 	var i, cellID, temp;
 
 	for(i=0;i<81;i++){
@@ -778,16 +756,16 @@ Sudoku.prototype.refreshDisplay = function(divID){
 		small = document.getElementById(cellID);
 
 		// Game_Board piece found --- Place value and class
-		if( this.gameBoard[i] ){
+		if( gameBoard[i] ){
 			temp = small.getElementsByClassName("value")[0];
-			temp.innerHTML = this.gameBoard[i];
+			temp.innerHTML = gameBoard[i];
 			small.className = small.className.replace(/\bentered-value\b/,'');
 			small.className = "small game-value";
 
 		// Solved/entered value found --- Place value and class
-		}else if( this.solveBoard[i] ){
+		}else if( solveBoard[i] ){
 			temp = small.getElementsByClassName("value")[0];
-			temp.innerHTML = this.solveBoard[i];
+			temp.innerHTML = solveBoard[i];
 			small.className = small.className.replace(/\game-value\b/,'');
 			small.className = "small entered-value";	
 		
@@ -800,7 +778,7 @@ Sudoku.prototype.refreshDisplay = function(divID){
 			small.className = small.className.replace( /(?:^|\s)game-value(?!\S)/g , '' );
 
 			// Get list of possible moves for cell
-			arr = this.getPossibles(i, 'bool');
+			arr = mySudoku.getPossibles(i, 'bool');
 			
 			// Clear value - just in case
 			temp = small.getElementsByClassName("value")[0];
@@ -1589,7 +1567,6 @@ Sudoku.prototype.randomizeArray = function( array ) {
 
 };
 
-init();
 // (function(){
 
 // 	doStuff();
@@ -1601,6 +1578,9 @@ init();
 // 	doStuff();
 // 	setTimeout(recursiveTimeout,100);
 // })();
+
+// Bring to the global scope
+init();
 
 
 })(window);
