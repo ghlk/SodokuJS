@@ -47,6 +47,7 @@ var gameBoard = [],
 	easyBoard = ['', 9, 2, '', '', 1, '', 8, '', '', '', '', '', '', '', 1, 7, '', '', '', 7, '', 3, '', 4, 6, 2, '', '', '', 3, '', '', 9, 1, '', '', 9, 6, 5, '', 1, 7, 4, '', '', 4, 1, '', '', 9, '', '', '', 1, 3, 6, '', 4, '', 7, '', '', '', 5, 2, '', '', '', '', '', '', '', 8, '', 2, '', '', 6, 9, ''],
 	evilBoard = [5, '', 9, '', '', 6, '', 7, 8, 4, '', '', 2, '', '', '', '', 9, 7, '', '', '', '', '', '', '', 1, '', 6, '', '', '', 4, '', '', '', 9, '', '', '', '', '', '', '', 4, '', '', '', 9, '', '', '', 6, '', 1, '', '', '', '', '', '', '', 5, 6, '', '', '', '', 1, '', '', 8, 2, 5, '', 3, '', '', 1, '', 9]
 ;
+var document = window.document;
 
 /**
  * Class Sudoku
@@ -59,8 +60,8 @@ var gameBoard = [],
  *
  **/
 function Sudoku(name, size, divID) {
+	//Moved variables to init()
 }
-
 
 
 function init(){
@@ -153,7 +154,42 @@ var resetAllValues = function(){
 };
 
 
+/**
+ * getRandomEmptyCell()
+ * Summary: Returns the location of a random empty cell. Used for puzzle creation.
+ * @return 	int 	rand 	Random empty cell number.
+ **/
+var getRandomEmptyCell = function ( big ) {
+	var rand;
+	var emptyArr = [];
 
+	for(var i=0; i<gameBoard.length; i+=1 ){
+		if(!gameBoard[i]){
+			emptyArr.push(i);
+		}
+	}
+
+	// No empty cells left
+	if( emptyArr.length < 1 ){
+		return null;
+	}
+
+	// Get a random empty cell for a box only.
+	if(big){
+		do{
+			rand = Math.floor( Math.random() * 9 ); //
+			rand += small*9;
+		}while( gameBoard[rand] );
+		return rand;
+	}
+
+	// Pick a random cell 
+	do{
+		rand = Math.floor( Math.random() * emptyArr.length );
+	}while( gameBoard[rand] );
+
+	return rand;
+};
 
 /**
  * premadePuzzle()
@@ -385,42 +421,6 @@ Sudoku.prototype.generateController = function (){
 };
 
 
-/**
- * getRandomEmptyCell()
- * Summary: Returns the location of a random empty cell. Used for puzzle creation.
- * @return 	int 	rand 	Random empty cell number.
- **/
-var getRandomEmptyCell = function ( big ) {
-	var rand;
-	var emptyArr = [];
-
-	for(var i=0; i<gameBoard.length; i+=1 ){
-		if(!gameBoard[i]){
-			emptyArr.push(i);
-		}
-	}
-
-	// No empty cells left
-	if( emptyArr.length < 1 ){
-		return null;
-	}
-
-	// Get a random empty cell for a box only.
-	if(big){
-		do{
-			rand = Math.floor( Math.random() * 9 ); //
-			rand += small*9;
-		}while( gameBoard[rand] );
-		return rand;
-	}
-
-	// Pick a random cell 
-	do{
-		rand = Math.floor( Math.random() * emptyArr.length );
-	}while( gameBoard[rand] );
-
-	return rand;
-};
 
 
 // * -------------------------------------------
@@ -687,6 +687,8 @@ Sudoku.prototype.displaySkelaton = function (divID) {
 	boardContainer = divID;
 	var elem = document.getElementById(divID);
 	elem.innerHTML = getHTMLSkelaton();
+	// Call for DOM elements on this div
+	domEvents(divID);
 };
 
 /**
@@ -798,6 +800,10 @@ var refreshDisplay = function(cellID){
 	};
 };
 
+Sudoku.prototype.displayControls = function (divID){
+	// Create strings of the many fieldsets we have
+	// Place them in the divID provided
+};
 
 var refreshControls = function(){
 
@@ -974,7 +980,7 @@ Sudoku.prototype.solveCell = function(cell){
 
 /**
  * -------------------------------------------
- * sudoku.solver( )
+ * sudoku.solveCellController( )
  * -------------------------------------------
  * Summary: 
  * 
@@ -991,7 +997,7 @@ Sudoku.prototype.solveCell = function(cell){
  *	highlightCell(cell)
  *	solveCell(cell)
  */
-Sudoku.prototype.solver = function(){
+Sudoku.prototype.solveCellController = function(){
 
 	var result, tempCell;
 
@@ -1062,9 +1068,7 @@ Sudoku.prototype.solver = function(){
  **/
 Sudoku.prototype.fillSinglePossibles = function() {
 
-	var i, finished;
-	finished = true;
-	
+	var i, finished = true;
 	var x = 0;
 	
 	//Step through possibles
@@ -1073,7 +1077,7 @@ Sudoku.prototype.fillSinglePossibles = function() {
 		//If not game-pice----
 		if(!gameBoard[i]){
 			
-			possVals = this.getPossibles(i, "val");
+			possVals = getPossibles(i, "val");
 			
 			if( possVals.length === 1 ){
 				solveBoard[i] = possVals[0];
@@ -1085,16 +1089,8 @@ Sudoku.prototype.fillSinglePossibles = function() {
 		}
 	}
 	moves += x;
-	
-	//if(!finished){
-	//	this.smartSolver();
-	//}
-	//Update Possibles
-	//this.calcPossibles();
-	//this.showSolution();
 	document.getElementById('numofmoves').value = moves;
 	refreshDisplay();
-	//Return
 	return true;
 };
 
@@ -1176,11 +1172,12 @@ Sudoku.prototype.groundZeroAlgo = function(cell, direction) {
 
 
 // * -------------------------------------------
-// * Position Methods
+// * Get Position Methods
 // * -------------------------------------------
 
 
 /** 
+ * 
  * All methods return a numeric value representing the value they are "getting".
  *
  * BIG:
@@ -1324,6 +1321,11 @@ var getColumnCells = function (cell) {
 	return arr;
 };
 
+/**
+ * [getBoxCells description]
+ * @param  {[type]} cell [description]
+ * @return {[type]}      [description]
+ */
 var getBoxCells = function (cell){
 	var start = getBoxStart(cell);
 	var end = start + 9;
@@ -1335,7 +1337,11 @@ var getBoxCells = function (cell){
 	return arr;
 }
 
-
+/**
+ * [getAffectedCells description]
+ * @param  {[type]} cell [description]
+ * @return {[type]}      [description]
+ */
 var getAffectedCells = function (cell){
 	return getBoxCells(cell).concat(getColumnCells(cell), getRowCells(cell));
 }
@@ -1354,33 +1360,29 @@ Sudoku.prototype.startSolver = function () {
 	
 	// Timer is already active - Toggle off
 	if( timer ){
-		//stopTimer();
+		stopTimer();
 		refreshStopwatch();
-		// this.timer = window.clearInterval(this.timer);
-		// var now = new Date().getTime();
-		// document.getElementById('txt-timer').value = (now-this.startTime)/1000;
 		document.getElementById('ground-zero-status').className = 'inactive';
-		timer = false;
 	}
 	// Start the interval
 	else{
-		//Update the interval
-		interval = document.getElementById('interval').value || interval ;
-		//timer = self.setInterval(solverStr, interval);
 		timer = true;
+
 		(function(){
 
-			//doStuff();
+			// Call our solver method ( shows progress of algorithms )
 			mySudoku.solver();
 			if( timer === true ){
+				//Update the interval value
+				interval = document.getElementById('interval').value || interval ;
+				//
 				setTimeout(arguments.callee, interval);
-	
 			}
 			
 		})();
 
 
-		// Grab time from the 
+		// This allows us to pause and continue the solver and have a continuous stopwatch
 		var oldTime = document.getElementById('txt-timer').value;
 		startTime = ( new Date().getTime() - oldTime );
 		document.getElementById('ground-zero-status').className = 'active';
@@ -1425,7 +1427,7 @@ var startStopwatch = function () {
 	this.startTime = new Date().getTime();
 };
 
-Sudoku.prototype.stopStopwatch = function () {
+var stopStopwatch = function () {
 	var now = new Date().getTime();
 	var diff = now-this.startTime;
 	diff = Math.floor((diff/100))/10;
@@ -1448,10 +1450,9 @@ var refreshStopwatch = function () {
  * Summary: Clears the interval and pops up an alert to shop the timer has stopped.
  * @return 	void
  **/
-Sudoku.prototype.stopTimer = function () {
-	this.timer = window.clearInterval(this.timer);
+var stopTimer = function () {
+	timer = false;
 	document.getElementById('ground-zero-status').className = 'inactive';
-	//alert("Solver stopped.")
 };
 
 /**
@@ -1525,22 +1526,84 @@ var randomizeArray = function( array ) {
 
 };
 
-// (function(){
-
-// 	doStuff();
-// 	setTimeout(arguments.callee,100);
-
-// })();
-
-// (function recursiveTimeout(){
-// 	doStuff();
-// 	setTimeout(recursiveTimeout,100);
-// })();
-
-
 
 // Initialize & bring to the global scope
 init();
+
+
+/**
+ * UI DOM EVENTS
+ */
+
+
+// document.getElementById('ground-zero-toggle').onclick = function(){
+// 	mySudoku.startSolver();
+// };
+
+// document.getElementById('ground-zero-step').onclick = function(){
+// 	mySudoku.solver();
+// };
+
+// document.getElementById('ground-zero-recurse').onclick = function(){
+// 	mySudoku.groundZeroAlgo();
+// };
+
+// document.getElementById('generate-toggle').onclick = function(){
+// 	mySudoku.toggleGenerator();
+// };
+
+// document.getElementById('generate-step').onclick = function(){
+// 	mySudoku.generateController();
+// };
+
+var domEvents = function (divID) {
+
+	var elem = document.getElementById(divID);
+	elem.onclick = function(e) {
+		var t = getTarget(e);
+		alert(t.id + t.className);
+	};
+};
+
+// var sodo = document.getElementById('game');
+// sodo.onclick = function(e) {
+// 	var t = getTarget(e);
+// 	var div = document.getElementById('game').className;
+// 	var small;
+// 	// Check small class
+// 	if( t.className !== 'small' ){
+// 		small = t.parentNode;
+// 	}
+// 	// Iterate down to our 'value' node
+// 	if(t.className === 'tiny'){
+// 		while (t.nextSibling) {
+// 			t = t.nextSibling;
+// 			if (t.nodeName === 'DIV' && t.className === 'value') {
+// 				break;
+// 			}
+// 		}
+// 	}
+// 	if (t.className === 'value' ){
+// 	var txt = '<input type="text" id="edit-txtbox" value="" class="edit-txt" onblur="commit();"> ';
+// 	// Not game board - go ahead
+// 	if (small.className !== 'small game-value') {
+// 		t.innerHTML = txt;
+// 		document.getElementById('edit-txtbox').focus();
+// 	}
+// 	// Game board piece
+// 	if( small.className === 'small game-value'){
+// 	if( div === 'game-edit'){
+// 		t.innerHTML = txt;
+// 		document.getElementById('edit-txtbox').focus();
+// 	}
+// 	}
+// 	}
+// 	};
+
+
+
+
+
 
 
 })(window);

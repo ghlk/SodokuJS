@@ -5,83 +5,6 @@
 	<meta charset="utf-8">
 	<title>Sudocoo' foo'</title>
 	<link rel="stylesheet" href="main.css" type="text/css" media="screen" title="no title" >
-	<script type="text/javascript" src="functions.js"></script>
-	<script type="text/javascript" src="sudoku.js"></script>
-	<script type="text/javascript">
-		
-		// *************************** //
-		window.onload = function() {
-			
-			mySudoku.displaySkelaton('game');
-			mySudoku.premadePuzzle(); //Default to a test puzzle
-
-			
-
-
-			document.getElementById('premade-btn').onclick = function (){
-				//alert('me');
-				var val = document.getElementById('premade-select').value;
-				mySudoku.premadePuzzle(val);
-			};
-			
-			
-			/** Brute Force Algorithm Buttons **/
-			document.getElementById('ground-zero-toggle').onclick = function(){
-				mySudoku.startSolver();
-			};
-
-			document.getElementById('ground-zero-step').onclick = function(){
-				mysudoku.solver();
-			};
-
-			document.getElementById('ground-zero-recurse').onclick = function(){
-				mysudoku.groundZeroAlgo();
-			};
-
-			document.getElementById('generate-toggle').onclick = function(){
-				mysudoku.toggleGenerator();
-			};
-
-			document.getElementById('generate-step').onclick = function(){
-				mysudoku.generateController();
-			};
-
-			var check = document.getElementById('dead-cells-chkbox');
-			check.onchange = function(e){
-				var t = getTarget(e);
-
-				if( t.checked ){
-					mysudoku.addOn_deadCells = true;
-				}else{
-					mysudoku.addOn_deadCells = false;	
-				}
-			};
-
-			var check = document.getElementById('last-move-twins-chkbox');
-			check.onchange = function(e){
-				var t = getTarget(e);
-
-				if( t.checked ){
-					mysudoku.addOn_lastMoveTwins = true;
-				}else{
-					mysudoku.addOn_lastMoveTwins = false;	
-				}
-			};
-
-			/** Edit Mode Toggle **/
-			var edits = document.getElementById('edit-mode');
-			edits.onchange = function(e){
-				var t = getTarget(e);
-				if (t.value == 'edit') {
-					document.getElementById('game').className = 'game-edit';
-				}else{
-					//mysudoku.toggleEditMode(false);
-					document.getElementById('game').className = '';
-				}
-			};
-
-		}; // end onload
-	</script>
 
 </head>
 <body>
@@ -124,7 +47,7 @@
 				<label>Dead Cells:</label><input id="dead-cells-chkbox" type="checkbox" checked>
 				<label>Last Move Twins:</label><input id="last-move-twins-chkbox" type="checkbox" checked>
 				<hr>
-				<input id="ground-zero-toggle"  type="button" value="Start/Stop">
+				<input id="ground-zero-toggle" type="button" value="Start/Stop">
 				<select id="interval">
 					<option value="1">1ms</option>
 					<option value="100">100</option>
@@ -169,5 +92,64 @@
 		</div>
 		
 	</div>	
+
+		<script type="text/javascript" src="functions.js"></script>
+	<script type="text/javascript" src="sudoku.js"></script>
+	<script type="text/javascript">
+		
+		// *************************** //
+		window.onload = function() {
+			
+			mySudoku.displaySkelaton('game');
+			mySudoku.premadePuzzle(2); // Populate with a premade puzzle.
+			
+			
+			document.getElementById('premade-btn').onclick = function (){
+				//alert('me');
+				var val = document.getElementById('premade-select').value;
+				mySudoku.premadePuzzle(val);
+			};
+			
+			
+			/** Brute Force Algorithm Buttons **/
+			
+
+			var check = document.getElementById('dead-cells-chkbox');
+			check.onchange = function(e){
+				var t = getTarget(e);
+
+				if( t.checked ){
+					mysudoku.addOn_deadCells = true;
+				}else{
+					mysudoku.addOn_deadCells = false;	
+				}
+			};
+
+			var check = document.getElementById('last-move-twins-chkbox');
+			check.onchange = function(e){
+				var t = getTarget(e);
+
+				if( t.checked ){
+					mysudoku.addOn_lastMoveTwins = true;
+				}else{
+					mysudoku.addOn_lastMoveTwins = false;	
+				}
+			};
+
+			/** Edit Mode Toggle **/
+			var edits = document.getElementById('edit-mode');
+			edits.onchange = function(e){
+				var t = getTarget(e);
+				if (t.value == 'edit') {
+					document.getElementById('game').className = 'game-edit';
+				}else{
+					//mysudoku.toggleEditMode(false);
+					document.getElementById('game').className = '';
+				}
+			};
+
+		}; // end onload
+	</script>
+
 </body>
 </html>
