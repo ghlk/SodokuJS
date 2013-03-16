@@ -1036,7 +1036,7 @@
 		//alert(currentCell);
 	};
 
-	// --- Just for testin
+	// --- Just for testi
 
 	/**
 	 * filleSinglePossibles()
