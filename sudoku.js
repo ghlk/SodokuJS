@@ -1,19 +1,18 @@
-
 /**
  * SudokuJS Library ( Consider rename: SudokuSandboxJS or SudokuJSSandbox )
  * Version: 0.1
  * Requirements: None (Maybe a version of ECMAScript? or uncooperative browsers?)
  * 
- * This library is to be a stand-alone JS Sudoku sandbox.
+ * This library is a stand-alone JS Sudoku "sandbox".
  * Solving puzzles will have different algorithm options and "add-ons" that will expedite the solving.
  * This library also includes complete event delegation and user interaction.
  * Allowing user-inputted solutions and puzzles, as well as a "step-by-step" solver.
  * Which shows each move the algorithm attempts at a speed the user can follow (and alter).
+ *
  * NOTES:
  * Brute force algo vs EvilBoard = 112144 moves. 1move/1sec = 31hours
- *
  * 
- */
+ **/
 (function (window, undefined) {
 
 	'use strict';
@@ -69,17 +68,16 @@
 	var init = function () {
 
 		// Initialize the boards
-		emptyBoard = Array(boardSize);
+		emptyBoard = new Array(boardSize);
 		var mySudoku = window.mySudoku = new Sudoku();
 	};
 
 
 
-
 	// * -------------------------------------------
-	// * Puzzle Creation
+	// * Reset All the Things
 	// * -------------------------------------------
-
+	
 	/**
 	 * emptyAllBoards
 	 * @return void
@@ -101,64 +99,31 @@
 		pencils = 0;
 		direction = 1;
 		this.solvePlace = 0;
-		currentCell = null;	
+		currentCell = null;
 	};
 
 
-	/**
-	 * getRandomEmptyCell()
-	 * Summary: Returns the location of a random empty cell. Used for puzzle creation.
-	 * @return 	int 	rand 	Random empty cell number.
-	 **/
-	var getRandomEmptyCell = function (big) {
-		var rand;
-		var emptyArr = [];
 
-		for(var i=0; i<gameBoard.length; i+=1 ){
-			if(!gameBoard[i]){
-				emptyArr.push(i);
-			}
-		}
-
-		// No empty cells left
-		if( emptyArr.length < 1 ){
-			return null;
-		}
-
-		// Get a random empty cell for a box only.
-		if(big){
-			do{
-				rand = Math.floor( Math.random() * 9 ); //
-				rand += small*9;
-			}while( gameBoard[rand] );
-			return rand;
-		}
-
-		// Pick a random cell 
-		do{
-			rand = Math.floor( Math.random() * emptyArr.length );
-		}while( gameBoard[rand] );
-
-		return rand;
-	};
+	// * -------------------------------------------
+	// * Puzzle Creation
+	// * -------------------------------------------
 
 	/**
-	 * premadePuzzle()
-	 * Summary: Sets the selected test puzzle.
+	 * Sets the selected test puzzle.
 	 **/
 	Sudoku.prototype.premadePuzzle = function (num) {
-		
+
 		emptyAllBoards();
 		num = num || 1;
 		pencils = 0;
 		moves = 0;
 		var name = '';
 
-		if( num == 1 ){
+		if( num === 1 ){
 			gameBoard = easyBoard.slice(0);
 			name = 'easy';
-		}else if( num == 2 ){
-			gameBoard = evilBoard.slice(0);	
+		}else if( num === 2 ){
+			gameBoard = evilBoard.slice(0);
 			name = 'evil';
 		}
 		name += ' puzzle';
@@ -168,7 +133,7 @@
 
 	Sudoku.prototype.recurseGenerate = function (currentNumber, direction, moves, flag) {
 
-		if ( !currentNumber ){ this.empty(); }
+		if (!currentNumber) { this.empty(); }
 
 		// Set defaults
 		currentNumber = currentNumber || 1;
@@ -176,10 +141,10 @@
 		moves = moves || [];
 		flag = flag || 1;
 		var count = 0, x, possibleMoves, cell;
-		
+
 
 		// Break Recursion - Puzzle done.
-		if ( currentNumber > 2 || flag > 10 ) {
+		if (currentNumber > 2 || flag > 10) {
 			console.log(' --- END --- ' );
 			refreshDisplay();
 			return true;
@@ -187,7 +152,7 @@
 
 
 		// Check for Dead cells - Will trigger backpedaling
-		if( !checkDeadCells() ){
+		if (!checkDeadCells()) {
 			return 
 		}
 
@@ -199,11 +164,10 @@
 		// Count how many of this value is in the puzzle
 		for (x = 0; x < 81; x += 1) {
 			if (gameBoard[x] === currentNumber) { count += 1; }
-		};
-		
-		
+		}
+
 		// Completed currentNumber - increment value
-		if ( count === 9) {
+		if (count === 9) {
 			console.log(possibleMoves.length);
 			console.log( ' Current Number Completed ' );
 			return this.recurseGenerate(currentNumber + 1, 1, moves, flag+1);
@@ -567,6 +531,10 @@
 		return true;
 	};
 
+	/**
+	 * [checkDeadCells description]
+	 * @return {[type]} [description]
+	 */
 	var checkDeadCells = function () {
 		var cell, possibles;
 		for(cell=0; cell<81; cell++){
@@ -695,6 +663,60 @@
 		return str;
 	};
 
+	var getControls = function(){
+
+		var puzzle = '<fieldset id="puzzle-controls"> <legend>New Puzzle</legend>';
+		puzzle += '<label>Premade:</label> <select id="premade-select"> <option value="1">Easy</option> <option value="2">Evil</option> </select>';
+		puzzle += '<input type="button" id="premade-btn" value="Populate">';
+		puzzle += '<hr>';
+		puzzle += '<label>Generation: (not done)</label>';
+		puzzle += '<input type="button" id="gen-recursive" Value="Recursive Generate">';
+		puzzle += '<input type="button" id="gen-toggle" Value="Toggle Gen">';
+		puzzle += '<input type="button" id="gen-step" Value="Step">';
+		puzzle += '</fieldset>';
+
+		var solving = '<fieldset id="solving-controls"> <legend>Editing</legend>';
+		solving += '<input type="button" value="Clear Solved Cells" ><br>';
+		solving += '<input type="button" value="Clear Board" >';
+		solving += '<hr>';
+		solving += '<select id="edit-mode"> <option value="solve" selected>solve mode</option> <option value="edit" >edit mode</option> </select>';
+		solving += '</fieldset>';
+
+		var groundzero =  '<fieldset> <legend>Ground Zero Algo</legend>';
+		groundzero += '<span id="ground-zero-status" class="status"> Algo <strong>not</strong> currently running... </span>';
+		groundzero += '<label>Dead Cells:</label><input id="dead-cells-chkbox" type="checkbox" checked>';
+		groundzero += '<label>Last Move Twins:</label><input id="last-move-twins-chkbox" type="checkbox" checked>';
+		groundzero += '<hr>';
+		groundzero += '<input id="gz-toggle" type="button" value="Start/Stop">';
+		groundzero += '<select id="interval"> <option value="1">1ms</option> <option value="100">100</option><option value="200">200</option><option value="500">500</option><option value="1000">1000</option></select>';
+		groundzero += '<input id="gz-step" type="button" value="Step">';
+		groundzero += '<hr>';
+		groundzero += '<input id="gz-recurse" type="button" value="Solve Puzzle">';
+		groundzero += '	</fieldset>';
+
+		var lastmove_ctrls = 
+		lastmove_ctrls += '<fieldset> <legend>Only Option Algo</legend>';
+		lastmove_ctrls += '<input type="button" onClick="mysudoku.fillSinglePossibles();" Value="Run">';
+		lastmove_ctrls += '<br>Great when starting.';
+		lastmove_ctrls += '</fieldset>';
+
+		var debug_ctrls = '<fieldset id="debug"> <legend>Status</legend>';
+		debug_ctrls += '<span id="current-puzzle" class="status"></span>';
+		debug_ctrls += '<input type="text" id="numofmoves" disabled><label for="numofmoves" class="small-label">Moves:</label>';
+		debug_ctrls += '<br>';
+		debug_ctrls += '<input type="text" id="numofpencils" disabled><label for="numofpencils" class="small-label">Penciled:</label>';
+		debug_ctrls += '<br>';
+		debug_ctrls += '<input type="text" id="txt-timer" disabled>';
+		debug_ctrls += '<label for="timer" class="small-label">Time (s):</label>';
+		debug_ctrls += '<br>';
+		debug_ctrls += '<input type="text" id="cell-counter" disabled>';
+		debug_ctrls += '<label for="timer" class="small-label">Cell Cnt:</label>';
+		debug_ctrls += '</fieldset>';
+
+		return puzzle+solving+groundzero+debug_ctrls;
+
+	};
+
 	/**
 	 * refreshDisplay()
 	 * Summary: DOM walking refresh method. This replaced html string creation.
@@ -758,61 +780,6 @@
 			}
 
 		};
-	};
-
-
-	var getControls = function(){
-
-		var puzzle = '<fieldset id="puzzle-controls"> <legend>New Puzzle</legend>';
-		puzzle += '<label>Premade:</label> <select id="premade-select"> <option value="1">Easy</option> <option value="2">Evil</option> </select>';
-		puzzle += '<input type="button" id="premade-btn" value="Populate">';
-		puzzle += '<hr>';
-		puzzle += '<label>Generation: (not done)</label>';
-		puzzle += '<input type="button" id="gen-recursive" Value="Recursive Generate">';
-		puzzle += '<input type="button" id="gen-toggle" Value="Toggle Gen">';
-		puzzle += '<input type="button" id="gen-step" Value="Step">';
-		puzzle += '</fieldset>';
-
-		var solving = '<fieldset id="solving-controls"> <legend>Editing</legend>';
-		solving += '<input type="button" value="Clear Solved Cells" ><br>';
-		solving += '<input type="button" value="Clear Board" >';
-		solving += '<hr>';
-		solving += '<select id="edit-mode"> <option value="solve" selected>solve mode</option> <option value="edit" >edit mode</option> </select>';
-		solving += '</fieldset>';
-
-		var groundzero =  '<fieldset> <legend>Ground Zero Algo</legend>';
-		groundzero += '<span id="ground-zero-status" class="status"> Algo <strong>not</strong> currently running... </span>';
-		groundzero += '<label>Dead Cells:</label><input id="dead-cells-chkbox" type="checkbox" checked>';
-		groundzero += '<label>Last Move Twins:</label><input id="last-move-twins-chkbox" type="checkbox" checked>';
-		groundzero += '<hr>';
-		groundzero += '<input id="gz-toggle" type="button" value="Start/Stop">';
-		groundzero += '<select id="interval"> <option value="1">1ms</option> <option value="100">100</option><option value="200">200</option><option value="500">500</option><option value="1000">1000</option></select>';
-		groundzero += '<input id="gz-step" type="button" value="Step">';
-		groundzero += '<hr>';
-		groundzero += '<input id="gz-recurse" type="button" value="Solve Puzzle">';
-		groundzero += '	</fieldset>';
-
-		var lastmove_ctrls = 
-		lastmove_ctrls += '<fieldset> <legend>Only Option Algo</legend>';
-		lastmove_ctrls += '<input type="button" onClick="mysudoku.fillSinglePossibles();" Value="Run">';
-		lastmove_ctrls += '<br>Great when starting.';
-		lastmove_ctrls += '</fieldset>';
-
-		var debug_ctrls = '<fieldset id="debug"> <legend>Status</legend>';
-		debug_ctrls += '<span id="current-puzzle" class="status"></span>';
-		debug_ctrls += '<input type="text" id="numofmoves" disabled><label for="numofmoves" class="small-label">Moves:</label>';
-		debug_ctrls += '<br>';
-		debug_ctrls += '<input type="text" id="numofpencils" disabled><label for="numofpencils" class="small-label">Penciled:</label>';
-		debug_ctrls += '<br>';
-		debug_ctrls += '<input type="text" id="txt-timer" disabled>';
-		debug_ctrls += '<label for="timer" class="small-label">Time (s):</label>';
-		debug_ctrls += '<br>';
-		debug_ctrls += '<input type="text" id="cell-counter" disabled>';
-		debug_ctrls += '<label for="timer" class="small-label">Cell Cnt:</label>';
-		debug_ctrls += '</fieldset>';
-
-		return puzzle+solving+groundzero+debug_ctrls;
-
 	};
 
 	var refreshControls = function(){
