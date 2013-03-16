@@ -10,78 +10,41 @@
 	<div id="container">
 		
 		<div id="controls">
-
-		</div><!-- End of controls -->
-
+		</div>
 		<br style="clear:both;">
-		
 		<div id="game">
-			
 		</div>
 		
 	</div>	
-
-	<script type="text/javascript" src="functions.js"></script>
 	<script type="text/javascript" src="sudoku.js"></script>
 	<script type="text/javascript">
 		
-		// *************************** //
+
+			/**
+	 * getTarget()
+	 * Summary: Used to gather target from an event. Recently updated to support firefox.
+	 **/
+	var getTarget = function(e){
+		if(!e){ e = window.event || event; }
+		if(e){
+			field = e.srcElement || e.target;
+	    	return field;
+	  	}
+	  	return false;
+	};
+
 		window.onload = function() {
 			
 			// Display the puzzle ( in wrapper div of choice )
 			mySudoku.displaySkelaton('game');
 
 			// Display controls disired - ( this allows for "admins" to toggle features )
-			mySudoku.displayControls('controls');
+			mySudoku.displayControls('controls');//, ['new', 'generate', 'solving', 'debug']);
 
-			mySudoku.premadePuzzle(2); // Populate with a premade puzzle.
-			
-			// document.getElementById('premade-btn').onclick = function (){
-			// 	//alert('me');
-			// 	var val = document.getElementById('premade-select').value;
-			// 	mySudoku.premadePuzzle(val);
-			// };
-			
-			
-			/** Brute Force Algorithm Buttons **/
-			
+			mySudoku.premadePuzzle(1); // Populate with a premade puzzle.			
+			//alert(document.getElementById('small-0').className);
+		};//onload END
 
-			// var check = document.getElementById('dead-cells-chkbox');
-			// check.onchange = function(e){
-			// 	var t = getTarget(e);
-
-			// 	if( t.checked ){
-			// 		mysudoku.addOn_deadCells = true;
-			// 	}else{
-			// 		mysudoku.addOn_deadCells = false;	
-			// 	}
-			// };
-
-			// var check = document.getElementById('last-move-twins-chkbox');
-			// check.onchange = function(e){
-			// 	var t = getTarget(e);
-
-			// 	if( t.checked ){
-			// 		mysudoku.addOn_lastMoveTwins = true;
-			// 	}else{
-			// 		mysudoku.addOn_lastMoveTwins = false;	
-			// 	}
-			// };
-
-			// /** Edit Mode Toggle **/
-			// var edits = document.getElementById('edit-mode');
-			// edits.onchange = function(e){
-			// 	var t = getTarget(e);
-			// 	if (t.value == 'edit') {
-			// 		document.getElementById('game').className = 'game-edit';
-			// 	}else{
-			// 		//mysudoku.toggleEditMode(false);
-			// 		document.getElementById('game').className = '';
-			// 	}
-			// };
-
-		}; // end onload
 	</script>
-
 </body>
 </html>

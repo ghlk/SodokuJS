@@ -15,7 +15,10 @@ body {
 
 #game{
 	display:inline-block;
+	1display:block;
+	1margin:0 auto;
 	font-size:1em;
+	clear:both;
 }
 #sudoku {
 	background:#aaa;
