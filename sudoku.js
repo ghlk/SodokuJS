@@ -75,54 +75,6 @@ function init(){
 }
 
 
-/** Edit Delegation's Callback **/
-var commit = function(){
-		
-	// Grab what class the sudoku funct is.
-	var gameClass = document.getElementById('game').className;
-	
-	// Find the textbox and parent
-	var txtbox = document.getElementById('edit-txtbox');
-	var parent = txtbox.parentNode.parentNode;
-	parent.className = parent.className.replace(/\bhighlight\b/,'');
-	//parent.innerHTML=''; 
-	//alert(parent.id)/;
-	// Grab the text value from the textbox - 
-	var value = txtbox.value;
-
-	// Decide where it goes
-	var cell = parent.id.substr(6);
-	
-	// No value - User's cancelling event
-	if(!value){
-
-		if( gameClass === 'game-edit'){
-			//Remove value if there is one.
-			if( mysudoku.gameBoard[cell] ){
-				mysudoku.gameBoard[cell] = '';
-			}
-		}else{
-			//Remove value if there is one.
-			if( mysudoku.solveBoard[cell] ){
-				mysudoku.solveBoard[cell] = '';
-			}
-		}
-
-	}else if( mysudoku.check(cell, value) === true ){
-		
-		if( gameClass === 'game-edit'){
-			mysudoku.gameBoard[cell] = value;
-		}else{
-			mysudoku.solveBoard[cell] = value;
-		}
-	}else{
-		//Show error
-		alert('That value is invalid. Try again.');
-	}
-	mysudoku.refreshDisplay();
-	return false;
-};
-
 
 
 // * -------------------------------------------
@@ -211,7 +163,7 @@ Sudoku.prototype.premadePuzzle = function (num) {
 		name = 'evil';
 	}
 	name += ' puzzle';
-	document.getElementById('current-puzzle').innerHTML = name;
+	//document.getElementById('current-puzzle').innerHTML = name;
 	refreshDisplay();
 };
 
@@ -803,6 +755,64 @@ var refreshDisplay = function(cellID){
 Sudoku.prototype.displayControls = function (divID){
 	// Create strings of the many fieldsets we have
 	// Place them in the divID provided
+	var elem = document.getElementById(divID);
+	elem.innerHTML = getControls();
+	// Call required event delegation
+	controlsDomEvents(divID);
+};
+
+var getControls = function(){
+
+	var puzzle = '<fieldset id="puzzle-controls"> <legend>New Puzzle</legend>';
+	puzzle += '<label>Premade:</label> <select id="premade-select"> <option value="1">Easy</option> <option value="2">Evil</option> </select>';
+	puzzle += '<input type="button" id="premade-btn" value="Populate">';
+	puzzle += '<hr>';
+	puzzle += '<label>Generation: (not done)</label>';
+	puzzle += '<input type="button" id="gen-recursive" Value="Recursive Generate">';
+	puzzle += '<input type="button" id="gen-toggle" Value="Toggle Gen">';
+	puzzle += '<input type="button" id="gen-step" Value="Step">';
+	puzzle += '</fieldset>';
+
+	var solving = '<fieldset id="solving-controls"> <legend>Editing</legend>';
+	solving += '<input type="button" value="Clear Solved Cells" ><br>';
+	solving += '<input type="button" value="Clear Board" >';
+	solving += '<hr>';
+	solving += '<select id="edit-mode"> <option value="solve" selected>solve mode</option> <option value="edit" >edit mode</option> </select>';
+	solving += '</fieldset>';
+
+	var groundzero =  '<fieldset> <legend>Ground Zero Algo</legend>';
+	groundzero += '<span id="ground-zero-status" class="status"> Algo <strong>not</strong> currently running... </span>';
+	groundzero += '<label>Dead Cells:</label><input id="dead-cells-chkbox" type="checkbox" checked>';
+	groundzero += '<label>Last Move Twins:</label><input id="last-move-twins-chkbox" type="checkbox" checked>';
+	groundzero += '<hr>';
+	groundzero += '<input id="gz-toggle" type="button" value="Start/Stop">';
+	groundzero += '<select id="interval"> <option value="1">1ms</option> <option value="100">100</option><option value="200">200</option><option value="500">500</option><option value="1000">1000</option></select>';
+	groundzero += '<input id="gz-step" type="button" value="Step">';
+	groundzero += '<hr>';
+	groundzero += '<input id="gz-recurse" type="button" value="Solve Puzzle">';
+	groundzero += '	</fieldset>';
+
+	var lastmove_ctrls = 
+	lastmove_ctrls += '<fieldset> <legend>Only Option Algo</legend>';
+	lastmove_ctrls += '<input type="button" onClick="mysudoku.fillSinglePossibles();" Value="Run">';
+	lastmove_ctrls += '<br>Great when starting.';
+	lastmove_ctrls += '</fieldset>';
+
+	var debug_ctrls = '<fieldset id="debug"> <legend>Status</legend>';
+	debug_ctrls += '<span id="current-puzzle" class="status"></span>';
+	debug_ctrls += '<input type="text" id="numofmoves" disabled><label for="numofmoves" class="small-label">Moves:</label>';
+	debug_ctrls += '<br>';
+	debug_ctrls += '<input type="text" id="numofpencils" disabled><label for="numofpencils" class="small-label">Penciled:</label>';
+	debug_ctrls += '<br>';
+	debug_ctrls += '<input type="text" id="txt-timer" disabled>';
+	debug_ctrls += '<label for="timer" class="small-label">Time (s):</label>';
+	debug_ctrls += '<br>';
+	debug_ctrls += '<input type="text" id="cell-counter" disabled>';
+	debug_ctrls += '<label for="timer" class="small-label">Cell Cnt:</label>';
+	debug_ctrls += '</fieldset>';
+
+	return puzzle+solving+groundzero+debug_ctrls;
+
 };
 
 var refreshControls = function(){
@@ -1527,6 +1537,17 @@ var randomizeArray = function( array ) {
 };
 
 
+
+
+
+
+
+
+
+
+
+/* -- __ -- __ -- __ -- __ -- __ -- __ */
+
 // Initialize & bring to the global scope
 init();
 
@@ -1536,69 +1557,126 @@ init();
  */
 
 
-// document.getElementById('ground-zero-toggle').onclick = function(){
-// 	mySudoku.startSolver();
-// };
-
-// document.getElementById('ground-zero-step').onclick = function(){
-// 	mySudoku.solver();
-// };
-
-// document.getElementById('ground-zero-recurse').onclick = function(){
-// 	mySudoku.groundZeroAlgo();
-// };
-
-// document.getElementById('generate-toggle').onclick = function(){
-// 	mySudoku.toggleGenerator();
-// };
-
-// document.getElementById('generate-step').onclick = function(){
-// 	mySudoku.generateController();
-// };
-
-var domEvents = function (divID) {
-
-	var elem = document.getElementById(divID);
-	elem.onclick = function(e) {
+var controlsDomEvents = function (wrapperID) {
+	
+	var elem = document.getElementById(wrapperID);
+	elem.onclick = function(e){
 		var t = getTarget(e);
-		alert(t.id + t.className);
+		var elemID = t.id;
+		console.log(elemID);
+		switch (elemID) {
+			
+			// Creation
+			case "gen-step":
+				break;
+			case "gen-toggle":
+				break;
+			
+
+			// Solving (gz = groundzero)
+			case "gz-step":
+				mySudoku.solveCellController();
+				break;
+			case "gz-run":
+				break;
+			case "gz-recurse":
+    			break;
+    	}
 	};
+
 };
 
-// var sodo = document.getElementById('game');
-// sodo.onclick = function(e) {
-// 	var t = getTarget(e);
-// 	var div = document.getElementById('game').className;
-// 	var small;
-// 	// Check small class
-// 	if( t.className !== 'small' ){
-// 		small = t.parentNode;
-// 	}
-// 	// Iterate down to our 'value' node
-// 	if(t.className === 'tiny'){
-// 		while (t.nextSibling) {
-// 			t = t.nextSibling;
-// 			if (t.nodeName === 'DIV' && t.className === 'value') {
-// 				break;
-// 			}
-// 		}
-// 	}
-// 	if (t.className === 'value' ){
-// 	var txt = '<input type="text" id="edit-txtbox" value="" class="edit-txt" onblur="commit();"> ';
-// 	// Not game board - go ahead
-// 	if (small.className !== 'small game-value') {
-// 		t.innerHTML = txt;
-// 		document.getElementById('edit-txtbox').focus();
-// 	}
-// 	// Game board piece
-// 	if( small.className === 'small game-value'){
-// 	if( div === 'game-edit'){
-// 		t.innerHTML = txt;
-// 		document.getElementById('edit-txtbox').focus();
-// 	}
-// 	}
-// 	}
-// 	};
+var domEvents = function (wrapperID) {
+
+
+	var elem = document.getElementById(wrapperID);
+	elem.onclick = function(e) {
+
+		var t = getTarget(e),
+			small = null,
+			wrapperClass = '';
+			
+		// Must be in the small if it's not a small
+		if( t.className !== 'small' ){
+			small = t.parentNode;
+		}
+
+		// Iterate down to our 'value' node
+		if(t.className === 'tiny'){
+			while (t.nextSibling) {
+				t = t.nextSibling;
+				if (t.nodeName === 'DIV' && t.className === 'value') {
+					break;
+				}
+			}
+		}
+		if (t.className === 'value' ){
+
+			var txt = '<input type="text" id="edit-txtbox" value="" class="edit-txt" > ';
+		
+			wrapperClass = document.getElementById(wrapperID).className;
+			
+			// Gameboard piece - Allow if it is in game-edit mode.
+			//alert(wrapperClass);
+			if ( wrapperClass === 'game-edit' || (small.className !== 'small game-value' && wrapperClass !== 'game-edit')) {
+				t.innerHTML = txt;
+				document.getElementById('edit-txtbox').focus();
+			}
+		}
+	};
+
+	// Onblur Event Delegation - ( Needs attention to allow for IE support )
+	elem.addEventListener('blur', commit, true);
+};
+
+/** Edit Delegation's Callback **/
+var commit = function(){
+	
+	// Grab what class the sudoku funct is.
+	var gameClass = document.getElementById(boardContainer).className;
+	
+	// Find the textbox and parent
+	var txtbox = document.getElementById('edit-txtbox');
+	var parent = txtbox.parentNode.parentNode;
+	parent.className = parent.className.replace(/\bhighlight\b/,'');
+	
+	// Grab the text value from the textbox - 
+	var value = txtbox.value;
+
+	// Decide where it goes
+	var cell = parent.id.substr(6);
+	
+	// No value - User's cancelling event
+	if(!value){
+
+		if( gameClass === 'game-edit'){
+			//Remove value if there is one.
+			if( gameBoard[cell] ){
+				gameBoard[cell] = '';
+			}
+		}else{
+			//Remove value if there is one.
+			if( solveBoard[cell] ){
+				solveBoard[cell] = '';
+			}
+		}
+
+	}else if( check(cell, value) === true ){
+		
+		if( gameClass === 'game-edit'){
+			gameBoard[cell] = value;
+		}else{
+			solveBoard[cell] = value;
+		}
+	}else{
+		//Show error
+		alert('That value is invalid. Try again.');
+		return false;
+	}
+	
+	refreshDisplay();
+	return true;
+};
 
 
 

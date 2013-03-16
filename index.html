@@ -3,86 +3,14 @@
 <head>
   	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<meta charset="utf-8">
-	<title>Sudocoo' foo'</title>
+	<title>Sudocool Fool</title>
 	<link rel="stylesheet" href="main.css" type="text/css" media="screen" title="no title" >
-
 </head>
 <body>
 	<div id="container">
 		
 		<div id="controls">
-			
-			<fieldset id="puzzle-controls">
-				<legend>New Puzzle</legend>
-				<label>Premade:</label>
-				<select id="premade-select">
-					<option value="1">Easy</option>
-					<option value="2">Evil</option>
-				</select>
-				<input type="button" id="premade-btn" value="Populate">				
-				<hr>
-				<label>Generation: (not done)</label>
-				<input type="button" onClick="mysudoku.recurseGenerate();" Value="Recursive Generate">				
-				<input type="button" id="generate-toggle" Value="Toggle Gen">				
-				<input type="button" id="generate-step" Value="Step">				
-			</fieldset>
 
-			<fieldset id="solving-controls">	
-				<legend>Editing</legend>
- 				<input type="button" value="Clear Solved Cells" onclick="mysudoku.clear();"><br>
- 				<input type="button" value="Clear Board" onclick="mysudoku.empty();">
- 				<hr>
-				<select id="edit-mode">
- 					<option value="solve" selected>solve mode</option>
-					<option value="edit" >edit mode</option>
-				</select>
-				
-			</fieldset>
-
-			<fieldset>
-				<legend>Ground Zero Algo</legend>
-				<span id="ground-zero-status" class="status">
-					Algo <strong>not</strong> currently running...
-				</span>
-				<label>Dead Cells:</label><input id="dead-cells-chkbox" type="checkbox" checked>
-				<label>Last Move Twins:</label><input id="last-move-twins-chkbox" type="checkbox" checked>
-				<hr>
-				<input id="ground-zero-toggle" type="button" value="Start/Stop">
-				<select id="interval">
-					<option value="1">1ms</option>
-					<option value="100">100</option>
-					<option value="200">200</option>
-					<option value="500">500</option>
-					<option value="1000">1000</option>
-				</select>
-				<input id="ground-zero-step" type="button" value="Step">
-				<hr>
-				<input id="ground-zero-recurse" type="button" value="Solve Puzzle">
-			</fieldset>
-
-			<fieldset>
-				<legend>Only Option Algo</legend>
-				<input type="button" onClick="mysudoku.fillSinglePossibles();" Value="Run">	
-				<br>Great when starting.
-			</fieldset>
-
-			<fieldset id="debug">
-				<legend>Status</legend>
-				<span id="current-puzzle" class="status"></span>
-				<input type="text" id="numofmoves" disabled>
-				<label for="numofmoves" class="small-label">Moves:</label>
-				<br>
-				<input type="text" id="numofpencils" disabled>
-				<label for="numofpencils" class="small-label">Penciled:</label>
-				<br>
-				<input type="text" id="txt-timer" disabled>
-				<label for="timer" class="small-label">Time (s):</label>
-				<br>
-				<input type="text" id="cell-counter" disabled>
-				<label for="timer" class="small-label">Cell Cnt:</label>
-				
-			</fieldset>
-			</form>
 		</div><!-- End of controls -->
 
 		<br style="clear:both;">
@@ -93,60 +21,64 @@
 		
 	</div>	
 
-		<script type="text/javascript" src="functions.js"></script>
+	<script type="text/javascript" src="functions.js"></script>
 	<script type="text/javascript" src="sudoku.js"></script>
 	<script type="text/javascript">
 		
 		// *************************** //
 		window.onload = function() {
 			
+			// Display the puzzle ( in wrapper div of choice )
 			mySudoku.displaySkelaton('game');
+
+			// Display controls disired - ( this allows for "admins" to toggle features )
+			mySudoku.displayControls('controls');
+
 			mySudoku.premadePuzzle(2); // Populate with a premade puzzle.
 			
-			
-			document.getElementById('premade-btn').onclick = function (){
-				//alert('me');
-				var val = document.getElementById('premade-select').value;
-				mySudoku.premadePuzzle(val);
-			};
+			// document.getElementById('premade-btn').onclick = function (){
+			// 	//alert('me');
+			// 	var val = document.getElementById('premade-select').value;
+			// 	mySudoku.premadePuzzle(val);
+			// };
 			
 			
 			/** Brute Force Algorithm Buttons **/
 			
 
-			var check = document.getElementById('dead-cells-chkbox');
-			check.onchange = function(e){
-				var t = getTarget(e);
+			// var check = document.getElementById('dead-cells-chkbox');
+			// check.onchange = function(e){
+			// 	var t = getTarget(e);
 
-				if( t.checked ){
-					mysudoku.addOn_deadCells = true;
-				}else{
-					mysudoku.addOn_deadCells = false;	
-				}
-			};
+			// 	if( t.checked ){
+			// 		mysudoku.addOn_deadCells = true;
+			// 	}else{
+			// 		mysudoku.addOn_deadCells = false;	
+			// 	}
+			// };
 
-			var check = document.getElementById('last-move-twins-chkbox');
-			check.onchange = function(e){
-				var t = getTarget(e);
+			// var check = document.getElementById('last-move-twins-chkbox');
+			// check.onchange = function(e){
+			// 	var t = getTarget(e);
 
-				if( t.checked ){
-					mysudoku.addOn_lastMoveTwins = true;
-				}else{
-					mysudoku.addOn_lastMoveTwins = false;	
-				}
-			};
+			// 	if( t.checked ){
+			// 		mysudoku.addOn_lastMoveTwins = true;
+			// 	}else{
+			// 		mysudoku.addOn_lastMoveTwins = false;	
+			// 	}
+			// };
 
-			/** Edit Mode Toggle **/
-			var edits = document.getElementById('edit-mode');
-			edits.onchange = function(e){
-				var t = getTarget(e);
-				if (t.value == 'edit') {
-					document.getElementById('game').className = 'game-edit';
-				}else{
-					//mysudoku.toggleEditMode(false);
-					document.getElementById('game').className = '';
-				}
-			};
+			// /** Edit Mode Toggle **/
+			// var edits = document.getElementById('edit-mode');
+			// edits.onchange = function(e){
+			// 	var t = getTarget(e);
+			// 	if (t.value == 'edit') {
+			// 		document.getElementById('game').className = 'game-edit';
+			// 	}else{
+			// 		//mysudoku.toggleEditMode(false);
+			// 		document.getElementById('game').className = '';
+			// 	}
+			// };
 
 		}; // end onload
 	</script>
