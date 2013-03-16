@@ -230,7 +230,7 @@ input[type="text"] {
 	margin-bottom:.3em;
 }
 
-#ground-zero-status, .status{
+#gz-status, .status{
 	1background-color:#fff;
 	color:#7afa12;
 	color:#fa3;
@@ -242,12 +242,12 @@ input[type="text"] {
 	text-shadow:0px -1px #000;
 	font-size:1.2em;
 }
-#ground-zero-status.active, .status.active{
+#gz-status.active, .status.active{
 	color:#0AFF99;
 }
-#ground-zero-status.active > strong{
+#gz-status.active > strong{
 	display:none;
 }
-#ground-zero-status.inactive, .status.inactive{
+#gz-status.inactive, .status.inactive{
 	color:#fa3;
 }

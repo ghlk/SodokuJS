@@ -21,6 +21,7 @@
 		possBoard = [],
 		solveBoard = [],
 		emptyBoard = [],
+		randomBoard = [],
 
 		// Dynamic Values
 		boardContainer = '',
@@ -40,6 +41,7 @@
 		moves = 0,
 		pencils = 0,
 		step = 1,
+		startTime = 0,
 
 		// Premade puzzles
 		easyBoard = ['', 9, 2, '', '', 1, '', 8, '', '', '', '', '', '', '', 1, 7, '', '', '', 7, '', 3, '', 4, 6, 2, '', '', '', 3, '', '', 9, 1, '', '', 9, 6, 5, '', 1, 7, 4, '', '', 4, 1, '', '', 9, '', '', '', 1, 3, 6, '', 4, '', 7, '', '', '', 5, 2, '', '', '', '', '', '', '', 8, '', 2, '', '', 6, 9, ''],
@@ -86,6 +88,7 @@
 		gameBoard = emptyBoard.slice(0);
 		possBoard = emptyBoard.slice(0);
 		solveBoard = emptyBoard.slice(0);
+		randomBoard = emptyBoard.slice(0);
 	};
 
 	/**
@@ -102,7 +105,26 @@
 		currentCell = null;
 	};
 
+	/**
+	 * empty()
+	 * Summary: Empties the board and refreshes the display.
+	 *
+	 **/
+	var empty = function () {
+		gameBoard = emptyBoard.slice(0);
+		solveBoard = emptyBoard.slice(0);
+		refreshDisplay();
+	};
 
+	/**
+	 * clearSolveBoard()
+	 * Summary: Empties the board and refreshes the display.
+	 *
+	 **/
+	var clear = function () {
+		solveBoard = emptyBoard.slice(0);
+		refreshDisplay();
+	};
 
 	// * -------------------------------------------
 	// * Puzzle Creation
@@ -366,22 +388,13 @@
 		
 		/** EMPTY CHECK **/
 		var empty = true;
-
-		// if( gameBoard[cell] || solveBoard[cell]){
-		// 	return false;
-		// }
-
-		if( cell === 0 ){ 
-			// console.log('cell_'+cell+' val_'+val);
-			// console.log(box);
-			// console.log(row);
-			// console.log(column);
-		 }
 		
 		/** If NO value passed, return array-of-booleans value-1 is placed in arr[0] **/
 		if(!val){
 			var arr = [ ];
 			for(var i=0; i<9; i++){
+
+				//arr[i] = !( !box[i] || !row[i] || !column[i] );
 				if( !box[i] || !row[i] || !column[i] ){
 					arr[i] = false;
 				}
@@ -555,7 +568,8 @@
 		var specialCells = [0,28,56,12,40,68,24,52,80],
 			affectedCells = [],
 			tempArr = [],
-			possibles = [];
+			possibles = [],
+			boxCells, rowCells, colCells;
 		var affectedCell, i, j, val;
 
 		for( i = 0; i < specialCells.length; i += 1){
@@ -597,225 +611,12 @@
 	};
 
 
-	// * -------------------------------------------
-	// * Displaying & HTML
-	// * -------------------------------------------
 
-
-	Sudoku.prototype.displaySkelaton = function (divID) {
-		boardContainer = divID;
-		var elem = document.getElementById(divID);
-		elem.innerHTML = getHTMLSkelaton();
-		// Call for DOM elements on this div
-		domEvents(divID);
-	};
-
-	Sudoku.prototype.displayControls = function (divID){
-		// Create strings of the many fieldsets we have
-		// Place them in the divID provided
-		var elem = document.getElementById(divID);
-		elem.innerHTML = getControls();
-		// Call required event delegation
-		controlsDomEvents(divID);
-	};
-
-	/**
-	 * getHTMLSkelaton()
-	 * Summary: Returns the HTML skelaton for the sudoku game.
-	 * @return 	str 	str 
-	 **/
-	var getHTMLSkelaton = function() {
-		var str, i, j;
-
-		// Sudoku container - Start
-		str = '<div id="sudoku">';
-		
-		for (i = 0; i < boardSize; i += 1){
-			
-			// Big/Box - Start
-			if (getSmall(i) === 0) { 
-				str += '<div id="big-' + getBig(i) + '" class="big">';
-			}
-			
-			// Small - Start
-			str += '<div id="small-'+i+'" class="small">';//#small - start
-
-			// Tiny - Entire matrix (Used to display possible moves)
-			for (j = 1; j <= 9; j += 1) {
-				str += '<div id="tiny-' + j + '" class="tiny">' + j + '</div>';	
-			}
-			
-			// Value - Container for both game values and entered/solved values.
-			str += '<div class="value"></div>';
-
-			// Small - End
-			str += '</div>';
-			
-			// Big/Box - End 
-			if(getSmall(i) == 8){
-				str += '</div>';
-			}
-		};
-
-		// Sudoku container - End
-		str += '</div>';
-
-		return str;
-	};
-
-	var getControls = function(){
-
-		var puzzle = '<fieldset id="puzzle-controls"> <legend>New Puzzle</legend>';
-		puzzle += '<label>Premade:</label> <select id="premade-select"> <option value="1">Easy</option> <option value="2">Evil</option> </select>';
-		puzzle += '<input type="button" id="premade-btn" value="Populate">';
-		puzzle += '<hr>';
-		puzzle += '<label>Generation: (not done)</label>';
-		puzzle += '<input type="button" id="gen-recursive" Value="Recursive Generate">';
-		puzzle += '<input type="button" id="gen-toggle" Value="Toggle Gen">';
-		puzzle += '<input type="button" id="gen-step" Value="Step">';
-		puzzle += '</fieldset>';
-
-		var solving = '<fieldset id="solving-controls"> <legend>Editing</legend>';
-		solving += '<input type="button" value="Clear Solved Cells" ><br>';
-		solving += '<input type="button" value="Clear Board" >';
-		solving += '<hr>';
-		solving += '<select id="edit-mode"> <option value="solve" selected>solve mode</option> <option value="edit" >edit mode</option> </select>';
-		solving += '</fieldset>';
-
-		var groundzero =  '<fieldset> <legend>Ground Zero Algo</legend>';
-		groundzero += '<span id="ground-zero-status" class="status"> Algo <strong>not</strong> currently running... </span>';
-		groundzero += '<label>Dead Cells:</label><input id="dead-cells-chkbox" type="checkbox" checked>';
-		groundzero += '<label>Last Move Twins:</label><input id="last-move-twins-chkbox" type="checkbox" checked>';
-		groundzero += '<hr>';
-		groundzero += '<input id="gz-toggle" type="button" value="Start/Stop">';
-		groundzero += '<select id="interval"> <option value="1">1ms</option> <option value="100">100</option><option value="200">200</option><option value="500">500</option><option value="1000">1000</option></select>';
-		groundzero += '<input id="gz-step" type="button" value="Step">';
-		groundzero += '<hr>';
-		groundzero += '<input id="gz-recurse" type="button" value="Solve Puzzle">';
-		groundzero += '	</fieldset>';
-
-		var lastmove_ctrls = 
-		lastmove_ctrls += '<fieldset> <legend>Only Option Algo</legend>';
-		lastmove_ctrls += '<input type="button" onClick="mysudoku.fillSinglePossibles();" Value="Run">';
-		lastmove_ctrls += '<br>Great when starting.';
-		lastmove_ctrls += '</fieldset>';
-
-		var debug_ctrls = '<fieldset id="debug"> <legend>Status</legend>';
-		debug_ctrls += '<span id="current-puzzle" class="status"></span>';
-		debug_ctrls += '<input type="text" id="numofmoves" disabled><label for="numofmoves" class="small-label">Moves:</label>';
-		debug_ctrls += '<br>';
-		debug_ctrls += '<input type="text" id="numofpencils" disabled><label for="numofpencils" class="small-label">Penciled:</label>';
-		debug_ctrls += '<br>';
-		debug_ctrls += '<input type="text" id="txt-timer" disabled>';
-		debug_ctrls += '<label for="timer" class="small-label">Time (s):</label>';
-		debug_ctrls += '<br>';
-		debug_ctrls += '<input type="text" id="cell-counter" disabled>';
-		debug_ctrls += '<label for="timer" class="small-label">Cell Cnt:</label>';
-		debug_ctrls += '</fieldset>';
-
-		return puzzle+solving+groundzero+debug_ctrls;
-
-	};
-
-	/**
-	 * refreshDisplay()
-	 * Summary: DOM walking refresh method. This replaced html string creation.
-	 * 
-	 * @param 	str 	divID 	Id of the div
-	 * @return 	void
-	 *
-	 **/
-	var refreshDisplay = function(cellID){
-		var i, cellID, temp, small, arr, j, tiny, tinyObj;
-
-		for (i = 0; i < 81; i += 1) {
-
-			cellID = 'small-'+i;
-			small = document.getElementById(cellID);
-
-			// Game_Board piece found --- Place value and class
-			if( gameBoard[i] ){
-				temp = small.getElementsByClassName("value")[0];
-				temp.innerHTML = gameBoard[i];
-				small.className = small.className.replace(/\bentered-value\b/,'');
-				small.className = "small game-value";
-
-			// Solved/entered value found --- Place value and class
-			}else if( solveBoard[i] ){
-				temp = small.getElementsByClassName("value")[0];
-				temp.innerHTML = solveBoard[i];
-				small.className = small.className.replace(/\game-value\b/,'');
-				small.className = "small entered-value";	
-			
-			// No value found - it's empty	
-			}else{
-				
-				// Remove the "entered-value" class
-				//small.className = small.className.replace(/\bentered-value\b/,'');
-				small.className = small.className.replace( /(?:^|\s)entered-value(?!\S)/g , '' );
-				small.className = small.className.replace( /(?:^|\s)game-value(?!\S)/g , '' );
-
-				// Get list of possible moves for cell
-				arr = getPossibles(i, 'bool');
-				
-				// Clear value - just in case
-				temp = small.getElementsByClassName("value")[0];
-				temp.innerHTML = '';
-
-				for(j=1;j<=9;j++){
-
-					tiny = 'tiny-'+j;
-					tinyObj = document.getElementById(cellID).getElementsByClassName('tiny')[j-1];
-					if( arr[j-1] !== true ){
-
-					}
-					if( arr[j-1] === true ){
-						//tinyObj.className = tinyObj.className.replace(/\bhidden\b/,'');
-						tinyObj.className = tinyObj.className.replace( /(?:^|\s)hidden(?!\S)/g , '' );
-
-					}else{
-						tinyObj.className = 'tiny hidden';	
-					}	
-				};
-			}
-
-		};
-	};
-
-	var refreshControls = function(){
-
-		document.getElementById('dead-cells-chkbox').checked = this.addOn_deadCells;
-		document.getElementById('last-move-twins-chkbox').checked = this.addOn_lastMoveTwins;
-		document.getElementById('numofmoves').value = 0;
-		document.getElementById('numofpencils').value = 0;
-		document.getElementById('txt-timer').value = 0;
-	};
 
 
 	// * -------------------------------------------
-	// * Manipulating Puzzle
+	// * Possible Moves
 	// * -------------------------------------------
-
-	/**
-	 * empty()
-	 * Summary: Empties the board and refreshes the display.
-	 *
-	 **/
-	var empty = function () {
-		gameBoard = emptyBoard.slice(0);
-		solveBoard = emptyBoard.slice(0);
-		refreshDisplay();
-	};
-
-	/**
-	 * clearSolveBoard()
-	 * Summary: Empties the board and refreshes the display.
-	 *
-	 **/
-	var clear = function () {
-		solveBoard = emptyBoard.slice(0);
-		refreshDisplay();
-	};
 
 	/**
 	 * getPossibles()
@@ -903,6 +704,13 @@
 	// * -------------------------------------------
 
 
+	// * -------------------------------------------
+	// * Ground Zero Algorithm
+	// * 	Numerical Cell Order
+	// * 	Always tries lowest possible value for cell
+	// * -------------------------------------------
+
+
 	/**
 	 * sudoku.solveCell(cell)
 	 * Summary: To solve a single cell only. 
@@ -916,7 +724,7 @@
 	 *	solver();
 	 *
 	 **/
-	Sudoku.prototype.solveCell = function(cell){
+	Sudoku.prototype.gzSolveCell = function(cell){
 		
 		var possVals, i;
 		moves += 1;
@@ -952,7 +760,6 @@
 				return true;
 			}
 		}
-
 	};
 
 	/**
@@ -974,67 +781,143 @@
 	 *	highlightCell(cell)
 	 *	solveCell(cell)
 	 */
-	Sudoku.prototype.solveCellController = function(){
+	Sudoku.prototype.gzStepper = function(){
 
 		var result, tempCell;
 
+		// Called for the first time
 		if (currentCell === null) {
 			currentCell = 0;
 			direction = 1;
 			startStopwatch();
 		}
 		
+		// Solved puzzle or out-of-bounds
 		if(currentCell > 80 || currentCell < 0){
 			stopTimer();
-			stopStopwatch();
+			refreshStopwatch();
 			refreshMovesStatus();
 			return false;
 		}
 		else{
 
+			// Unhighlight the cell you just came from
 			if( currentCell > 0 && currentCell < 81 ){
-				unHighlightCell(currentCell + (-1*direction));	
+				unHighlightCell(currentCell + ((-1) * direction));	
 			}
 
-
-			if( gameBoard[currentCell]){
-				while( gameBoard[currentCell] ){
+			// Can't edit gameBoard pieces, so continue on until we dont have one
+			if (gameBoard[currentCell]) {
+				while (gameBoard[currentCell]) {
 					currentCell += direction;
 				}
 			}
 			
-
-
-			result = this.solveCell(currentCell);
+			// Attempt to solve this cell - null=gameCell - true=solved - false=cant solve
+			result = this.gzSolveCell(currentCell);
 			
+			// Refresh display for the user - (must be done before highlighting)
 			refreshDisplay(currentCell);
-			
-			if (direction === 1) {
+			refreshMovesStatus();
+
+			if (direction) {
 				highlightCell(currentCell);
-				//unHighlightCell(currentCell-1);			
-		
 			} else {
 				lowlightCell(currentCell);
-				//unHighlightCell(currentCell+1);			
 			}
 
-			// x===null if the value is being skipped.
-			// x===true - successful in placing value, next cell please.
-			
+			//Placed value - Let's go forward
 			if(result === true){
 				direction = 1;
 			}
-			//x===false - We are backpedaling - clear current cell and lets go backwards.
+			//Problem - Clear the current cell and backpedal
 			else if(result === false){
 				solveBoard[currentCell] = '';
-				direction = -1;
+				direction = (-1);
 			}
+			
+			// Increment or decrement depending on direction
 			currentCell += direction;
+		}
+	};
+
+	/**
+	 * groundZeroAlgo
+	 * @param  {int} cell      
+	 * @param  {str} direction [description]
+	 * @param  {int} wall 
+	 * @param  {int} bwall     
+	 */
+	Sudoku.prototype.gzSolver = function(cell, direction) {
+
+		// Increment moves and refresh statuses
+		moves += 1;
+		refreshMovesStatus();
+		
+		// First Algo call - Set default values and start timer.
+		if(!cell && cell !== 0 && cell !== -1){
+			cell = -1;
+			direction = 1;
+			startStopwatch();
+			moves = 0;
+			pencils = 0;
+			solveBoard = emptyBoard.slice(0);
+		}
+
+		// Increment the cell by the direction (-1 or +1) we're going in 
+		cell += direction;
+
+		// Break Recursion - When solver goes "out-of-bounds"
+		if (cell < 0 || cell > (boardSize - 1)) {
+			refreshDisplay();
+			return true;
+		}
+
+		// Dead Cells on Board - Mistake made by cell behind most likely
+		if( addOn_deadCells && !checkDeadCells() && !solveBoard[cell]){
+			return this.gzSolver(cell, -1);
+		}
+
+		// Last Move Twins on Board - Mistake made by cell behind most likely
+		if( addOn_lastMoveTwins && !checkLastMoveTwins() && !solveBoard[cell]){
+			return this.gzSolver(cell, -1);
+		}
+		
+		// "Ground Zero" Algo - Increments through cells numerically
+		var possVals, i;
+		
+		// Current cell not part of gameBoard - Editing allowed
+		if (!gameBoard[cell]) {
+			
+			// Get numerical array of possible values for this current cell
+			possVals = getPossibles(cell, "val");
+
+			for (i = 0; i < possVals.length; i += 1){
+				
+				// Only try a value if it's larger than the current "solved" value.
+				if (possVals[i] > solveBoard[cell] || !solveBoard[cell]){
+				
+					solveBoard[cell] = possVals[i];
+					pencils += 1;	
+					return this.gzSolver( cell, 1);
+				}
+			}
+
+			// Failed to place a new value in cell
+			solveBoard[cell] = ''; // Clear cell as we backpedal
+			return this.gzSolver(cell, -1);
 
 		}
-		refreshMovesStatus();
-		//alert(currentCell);
+		//GameBoard Cell - Can't edit. Skip it. ( This is why we need to know the direction we're going in. )
+		else{
+			return this.gzSolver( cell, direction );
+		}
 	};
+
+
+	// * -------------------------------------------
+	// * Only Option Algorithm - (Fills cells with only 1 option left)
+	// * -------------------------------------------
 
 
 	/**
@@ -1070,81 +953,6 @@
 		return true;
 	};
 
-	/**
-	 * groundZeroAlgo
-	 * @param  {int} cell      
-	 * @param  {str} direction [description]
-	 * @param  {int} wall 
-	 * @param  {int} bwall     
-	 */
-	Sudoku.prototype.groundZeroAlgo = function(cell, direction) {
-
-		// Increment moves and refresh statuses
-		moves += 1;
-		refreshMovesStatus();
-		
-		// First Algo call - Set default values and start timer.
-		if(!cell && cell !== 0 && cell !== -1){
-			cell = -1;
-			direction = 1;
-			this.startStopwatch();
-			moves = 0;
-			pencils = 0;
-			solveBoard = emptyBoard.slice(0);
-		}
-
-		// Increment the cell by the direction (-1 or +1) we're going in 
-		cell += direction;
-
-		// Break Recursion - When solver goes "out-of-bounds"
-		if (cell < 0 || cell > (this.size - 1)) {
-			refreshDisplay();
-			return true;
-		}
-
-		// Dead Cells on Board - Mistake made by cell behind most likely
-		if( this.addOn_deadCells && !checkDeadCells() && !solveBoard[cell]){
-			return this.groundZeroAlgo(cell, -1);
-		}
-
-		// Last Move Twins on Board - Mistake made by cell behind most likely
-		if( this.addOn_lastMoveTwins && !checkLastMoveTwins() && !solveBoard[cell]){
-			return this.groundZeroAlgo(cell, -1);
-		}
-		
-		// "Ground Zero" Algo - Increments through cells numerically
-		var possVals, i;
-		
-		// Current cell not part of gameBoard - Editing allowed
-		if (!gameBoard[cell]) {
-			
-			// Get numerical array of possible values for this current cell
-			possVals = this.getPossibles(cell, "val");
-
-			for (i = 0; i < possVals.length; i += 1){
-				
-				// Only try a value if it's larger than the current "solved" value.
-				if (possVals[i] > solveBoard[cell] || !solveBoard[cell]){
-				
-					solveBoard[cell] = possVals[i];
-					pencils += 1;	
-					return this.groundZeroAlgo( cell, 1);
-				}
-			}
-
-			// Failed to place a new value in cell
-			solveBoard[cell] = ''; // Clear cell as we backpedal
-			return this.groundZeroAlgo(cell, -1);
-
-		}
-		//GameBoard Cell - Can't edit. Skip it. ( This is why we need to know the direction we're going in. )
-		else{
-			return this.groundZeroAlgo( cell, direction );
-		}
-	};
-
-
-
 
 
 	// * -------------------------------------------
@@ -1153,7 +961,6 @@
 
 
 	/** 
-	 * 
 	 * All methods return a numeric value representing the value they are "getting".
 	 *
 	 * BIG:
@@ -1322,103 +1129,67 @@
 		return getBoxCells(cell).concat(getColumnCells(cell), getRowCells(cell));
 	}
 
-	/***************
-	 * UI-Controls *
-	 ***************/
-
+	// * -------------------------------------------
+	// * User Interface 
+	// * -------------------------------------------
 
 	/**
 	 * startSolver()
 	 * Summary:
 	 **/
-	Sudoku.prototype.startSolver = function () {
-		
+	Sudoku.prototype.toggleGzStepper = function () {
 		
 		// Timer is already active - Toggle off
 		if( timer ){
+			
 			stopTimer();
 			refreshStopwatch();
-			document.getElementById('ground-zero-status').className = 'inactive';
-		}
-		// Start the interval
-		else{
+			document.getElementById('gz-status').className = 'inactive';
+		
+		}else{
+
 			timer = true;
 
-			(function(){
+			// Recursive async timer 
+			(function recursiveAsync(){
 
 				// Call our solver method ( shows progress of algorithms )
-				mySudoku.solver();
+				mySudoku.gzStepper();
 				if( timer === true ){
+					
 					//Update the interval value
 					interval = document.getElementById('interval').value || interval ;
-					//
-					setTimeout(arguments.callee, interval);
+					
+					// Recursive call
+					setTimeout(recursiveAsync, interval);
 				}
 				
 			})();
 
-
 			// This allows us to pause and continue the solver and have a continuous stopwatch
 			var oldTime = document.getElementById('txt-timer').value;
 			startTime = ( new Date().getTime() - oldTime );
-			document.getElementById('ground-zero-status').className = 'active';
-
+			document.getElementById('gz-status').className = 'active';
 		}
-		
 	};
 
-	Sudoku.prototype.toggleGenerator = function (){
-		
-		// Timer is active - deactivate it
-		if( this.timer ){
-			this.timer = window.clearInterval(this.timer);
-			var now = new Date().getTime();
-			document.getElementById('txt-timer').value = (now-this.startTime)/1000;
+	
+	Sudoku.prototype.toggleCreateStepper = function () {
 
-		}else{
-			// Start the interval
-			this.timer = self.setInterval(this.genStr, this.interval);
-			// Grab time from the 
-			var oldTime = document.getElementById('txt-timer').value;
-			this.startTime = ( new Date().getTime() - oldTime );
-		}
-		
 	};
 
-
-	/**
-	 * startStepSolver()
-	 * Summary: Sets step and interval for 'setInterval' and sets timer.
-	 *
-	 **/
-	Sudoku.prototype.startStepSolver = function () {
-		
-		this.step = parseInt(document.getElementById('stepValue').value);
-		this.interval  = document.getElementById('interval').value;
-		this.timer = self.setInterval(this.stepStr, this.interval);
-	};
 
 
 	var startStopwatch = function () {
-		this.startTime = new Date().getTime();
-	};
-
-	var stopStopwatch = function () {
-		var now = new Date().getTime();
-		var diff = now-this.startTime;
-		diff = Math.floor((diff/100))/10;
-		diff = diff/1000;
-		document.getElementById('txt-timer').value = diff;
+		startTime = new Date().getTime();
 	};
 
 	var refreshStopwatch = function () {
 		var now = new Date().getTime();
-		var diff = now-this.startTime;
+		var diff = now - startTime;
 		//diff = Math.floor((diff/100))/10;
 		diff = diff/1000;
 		document.getElementById('txt-timer').value = diff;
-		
-
 	}
 
 	/**
@@ -1428,8 +1199,102 @@
 	 **/
 	var stopTimer = function () {
 		timer = false;
-		document.getElementById('ground-zero-status').className = 'inactive';
+		document.getElementById('gz-status').className = 'inactive';
 	};
+
+
+	Sudoku.prototype.toggleDeadCellsAddOn = function (checkboxVal) {
+		//addOn_deadCells = checkboxVal;
+		addOn_deadCells = !addOn_deadCells;
+	};
+
+	Sudoku.prototype.toggleTwinsAddOn = function ( checkboxVal ){
+		addOn_lastMoveTwins = !addOn_lastMoveTwins;
+		//addOn_lastMoveTwins = checkboxVal;
+	};
+
+	// * -------------------------------------------
+	// * DOM Manipulation
+	// * -------------------------------------------
+
+	/**
+	 * refreshDisplay()
+	 * Summary: DOM walking refresh method. This replaced html string creation.
+	 * 
+	 * @param 	str 	divID 	Id of the div
+	 * @return 	void
+	 *
+	 **/
+	var refreshDisplay = function(cellID){
+		var i, cellID, temp, small, arr, j, tiny, tinyObj;
+
+		for (i = 0; i < 81; i += 1) {
+
+			cellID = 'small-'+i;
+			small = document.getElementById(cellID);
+
+			// Game_Board piece found --- Place value and class
+			if( gameBoard[i] ){
+				temp = small.getElementsByClassName("value")[0];
+				temp.innerHTML = gameBoard[i];
+				small.className = small.className.replace(/\bentered-value\b/,'');
+				small.className = "small game-value";
+
+			// Solved/entered value found --- Place value and class
+			}else if( solveBoard[i] ){
+				temp = small.getElementsByClassName("value")[0];
+				temp.innerHTML = solveBoard[i];
+				small.className = small.className.replace(/\game-value\b/,'');
+				small.className = "small entered-value";	
+			
+			// No value found - it's empty	
+			}else{
+				
+				// Remove the "entered-value" class
+				//small.className = small.className.replace(/\bentered-value\b/,'');
+				small.className = small.className.replace( /(?:^|\s)entered-value(?!\S)/g , '' );
+				small.className = small.className.replace( /(?:^|\s)game-value(?!\S)/g , '' );
+
+				// Get list of possible moves for cell
+				arr = getPossibles(i, 'bool');
+				
+				// Clear value - just in case
+				temp = small.getElementsByClassName("value")[0];
+				temp.innerHTML = '';
+
+				for(j=1;j<=9;j++){
+
+					tiny = 'tiny-'+j;
+					tinyObj = document.getElementById(cellID).getElementsByClassName('tiny')[j-1];
+					if( arr[j-1] !== true ){
+
+					}
+					if( arr[j-1] === true ){
+						//tinyObj.className = tinyObj.className.replace(/\bhidden\b/,'');
+						tinyObj.className = tinyObj.className.replace( /(?:^|\s)hidden(?!\S)/g , '' );
+
+					}else{
+						tinyObj.className = 'tiny hidden';	
+					}	
+				};
+			}
+
+		};
+	};
+
+	/**
+	 * [refreshControls description]
+	 * @return {[type]} [description]
+	 */
+	var refreshControls = function(){
+
+		document.getElementById('dead-cells-chkbox').checked = addOn_deadCells;
+		document.getElementById('last-move-twins-chkbox').checked = addOn_lastMoveTwins;
+		document.getElementById('numofmoves').value = 0;
+		document.getElementById('numofpencils').value = 0;
+		document.getElementById('txt-timer').value = 0;
+	};
+
 
 	/**
 	 * highlightCell()
@@ -1438,7 +1303,6 @@
 	var highlightCell = function (cell) {
 		var cellStr = "small-"+cell;	
 		document.getElementById(cellStr).className += " highlight";
-		//currentCell = cell;
 	};
 
 	/**
@@ -1448,7 +1312,6 @@
 	var lowlightCell = function (cell) {
 		var cellStr = "small-"+cell;	
 		document.getElementById(cellStr).className += " lowlight";
-		//currentCell = cell;
 	};
 
 	/**
@@ -1463,7 +1326,6 @@
 		document.getElementById(cellStr).className = document.getElementById(cellStr).className.replace(/\blowlight\b/,'');
 	};
 
-
 	/**
 	 * unhighlightCells() NOT USED
 	 **/
@@ -1474,7 +1336,6 @@
 		}
 	};
 
-
 	var refreshMovesStatus = function(){
 		// Increment 'move counter'
 		document.getElementById('numofmoves').value = moves;
@@ -1484,11 +1345,10 @@
 
 
 
-	Sudoku.prototype.toggleDeadCells = function(){
-		this.groundZero_checkDeadCells = !this.groundZero_checkDeadCells;
-	};
 
-
+	// * -------------------------------------------
+	// * Helpers
+	// * -------------------------------------------
 
 	var randomizeArray = function( array ) {
 
@@ -1502,24 +1362,142 @@
 
 	};
 
-
-
-
-
-
-
-
-
-
-
-	/* -- __ -- __ -- __ -- __ -- __ -- __ */
-
-
+	// * -------------------------------------------
+	// * Displaying & HTML/DOM
+	// * -------------------------------------------
 
 	/**
-	 * UI DOM EVENTS
+	 * [displaySkelaton description]
+	 * @param  {[type]} divID [description]
+	 * @return {[type]}       [description]
 	 */
+	Sudoku.prototype.displaySkelaton = function (divID) {
+		boardContainer = divID;
+		var elem = document.getElementById(divID);
+		elem.innerHTML = getHTMLSkelaton();
+		// Call for DOM elements on this div
+		domEvents(divID);
+	};
 
+	/**
+	 * [displayControls description]
+	 * @param  {[type]} divID [description]
+	 * @return {[type]}       [description]
+	 */
+	Sudoku.prototype.displayControls = function (divID){
+		// Create strings of the many fieldsets we have
+		// Place them in the divID provided
+		var elem = document.getElementById(divID);
+		elem.innerHTML = getControls();
+		// Call required event delegation
+		controlsDomEvents(divID);
+	};
+
+	/**
+	 * getHTMLSkelaton()
+	 * Summary: Returns the HTML skelaton for the sudoku game.
+	 * @return 	str 	str 
+	 **/
+	var getHTMLSkelaton = function() {
+		var str, i, j;
+
+		// Sudoku container - Start
+		str = '<div id="sudoku">';
+		
+		for (i = 0; i < boardSize; i += 1){
+			
+			// Big/Box - Start
+			if (getSmall(i) === 0) { 
+				str += '<div id="big-' + getBig(i) + '" class="big">';
+			}
+			
+			// Small - Start
+			str += '<div id="small-'+i+'" class="small">';//#small - start
+
+			// Tiny - Entire matrix (Used to display possible moves)
+			for (j = 1; j <= 9; j += 1) {
+				str += '<div id="tiny-' + j + '" class="tiny">' + j + '</div>';	
+			}
+			
+			// Value - Container for both game values and entered/solved values.
+			str += '<div class="value"></div>';
+
+			// Small - End
+			str += '</div>';
+			
+			// Big/Box - End 
+			if(getSmall(i) == 8){
+				str += '</div>';
+			}
+		};
+
+		// Sudoku container - End
+		str += '</div>';
+
+		return str;
+	};
+
+	/**
+	 * [getControls description]
+	 * @return {[type]} [description]
+	 */
+	var getControls = function(){
+
+		var puzzle = '<fieldset id="puzzle-controls"> <legend>New Puzzle</legend>';
+		puzzle += '<label>Premade:</label> <select id="premade-select"> <option value="1">Easy</option> <option value="2">Evil</option> </select>';
+		puzzle += '<input type="button" id="premade-btn" value="Populate">';
+		puzzle += '<hr>';
+		puzzle += '<label>Generation: (not done)</label>';
+		puzzle += '<input type="button" id="gen-recursive" Value="Recursive Generate">';
+		puzzle += '<input type="button" id="gen-toggle" Value="Toggle Gen">';
+		puzzle += '<input type="button" id="gen-step" Value="Step">';
+		puzzle += '</fieldset>';
+
+		var solving = '<fieldset id="solving-controls"> <legend>Editing</legend>';
+		solving += '<input type="button" value="Clear Solved Cells" ><br>';
+		solving += '<input type="button" value="Clear Board" >';
+		solving += '<hr>';
+		solving += '<select id="edit-mode"> <option value="solve" selected>solve mode</option> <option value="edit" >edit mode</option> </select>';
+		solving += '</fieldset>';
+
+		var groundzero =  '<fieldset> <legend>Ground Zero Algo</legend>';
+		groundzero += '<span id="gz-status" class="status"> Algo <strong>not</strong> currently running... </span>';
+		groundzero += '<label>Dead Cells:</label><input id="dead-cells-chkbox" type="checkbox" checked>';
+		groundzero += '<label>Last Move Twins:</label><input id="last-move-twins-chkbox" type="checkbox" checked>';
+		groundzero += '<hr>';
+		groundzero += '<input id="gz-toggle" type="button" value="Start/Stop">';
+		groundzero += '<select id="interval"> <option value="1">1ms</option> <option value="100">100</option><option value="200">200</option><option value="500">500</option><option value="1000">1000</option></select>';
+		groundzero += '<input id="gz-step" type="button" value="Step">';
+		groundzero += '<hr>';
+		groundzero += '<input id="gz-solver" type="button" value="Solve Puzzle">';
+		groundzero += '	</fieldset>';
+
+		var lastmove_ctrls = 
+		lastmove_ctrls += '<fieldset> <legend>Only Option Algo</legend>';
+		lastmove_ctrls += '<input type="button" Value="Run">';
+		lastmove_ctrls += '<br>Great when starting.';
+		lastmove_ctrls += '</fieldset>';
+
+		var debug_ctrls = '<fieldset id="debug"> <legend>Status</legend>';
+		debug_ctrls += '<span id="current-puzzle" class="status"></span>';
+		debug_ctrls += '<input type="text" id="numofmoves" disabled><label for="numofmoves" class="small-label">Moves:</label>';
+		debug_ctrls += '<br>';
+		debug_ctrls += '<input type="text" id="numofpencils" disabled><label for="numofpencils" class="small-label">Penciled:</label>';
+		debug_ctrls += '<br>';
+		debug_ctrls += '<input type="text" id="txt-timer" disabled>';
+		debug_ctrls += '<label for="timer" class="small-label">Time (s):</label>';
+		debug_ctrls += '<br>';
+		debug_ctrls += '<input type="text" id="cell-counter" disabled>';
+		debug_ctrls += '<label for="timer" class="small-label">Cell Cnt:</label>';
+		debug_ctrls += '</fieldset>';
+
+		return puzzle+solving+groundzero+debug_ctrls;
+	};
+
+
+	// * -------------------------------------------
+	// * DOM Events & Delegation
+	// * -------------------------------------------
 
 	var controlsDomEvents = function (wrapperID) {
 		
@@ -1539,11 +1517,21 @@
 
 				// Solving (gz = groundzero)
 				case "gz-step":
-					mySudoku.solveCellController();
+					mySudoku.gzStepper();
 					break;
-				case "gz-run":
+				case "gz-toggle":
+					mySudoku.toggleGzStepper();
 					break;
-				case "gz-recurse":
+				case "gz-solver":
+					mySudoku.gzSolver();
+	    			break;
+
+	    		// Add-on Toggles
+	    		case "dead-cells-chkbox":
+	    			mySudoku.toggleDeadCellsAddOn();
+	    			break;
+	    		case "last-move-twins-chkbox":
+	    			mySudoku.toggleTwinsAddOn();
 	    			break;
 	    	}
 		};
@@ -1591,7 +1579,10 @@
 		elem.addEventListener('blur', commit, true);
 	};
 
-	/** Edit Delegation's Callback **/
+	/**
+	 * commit()
+	 * @return {[type]} [description]
+	 */
 	var commit = function(){
 		
 		// Grab what class the sudoku funct is.
@@ -1643,11 +1634,9 @@
 
 
 
-
-
-
-	// Initialize & bring to the global scope
+	/***********************************************
+	* Initialize Library and bring to global scope *
+	************************************************/
 	init();
-
 
 })(window);
