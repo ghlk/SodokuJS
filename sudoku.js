@@ -1540,6 +1540,14 @@
 			console.log(elemID);
 			switch (elemID) {
 				
+
+				// Premade
+				case "premade-btn":
+					//Grab value from select
+					var val = document.getElementById('premade-select').value;
+					mySudoku.premadePuzzle(val);
+					break;
+
 				// Creation
 				case "gen-step":
 					break;
@@ -1567,7 +1575,6 @@
 	    			break;
 	    	}
 		};
-
 	};
 
 	var domEvents = function (wrapperID) {
