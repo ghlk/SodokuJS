@@ -3,257 +3,47 @@
 <head>
   	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<meta charset="utf-8">
-	<title>Sudocoo' foo'</title>
+	<title>Sudocool Fool</title>
 	<link rel="stylesheet" href="main.css" type="text/css" media="screen" title="no title" >
-	<script type="text/javascript" src="functions.js"></script>
-	<script type="text/javascript" src="sudoku.js"></script>
-	<script type="text/javascript">
-		
-		var mysudoku;
-
-		/** Edit Delegation's Callback **/
-		var commit = function(){
-			
-			// Grab what class the sudoku funct is.
-			var gameClass = document.getElementById('game').className;
-			
-			// Find the textbox and parent
-			var txtbox = document.getElementById('edit-txtbox');
-			var parent = txtbox.parentNode.parentNode;
-			parent.className = parent.className.replace(/\bhighlight\b/,'');
-			//parent.innerHTML=''; 
-			//alert(parent.id)/;
-			// Grab the text value from the textbox - 
-			var value = txtbox.value;
-
-			// Decide where it goes
-			var cell = parent.id.substr(6);
-			
-			// No value - User's cancelling event
-			if(!value){
-
-				if( gameClass === 'game-edit'){
-					//Remove value if there is one.
-					if( mysudoku.gameBoard[cell] ){
-						mysudoku.gameBoard[cell] = '';
-					}
-				}else{
-					//Remove value if there is one.
-					if( mysudoku.solveBoard[cell] ){
-						mysudoku.solveBoard[cell] = '';
-					}
-				}
-
-			}else if( mysudoku.check(cell, value) === true ){
-				
-				if( gameClass === 'game-edit'){
-					mysudoku.gameBoard[cell] = value;
-				}else{
-					mysudoku.solveBoard[cell] = value;
-				}
-			}else{
-				//Show error
-				alert('That value is invalid. Try again.');
-			}
-			mysudoku.refreshDisplay();
-			return false;
-		};
-			
-
-		// *************************** //
-		window.onload = function() {
-			
-			/** Create sudoku object **/
-			mysudoku = new Sudoku("mysudoku", 81, 'game');
-			
-			mysudoku.testPuzzle(); //Default to a test puzzle
-
-			
-			/** Edit Puzzle Delegation **/
-			var sodo = document.getElementById('game');
-			sodo.onclick = function(e) {
-				var t = getTarget(e);
-				var div = document.getElementById('game').className;
-				var small;
-
-				// Check small class
-				if( t.className !== 'small' ){
-					small = t.parentNode;
-				}
-
-				// Iterate down to our 'value' node
-				if(t.className === 'tiny'){
-
-					while (t.nextSibling) {
-    					t = t.nextSibling;
-    					if (t.nodeName === 'DIV' && t.className === 'value') {
-    						break;
-    					}
-    				}
-				}
-				if (t.className === 'value' ){
-
-					var txt = '<input type="text" id="edit-txtbox" value="" class="edit-txt" onblur="commit();"> ';
-					
-					// Not game board - go ahead
-					if (small.className !== 'small game-value') {
-						t.innerHTML = txt;
-						document.getElementById('edit-txtbox').focus();
-					}
-					// Game board piece
-					if( small.className === 'small game-value'){
-
-						if( div === 'game-edit'){
-							t.innerHTML = txt;
-							document.getElementById('edit-txtbox').focus();
-						}
-					}
-					
-				}	
-			};
-
-			
-			
-			/** Brute Force Algorithm Buttons **/
-			document.getElementById('ground-zero-toggle').onclick = function(){
-				mysudoku.startSolver();
-			};
-
-			document.getElementById('ground-zero-step').onclick = function(){
-				mysudoku.solver();
-			};
-
-			document.getElementById('ground-zero-recurse').onclick = function(){
-				mysudoku.groundZeroAlgo();
-			};
-
-			document.getElementById('generate-toggle').onclick = function(){
-				mysudoku.toggleGenerator();
-			};
-
-			document.getElementById('generate-step').onclick = function(){
-				mysudoku.generateController();
-			};
-
-			var check = document.getElementById('dead-cells-chkbox');
-			check.onchange = function(e){
-				var t = getTarget(e);
-
-				if( t.checked ){
-					mysudoku.addOn_deadCells = true;
-				}else{
-					mysudoku.addOn_deadCells = false;	
-				}
-			};
-
-			var check = document.getElementById('last-move-twins-chkbox');
-			check.onchange = function(e){
-				var t = getTarget(e);
-
-				if( t.checked ){
-					mysudoku.addOn_lastMoveTwins = true;
-				}else{
-					mysudoku.addOn_lastMoveTwins = false;	
-				}
-			};
-
-			/** Edit Mode Toggle **/
-			var edits = document.getElementById('edit-mode');
-			edits.onchange = function(e){
-				var t = getTarget(e);
-				if (t.value == 'edit') {
-					document.getElementById('game').className = 'game-edit';
-				}else{
-					//mysudoku.toggleEditMode(false);
-					document.getElementById('game').className = '';
-				}
-			};
-
-		}; // end onload
-	</script>
-
 </head>
 <body>
+
 	<div id="container">
-		
 		<div id="controls">
-			
-			<fieldset id="puzzle-controls">
-				<legend>New Puzzle</legend>
-				<label>Premade:</label>
-				<input type="button" onClick="mysudoku.testPuzzle(1);" Value="Easy">				
-				<input type="button" onClick="mysudoku.testPuzzle(2);" Value="Evil">				
-				<hr>
-				<label>Generation: (not done)</label>
-				<input type="button" onClick="mysudoku.generatePuzzle();" Value="Generate">				
-				<input type="button" onClick="mysudoku.recurseGenerate();" Value="Recursive Generate">				
-				<input type="button" id="generate-toggle" Value="Toggle Gen">				
-				<input type="button" id="generate-step" Value="Step">				
-			</fieldset>
-
-			<fieldset id="solving-controls">	
-				<legend>Editing</legend>
- 				<input type="button" value="Clear Solved Cells" onclick="mysudoku.clear();"><br>
- 				<input type="button" value="Clear Board" onclick="mysudoku.empty();">
- 				<hr>
-				<select id="edit-mode">
- 					<option value="solve" selected>solve mode</option>
-					<option value="edit" >edit mode</option>
-				</select>
-				
-			</fieldset>
-
-			<fieldset>
-				<legend>Ground Zero Algo</legend>
-				<span id="ground-zero-status" class="status">
-					Algo <strong>not</strong> currently running...
-				</span>
-				<label>Dead Cells:</label><input id="dead-cells-chkbox" type="checkbox" checked>
-				<label>Last Move Twins:</label><input id="last-move-twins-chkbox" type="checkbox" checked>
-				<hr>
-				<input id="ground-zero-toggle"  type="button" value="Start/Stop">
-				<select id="interval">
-					<option value="1">1ms</option>
-					<option value="100">100</option>
-					<option value="200">200</option>
-					<option value="500">500</option>
-					<option value="1000">1000</option>
-				</select>
-				<input id="ground-zero-step" type="button" value="Step">
-				<hr>
-				<input id="ground-zero-recurse" type="button" value="Solve Puzzle">
-			</fieldset>
-
-			<fieldset>
-				<legend>Only Option Algo</legend>
-				<input type="button" onClick="mysudoku.fillSinglePossibles();" Value="Run">	
-				<br>Great when starting.
-			</fieldset>
-
-			<fieldset id="debug">
-				<legend>Status</legend>
-				<input type="text" id="numofmoves" disabled>
-				<label for="numofmoves" class="small-label">Moves:</label>
-				<br>
-				<input type="text" id="numofpencils" disabled>
-				<label for="numofpencils" class="small-label">Penciled:</label>
-				<br>
-				<input type="text" id="txt-timer" disabled>
-				<label for="timer" class="small-label">Time (s):</label>
-				<br>
-				<input type="text" id="cell-counter" disabled>
-				<label for="timer" class="small-label">Cell Cnt:</label>
-				
-			</fieldset>
-			</form>
-		</div><!-- End of controls -->
-
-		<br style="clear:both;">
-		
-		<div id="game">
-			
 		</div>
-		
+		<br style="clear:both;">
+		<div id="game">
+		</div>		
 	</div>	
+
+	<script type="text/javascript" src="sudoku.js"></script>
+	<script type="text/javascript">
+
+		/**
+		 * getTarget()
+		 * Summary: Used to gather target from an event. Recently updated to support firefox.
+		 **/
+		var getTarget = function(e){
+			if(!e){ e = window.event || event; }
+			if(e){
+				field = e.srcElement || e.target;
+		    	return field;
+		  	}
+		  	return false;
+		};
+
+		window.onload = function() {
+			
+			// Display the puzzle ( in wrapper div of choice )
+			mySudoku.displaySkelaton('game');
+
+			// Display controls disired - ( this allows for "admins" to toggle features )
+			mySudoku.displayControls('controls');//, ['new', 'generate', 'solving', 'debug']);
+
+			mySudoku.premadePuzzle(0); // Populate with a premade puzzle.			
+
+		};//onload END
+
+	</script>
 </body>
 </html>
