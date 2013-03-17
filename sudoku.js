@@ -149,26 +149,15 @@
 	 **/
 	Sudoku.prototype.premadePuzzle = function (num) {
 
-
 		emptyAllBoards();
 		num = num || 1;
 		pencils = 0;
 		moves = 0;
-		var name = '';
 
-		var premadeString = premadeStrings[num];
-		var premadeArr = puzzleStringToArray(premadeString);
-		gameBoard = premadeArr.slice(0);
-		
-		// if( num === 1 ){
-		// 	gameBoard = easyBoard.slice(0);
-		// 	name = 'easy';
-		// }else if( num === 2 ){
-		// 	gameBoard = evilBoard.slice(0);
-		// 	name = 'evil';
-		// }
-		name = 'Puzzle # '+num;
-		document.getElementById('current-puzzle').innerHTML = name;
+		// Set the game board
+		gameBoard = puzzleStringToArray(premadeStrings[num]);
+
+		document.getElementById('current-puzzle').innerHTML = 'Puzzle #'+num;
 		refreshDisplay();
 	};
 
@@ -386,7 +375,6 @@
 				tempArr[i]='';
 			}
 		}
-		//gameBoard = tempArr;
 		return tempArr;
 	};
 
@@ -642,9 +630,6 @@
 	};
 
 
-
-
-
 	// * -------------------------------------------
 	// * Possible Moves
 	// * -------------------------------------------
@@ -730,17 +715,16 @@
 		}
 	}
 
+
 	// * -------------------------------------------
 	// * Solving
 	// * -------------------------------------------
-
 
 	// * -------------------------------------------
 	// * Ground Zero Algorithm
 	// * 	Numerical Cell Order
 	// * 	Always tries lowest possible value for cell
 	// * -------------------------------------------
-
 
 	/**
 	 * sudoku.solveCell(cell)
@@ -950,7 +934,6 @@
 	// * Only Option Algorithm - (Fills cells with only 1 option left)
 	// * -------------------------------------------
 
-
 	/**
 	 * filleSinglePossibles()
 	 * Summary:
@@ -989,8 +972,6 @@
 	// * -------------------------------------------
 	// * Get Position Methods
 	// * -------------------------------------------
-
-
 	/** 
 	 * All methods return a numeric value representing the value they are "getting".
 	 *
@@ -1054,7 +1035,7 @@
 	 * Summary:
 	 * @param 	int 	cell
 	 **/
-	var getSmallColumn = function (cell){
+	var getSmallColumn = function (cell) {
 		return ( cell % 9 ) % 3;
 	};
 
@@ -1063,7 +1044,7 @@
 	 * Summary: Returns the cell number of the beginning of the box that the cell lives.
 	 * @param 	int 	cell 	Numerical value of the cell in question.
 	 **/
-	var getBoxStart = function (cell){
+	var getBoxStart = function (cell) {
 		return getBig(cell) * 9;
 	};
 
@@ -1073,7 +1054,7 @@
 	 * @param 	int 	cell
 	 * @return 	int 	start 	Numerical value of cell at beginning of row.
 	 **/
-	var getRowStart = function (cell){
+	var getRowStart = function (cell) {
 		return (( Math.floor(getBig(cell) / 3) * 3) * 9) + ( getSmallRow(cell) * 3 );
 	};
 
@@ -1083,7 +1064,7 @@
 	 * @param 	int 	cell
 	 * @return 	int 	cell 	The numerical value of the cell that is at the beginning of the column that the cell param belongs to.
 	 **/
-	var getColumnStart = function (cell){
+	var getColumnStart = function (cell) {
 		return ( getBig(cell) % 3) * 9 + ( getSmallColumn(cell) );
 	};
 
@@ -1140,7 +1121,7 @@
 	 * @param  {[type]} cell [description]
 	 * @return {[type]}      [description]
 	 */
-	var getBoxCells = function (cell){
+	var getBoxCells = function (cell) {
 		var start = getBoxStart(cell);
 		var end = start + 9;
 		var arr = [];
@@ -1156,7 +1137,7 @@
 	 * @param  {[type]} cell [description]
 	 * @return {[type]}      [description]
 	 */
-	var getAffectedCells = function (cell){
+	var getAffectedCells = function (cell) {
 		return getBoxCells(cell).concat(getColumnCells(cell), getRowCells(cell));
 	}
 
@@ -1239,7 +1220,7 @@
 		addOn_deadCells = !addOn_deadCells;
 	};
 
-	Sudoku.prototype.toggleTwinsAddOn = function ( checkboxVal ){
+	Sudoku.prototype.toggleTwinsAddOn = function (checkboxVal) {
 		addOn_lastMoveTwins = !addOn_lastMoveTwins;
 		//addOn_lastMoveTwins = checkboxVal;
 	};
@@ -1256,7 +1237,7 @@
 	 * @return 	void
 	 *
 	 **/
-	var refreshDisplay = function(cellID){
+	var refreshDisplay = function(cellID) {
 		var i, cellID, temp, small, arr, j, tiny, tinyObj;
 
 		for (i = 0; i < 81; i += 1) {
@@ -1317,7 +1298,7 @@
 	 * [refreshControls description]
 	 * @return {[type]} [description]
 	 */
-	var refreshControls = function(){
+	var refreshControls = function() {
 
 		document.getElementById('dead-cells-chkbox').checked = addOn_deadCells;
 		document.getElementById('last-move-twins-chkbox').checked = addOn_lastMoveTwins;
@@ -1351,7 +1332,7 @@
 	 * @param 	int 	cell 	Numerical position of the cell to highlight.
 	 *
 	 **/
-	var unHighlightCell = function (cell){
+	var unHighlightCell = function (cell) {
 		var cellStr = "small-"+cell;
 		document.getElementById(cellStr).className = document.getElementById(cellStr).className.replace(/\bhighlight\b/,'');
 		document.getElementById(cellStr).className = document.getElementById(cellStr).className.replace(/\blowlight\b/,'');
@@ -1360,14 +1341,14 @@
 	/**
 	 * unhighlightCells() NOT USED
 	 **/
-	var unhighlightCells = function(){
+	var unhighlightCells = function() {
 		var i;
 		for(i=0;i<81;i+=1){
 			unHighlightCell(i);
 		}
 	};
 
-	var refreshMovesStatus = function(){
+	var refreshMovesStatus = function() {
 		// Increment 'move counter'
 		document.getElementById('numofmoves').value = moves;
 		document.getElementById('numofpencils').value = pencils;
@@ -1415,7 +1396,7 @@
 	 * @param  {[type]} divID [description]
 	 * @return {[type]}       [description]
 	 */
-	Sudoku.prototype.displayControls = function (divID){
+	Sudoku.prototype.displayControls = function (divID) {
 		// Create strings of the many fieldsets we have
 		// Place them in the divID provided
 		var elem = document.getElementById(divID);
@@ -1472,7 +1453,7 @@
 	 * [getControls description]
 	 * @return {[type]} [description]
 	 */
-	var getControls = function(){
+	var getControls = function() {
 
 		var puzzle = '<fieldset id="puzzle-controls"> <legend>New Puzzle</legend>';
 		puzzle += '<label>Premade:</label> <select id="premade-select"> ';
@@ -1622,7 +1603,7 @@
 	 * commit()
 	 * @return {[type]} [description]
 	 */
-	var commit = function(){
+	var commit = function() {
 		
 		// Grab what class the sudoku funct is.
 		var gameClass = document.getElementById(boardContainer).className;
