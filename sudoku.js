@@ -44,6 +44,20 @@
 		startTime = 0,
 
 		// Premade puzzles
+		premadeStrings = [
+			'4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......',
+			'52...6.........7.13...........4..8..6......5...........418.........3..2...87.....',
+			'6.....8.3.4.7.................5.4.7.3..2.....1.6.......2.....5.....8.6......1....',
+			'48.3............71.2.......7.5....6....2..8.............1.76...3.....4......5....',
+			'....14....3....2...7..........9...3.6.1.............8.2.....1.4....5.6.....7.8...',
+			'......52..8.4......3...9...5.1...6..2..7........3.....6...1..........7.4.......3.',
+			'6.2.5.........3.4..........43...8....1....2........7..5..27...........81...6.....',
+			'.524.........7.1..............8.2...3.....6...9.5.....1.6.3...........897........',
+			'6.2.5.........4.3..........43...8....1....2........7..5..27...........81...6.....',
+			'.923.........8.1...........1.7.4...........658.........6.5.2...4.....7.....9.....',
+			'6..3.2....5.....1..........7.26............543.........8.15........4.2........7..',
+			'.6.5.1.9.1...9..539....7....4.8...7.......5.8.817.5.3.....5.2............76..8...'
+		],
 		easyBoard = ['', 9, 2, '', '', 1, '', 8, '', '', '', '', '', '', '', 1, 7, '', '', '', 7, '', 3, '', 4, 6, 2, '', '', '', 3, '', '', 9, 1, '', '', 9, 6, 5, '', 1, 7, 4, '', '', 4, 1, '', '', 9, '', '', '', 1, 3, 6, '', 4, '', 7, '', '', '', 5, 2, '', '', '', '', '', '', '', 8, '', 2, '', '', 6, 9, ''],
 		evilBoard = [5, '', 9, '', '', 6, '', 7, 8, 4, '', '', 2, '', '', '', '', 9, 7, '', '', '', '', '', '', '', 1, '', 6, '', '', '', 4, '', '', '', 9, '', '', '', '', '', '', '', 4, '', '', '', 9, '', '', '', 6, '', 1, '', '', '', '', '', '', '', 5, 6, '', '', '', '', 1, '', '', 8, 2, 5, '', 3, '', '', 1, '', 9]
 	;
@@ -135,21 +149,26 @@
 	 **/
 	Sudoku.prototype.premadePuzzle = function (num) {
 
+
 		emptyAllBoards();
 		num = num || 1;
 		pencils = 0;
 		moves = 0;
 		var name = '';
 
-		if( num === 1 ){
-			gameBoard = easyBoard.slice(0);
-			name = 'easy';
-		}else if( num === 2 ){
-			gameBoard = evilBoard.slice(0);
-			name = 'evil';
-		}
-		name += ' puzzle';
-		//document.getElementById('current-puzzle').innerHTML = name;
+		var premadeString = premadeStrings[num];
+		var premadeArr = puzzleStringToArray(premadeString);
+		gameBoard = premadeArr.slice(0);
+		
+		// if( num === 1 ){
+		// 	gameBoard = easyBoard.slice(0);
+		// 	name = 'easy';
+		// }else if( num === 2 ){
+		// 	gameBoard = evilBoard.slice(0);
+		// 	name = 'evil';
+		// }
+		name = 'Puzzle # '+num;
+		document.getElementById('current-puzzle').innerHTML = name;
 		refreshDisplay();
 	};
 
@@ -357,7 +376,19 @@
 		refreshMovesStatus();
 	};
 
+	var puzzleStringToArray = function (puzzleString) {
 
+		//var puzzleString = premadeStrings[num];
+		var tempArr = puzzleString.split('');
+		var i;
+		for(i=0;i<tempArr.length;i++){
+			if( tempArr[i] === '.' ){
+				tempArr[i]='';
+			}
+		}
+		//gameBoard = tempArr;
+		return tempArr;
+	};
 
 
 	// * -------------------------------------------
@@ -1444,7 +1475,8 @@
 	var getControls = function(){
 
 		var puzzle = '<fieldset id="puzzle-controls"> <legend>New Puzzle</legend>';
-		puzzle += '<label>Premade:</label> <select id="premade-select"> <option value="1">Easy</option> <option value="2">Evil</option> </select>';
+		puzzle += '<label>Premade:</label> <select id="premade-select"> ';
+		puzzle += '<option value="0">0</option> <option value="1">1</option> <option value="2">2</option> <option value="3">3</option> <option value="4">4</option> </select>';
 		puzzle += '<input type="button" id="premade-btn" value="Populate">';
 		puzzle += '<hr>';
 		puzzle += '<label>Generation: (not done)</label>';
